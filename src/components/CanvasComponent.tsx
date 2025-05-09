@@ -146,7 +146,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
                 properties.shadow === "md" ? "0 4px 6px -1px rgba(0, 0, 0, 0.1)" : undefined,
     } as React.CSSProperties;
 
-    // Apply sketchy styling if sketchy mode is enabled
+    // Apply sketchy styling if sketchy mode is enabled, but only to the container, not the content
     if (state.sketchyMode) {
       return {
         ...baseStyle,
@@ -154,7 +154,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
         borderWidth: `${properties.borderWidth || 1}px`,
         borderColor: properties.borderColor || "#d1d5db",
         borderRadius: `${properties.borderRadius || 4}px`,
-        filter: 'url(#sketchy-filter)',
+        filter: 'url(#sketchy-lines-only)',
         // Add a very slight rotation for a more hand-drawn feel
         transform: `rotate(${Math.random() * 0.5 - 0.25}deg)`,
       };

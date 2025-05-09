@@ -124,10 +124,21 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
       {/* SVG Filters for sketchy effect */}
       <svg width="0" height="0" className="absolute">
         <defs>
-          <filter id="sketchy-filter">
-            {/* Add some turbulence to create a hand-drawn effect */}
+          {/* Modified filter that only affects border/stroke elements but not text */}
+          <filter id="sketchy-lines-only">
+            {/* Create subtle displacement for a sketchy effect */}
             <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" result="noise" />
             <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G" />
+            {/* Apply the effect only to the borders, not to text */}
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="1" intercept="0" />
+            </feComponentTransfer>
+          </filter>
+          
+          {/* A separate filter for the frame outline */}
+          <filter id="sketchy-filter">
+            <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
           </filter>
         </defs>
       </svg>
