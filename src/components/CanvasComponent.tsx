@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { useWhiteboard, CanvasComponent as ComponentType } from "@/context/WhiteboardContext";
 
@@ -137,9 +136,9 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
     const { properties } = component;
     
     return {
-      backgroundColor: properties.backgroundColor || "#ffffff",
-      borderColor: properties.borderColor || "#d1d5db",
-      borderWidth: `${properties.borderWidth || 1}px`,
+      backgroundColor: properties.backgroundColor || "transparent",
+      borderColor: properties.borderColor || "transparent",
+      borderWidth: `${properties.borderWidth || 0}px`,
       borderRadius: `${properties.borderRadius || 4}px`,
       color: properties.textColor || "#000000",
       textAlign: properties.textAlign || "left",

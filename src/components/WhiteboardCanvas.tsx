@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import CanvasComponent from "@/components/CanvasComponent";
@@ -267,9 +266,9 @@ function getDefaultContentForComponent(type: string): string {
 
 function getDefaultPropertiesForComponent(type: string): Record<string, any> {
   const baseProperties = {
-    backgroundColor: "#ffffff",
-    borderColor: "#d1d5db",
-    borderWidth: 1,
+    backgroundColor: "transparent",
+    borderColor: "transparent",
+    borderWidth: 0,
     borderRadius: 4,
     textColor: "#000000",
     textAlign: "left",
@@ -280,10 +279,8 @@ function getDefaultPropertiesForComponent(type: string): Record<string, any> {
     case "button":
       return {
         ...baseProperties,
-        backgroundColor: "#e5e7eb",
         textAlign: "center",
         padding: "8px 16px",
-        borderRadius: 4,
       };
     case "input":
       return {
@@ -313,7 +310,6 @@ function getDefaultPropertiesForComponent(type: string): Record<string, any> {
       return {
         ...baseProperties,
         padding: 16,
-        shadow: "sm",
       };
     default:
       return baseProperties;
