@@ -1,7 +1,7 @@
 
 import React from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
-import { Laptop, Smartphone } from "lucide-react";
+import { Laptop, Smartphone, Square, Plus } from "lucide-react";
 
 interface FrameSize {
   name: string;
@@ -18,43 +18,56 @@ const frameSizes: FrameSize[] = [
 const FrameSizeControls: React.FC = () => {
   const { dispatch, state } = useWhiteboard();
   
-  const handleFrameSizeChange = (width: number, height: number) => {
+  const handleAddFrame = (width: number, height: number, name: string) => {
     dispatch({ 
-      type: "SET_FRAME_SIZE", 
-      width, 
-      height 
+      type: "ADD_FRAME", 
+      frame: { 
+        width, 
+        height,
+        name,
+        x: 20,
+        y: 20 + (state.frames.length * 40), // Stack frames with some offset
+      }
     });
+  };
+
+  const handleAddCustomFrame = () => {
+    handleAddFrame(800, 600, `Frame ${state.frames.length + 1}`);
   };
   
   return (
     <div className="flex flex-col gap-2 p-2">
-      <h3 className="text-sm font-medium mb-1">Frame Size</h3>
+      <div className="flex justify-between items-center mb-1">
+        <h3 className="text-sm font-medium">Frames</h3>
+        <button
+          onClick={handleAddCustomFrame}
+          className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+          title="Add new frame"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
+      </div>
+      
       <div className="flex gap-2">
         {frameSizes.map((size) => (
           <button
             key={size.name}
-            className={`flex items-center gap-1 px-2 py-1 text-xs rounded-md transition-colors ${
-              state.frameSize?.width === size.width && state.frameSize?.height === size.height
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary hover:bg-accent"
-            }`}
-            onClick={() => handleFrameSizeChange(size.width, size.height)}
+            className="flex items-center gap-1 px-2 py-1 text-xs rounded-md transition-colors bg-secondary hover:bg-accent"
+            onClick={() => handleAddFrame(size.width, size.height, size.name)}
             title={`${size.name} (${size.width}x${size.height})`}
           >
             {size.icon}
             <span>{size.name}</span>
           </button>
         ))}
-        <button
-          className={`flex items-center gap-1 px-2 py-1 text-xs rounded-md transition-colors ${
-            !state.frameSize ? "bg-primary text-primary-foreground" : "bg-secondary hover:bg-accent"
-          }`}
-          onClick={() => handleFrameSizeChange(0, 0)}
-          title="Infinite canvas"
-        >
-          <span>∞</span>
-          <span>Canvas</span>
-        </button>
+      </div>
+      
+      <div className="mt-2">
+        {state.frames.length > 0 && (
+          <div className="text-xs text-muted-foreground mb-1">
+            {state.frames.length} frame{state.frames.length !== 1 ? 's' : ''} on canvas
+          </div>
+        )}
       </div>
     </div>
   );

@@ -32,8 +32,12 @@ export interface CanvasComponent {
 
 // Frame size for viewport constraints
 export interface FrameSize {
+  id: string;
   width: number;
   height: number;
+  name: string;
+  x: number;
+  y: number;
 }
 
 // State type
@@ -43,7 +47,8 @@ interface WhiteboardState {
   isResizing: boolean;
   gridSize: number;
   snapToGrid: boolean;
-  frameSize: FrameSize | null;
+  frames: FrameSize[];
+  activeFrameId: string | null;
 }
 
 // Actions
@@ -58,7 +63,10 @@ type WhiteboardAction =
   | { type: "UPDATE_CONTENT"; id: string; content: string }
   | { type: "TOGGLE_GRID_SNAP"; enabled: boolean }
   | { type: "SET_GRID_SIZE"; size: number }
-  | { type: "SET_FRAME_SIZE"; width: number; height: number };
+  | { type: "ADD_FRAME"; frame: Omit<FrameSize, "id"> }
+  | { type: "UPDATE_FRAME"; id: string; updates: Partial<Omit<FrameSize, "id">> }
+  | { type: "DELETE_FRAME"; id: string }
+  | { type: "SET_ACTIVE_FRAME"; id: string | null };
 
 // Initial state
 const initialState: WhiteboardState = {
@@ -67,7 +75,8 @@ const initialState: WhiteboardState = {
   isResizing: false,
   gridSize: 20,
   snapToGrid: false,
-  frameSize: null,
+  frames: [],
+  activeFrameId: null,
 };
 
 // Helper function for snapping to grid
@@ -178,12 +187,38 @@ const whiteboardReducer = (state: WhiteboardState, action: WhiteboardAction): Wh
         ...state,
         gridSize: action.size,
       };
-    case "SET_FRAME_SIZE":
+    case "ADD_FRAME":
+      const newFrameId = uuidv4();
       return {
         ...state,
-        frameSize: action.width === 0 && action.height === 0 
-          ? null 
-          : { width: action.width, height: action.height },
+        frames: [
+          ...state.frames,
+          {
+            ...action.frame,
+            id: newFrameId,
+          },
+        ],
+        activeFrameId: state.frames.length === 0 ? newFrameId : state.activeFrameId,
+      };
+    case "UPDATE_FRAME":
+      return {
+        ...state,
+        frames: state.frames.map((frame) =>
+          frame.id === action.id
+            ? { ...frame, ...action.updates }
+            : frame
+        ),
+      };
+    case "DELETE_FRAME":
+      return {
+        ...state,
+        frames: state.frames.filter((frame) => frame.id !== action.id),
+        activeFrameId: state.activeFrameId === action.id ? null : state.activeFrameId,
+      };
+    case "SET_ACTIVE_FRAME":
+      return {
+        ...state,
+        activeFrameId: action.id,
       };
     default:
       return state;

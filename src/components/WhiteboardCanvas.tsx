@@ -37,17 +37,20 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
 
   // Center the frame when frame size changes
   useEffect(() => {
-    if (state.frameSize && canvasRef.current) {
+    if (state.frames.length > 0 && canvasRef.current) {
       const containerWidth = canvasRef.current.parentElement?.clientWidth || 0;
       const containerHeight = canvasRef.current.parentElement?.clientHeight || 0;
       
-      // Center the frame in the viewport
-      const newOffsetX = (containerWidth / 2) - (state.frameSize.width / 2);
-      const newOffsetY = (containerHeight / 2) - (state.frameSize.height / 2);
-      
-      setOffset({ x: newOffsetX, y: newOffsetY });
+      // Center the first frame in the viewport if no offset has been set
+      if (offset.x === 0 && offset.y === 0) {
+        const firstFrame = state.frames[0];
+        const newOffsetX = (containerWidth / 2) - (firstFrame.width / 2);
+        const newOffsetY = (containerHeight / 2) - (firstFrame.height / 2);
+        
+        setOffset({ x: newOffsetX, y: newOffsetY });
+      }
     }
-  }, [state.frameSize]);
+  }, [state.frames]);
 
   // Handle clicks on empty canvas areas
   const handleCanvasClick = (e: React.MouseEvent) => {
@@ -113,6 +116,10 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     onSelectComponent(id);
   };
 
+  const handleFrameClick = (id: string) => {
+    dispatch({ type: "SET_ACTIVE_FRAME", id });
+  };
+
   return (
     <div 
       className="relative w-full h-full overflow-hidden bg-canvas-background cursor-default"
@@ -129,23 +136,6 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         }}
       />
       
-      {/* Frame if selected */}
-      {state.frameSize && (
-        <div 
-          className="absolute border-2 border-blue-400 bg-white/5 pointer-events-none z-10 shadow-md"
-          style={{
-            width: state.frameSize.width,
-            height: state.frameSize.height,
-            left: offset.x,
-            top: offset.y,
-          }}
-        >
-          <div className="absolute top-0 left-0 bg-blue-400 text-white text-xs px-2 py-0.5 rounded-br">
-            {state.frameSize.width} × {state.frameSize.height}
-          </div>
-        </div>
-      )}
-      
       {/* Canvas content */}
       <div 
         ref={canvasRef}
@@ -158,6 +148,26 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         onDrop={handleDrop}
         onDragOver={handleDragOver}
       >
+        {/* Render frames */}
+        {state.frames.map((frame) => (
+          <div 
+            key={frame.id}
+            className={`absolute border-2 ${frame.id === state.activeFrameId ? 'border-blue-400' : 'border-gray-300'} bg-white/5 z-10 shadow-md`}
+            style={{
+              width: frame.width,
+              height: frame.height,
+              left: frame.x,
+              top: frame.y,
+              cursor: 'pointer',
+            }}
+            onClick={() => handleFrameClick(frame.id)}
+          >
+            <div className={`absolute top-0 left-0 ${frame.id === state.activeFrameId ? 'bg-blue-400' : 'bg-gray-300'} text-white text-xs px-2 py-0.5 rounded-br`}>
+              {frame.name} - {frame.width} × {frame.height}
+            </div>
+          </div>
+        ))}
+
         {/* Render components */}
         {state.components.map((component) => (
           <CanvasComponent
