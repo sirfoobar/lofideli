@@ -4,6 +4,7 @@ import { useWhiteboard } from "@/context/WhiteboardContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button";
 
 interface PropertyPanelProps {
   selectedComponentId: string | null;
@@ -44,6 +45,14 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
       type: "DELETE_COMPONENT",
       id: selectedComponentId!,
     });
+  };
+
+  // Function to toggle transparency
+  const toggleTransparentBackground = () => {
+    const currentBg = selectedComponent.properties.backgroundColor;
+    // If already transparent, set to white, otherwise make transparent
+    const newBg = currentBg === 'transparent' ? '#ffffff' : 'transparent';
+    handlePropertyChange("backgroundColor", newBg);
   };
 
   return (
@@ -133,24 +142,37 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
 
         {/* Style */}
         <div className="space-y-1">
-          <Label className="text-xs">Background Color</Label>
+          <Label className="text-xs">Background</Label>
           <div className="flex gap-2">
+            {/* Color picker for background */}
             <Input
               type="color"
-              value={selectedComponent.properties.backgroundColor || "#ffffff"}
+              value={selectedComponent.properties.backgroundColor === 'transparent' ? '#ffffff' : selectedComponent.properties.backgroundColor || '#ffffff'}
               onChange={(e) =>
                 handlePropertyChange("backgroundColor", e.target.value)
               }
               className="w-10 h-8 p-0"
+              disabled={selectedComponent.properties.backgroundColor === 'transparent'}
             />
+            {/* Text input for color code */}
             <Input
               type="text"
-              value={selectedComponent.properties.backgroundColor || "#ffffff"}
+              value={selectedComponent.properties.backgroundColor || '#ffffff'}
               onChange={(e) =>
                 handlePropertyChange("backgroundColor", e.target.value)
               }
               className="flex-1 h-8"
+              disabled={selectedComponent.properties.backgroundColor === 'transparent'}
             />
+            {/* Transparent toggle button */}
+            <Button
+              onClick={toggleTransparentBackground}
+              variant={selectedComponent.properties.backgroundColor === 'transparent' ? 'default' : 'outline'}
+              className="h-8 px-2 text-xs"
+              title="Toggle transparent background"
+            >
+              {selectedComponent.properties.backgroundColor === 'transparent' ? 'Solid' : 'Clear'}
+            </Button>
           </div>
         </div>
 
