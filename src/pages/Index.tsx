@@ -1,13 +1,37 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState } from "react";
+import WhiteboardCanvas from "@/components/WhiteboardCanvas";
+import ComponentLibrary from "@/components/ComponentLibrary";
+import PropertyPanel from "@/components/PropertyPanel";
+import { WhiteboardProvider } from "@/context/WhiteboardContext";
 
 const Index = () => {
+  const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <WhiteboardProvider>
+      <div className="flex h-screen w-screen overflow-hidden bg-background">
+        {/* Left sidebar - Component Library */}
+        <div className="w-64 border-r border-border bg-card overflow-y-auto p-4">
+          <h2 className="text-lg font-medium mb-4">Components</h2>
+          <ComponentLibrary />
+        </div>
+
+        {/* Main canvas area */}
+        <div className="flex-1 overflow-hidden">
+          <WhiteboardCanvas 
+            onSelectComponent={setSelectedComponentId} 
+            selectedComponentId={selectedComponentId}
+          />
+        </div>
+
+        {/* Right sidebar - Properties */}
+        <div className="w-64 border-l border-border bg-card overflow-y-auto p-4">
+          <h2 className="text-lg font-medium mb-4">Properties</h2>
+          <PropertyPanel selectedComponentId={selectedComponentId} />
+        </div>
       </div>
-    </div>
+    </WhiteboardProvider>
   );
 };
 
