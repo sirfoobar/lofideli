@@ -35,6 +35,20 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     }
   }, []);
 
+  // Center the frame when frame size changes
+  useEffect(() => {
+    if (state.frameSize && canvasRef.current) {
+      const containerWidth = canvasRef.current.parentElement?.clientWidth || 0;
+      const containerHeight = canvasRef.current.parentElement?.clientHeight || 0;
+      
+      // Center the frame in the viewport
+      const newOffsetX = (containerWidth / 2) - (state.frameSize.width / 2);
+      const newOffsetY = (containerHeight / 2) - (state.frameSize.height / 2);
+      
+      setOffset({ x: newOffsetX, y: newOffsetY });
+    }
+  }, [state.frameSize]);
+
   // Handle clicks on empty canvas areas
   const handleCanvasClick = (e: React.MouseEvent) => {
     if (e.target === canvasRef.current) {
@@ -110,10 +124,27 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
       {/* Canvas grid */}
       <div className="absolute inset-0 bg-canvas-background"
         style={{
-          backgroundSize: "20px 20px",
+          backgroundSize: `${state.gridSize}px ${state.gridSize}px`,
           backgroundImage: "linear-gradient(to right, #E9ECEF 1px, transparent 1px), linear-gradient(to bottom, #E9ECEF 1px, transparent 1px)"
         }}
       />
+      
+      {/* Frame if selected */}
+      {state.frameSize && (
+        <div 
+          className="absolute border-2 border-blue-400 bg-white/5 pointer-events-none z-10 shadow-md"
+          style={{
+            width: state.frameSize.width,
+            height: state.frameSize.height,
+            left: offset.x,
+            top: offset.y,
+          }}
+        >
+          <div className="absolute top-0 left-0 bg-blue-400 text-white text-xs px-2 py-0.5 rounded-br">
+            {state.frameSize.width} × {state.frameSize.height}
+          </div>
+        </div>
+      )}
       
       {/* Canvas content */}
       <div 
