@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useReducer } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -49,6 +50,7 @@ interface WhiteboardState {
   frames: FrameSize[];
   activeFrameId: string | null;
   zoomLevel: number;
+  draggedFrameId: string | null; // New state to track which frame is being dragged
 }
 
 // Actions
@@ -67,7 +69,9 @@ type WhiteboardAction =
   | { type: "UPDATE_FRAME"; id: string; updates: Partial<Omit<FrameSize, "id">> }
   | { type: "DELETE_FRAME"; id: string }
   | { type: "SET_ACTIVE_FRAME"; id: string | null }
-  | { type: "SET_ZOOM_LEVEL"; level: number };
+  | { type: "SET_ZOOM_LEVEL"; level: number }
+  | { type: "SET_DRAGGED_FRAME"; id: string | null } // New action to set which frame is being dragged
+  | { type: "MOVE_FRAME"; id: string; x: number; y: number }; // New action to move a frame
 
 // Initial state
 const initialState: WhiteboardState = {
@@ -79,6 +83,7 @@ const initialState: WhiteboardState = {
   frames: [],
   activeFrameId: null,
   zoomLevel: 0.8, // Changed from 1 to 0.8 for a better initial view
+  draggedFrameId: null, // Initialize the dragged frame ID as null
 };
 
 // Helper function for snapping to grid
@@ -226,6 +231,29 @@ const whiteboardReducer = (state: WhiteboardState, action: WhiteboardAction): Wh
       return {
         ...state,
         zoomLevel: action.level,
+      };
+    // New cases for frame dragging
+    case "SET_DRAGGED_FRAME":
+      return {
+        ...state,
+        draggedFrameId: action.id,
+      };
+    case "MOVE_FRAME":
+      return {
+        ...state,
+        frames: state.frames.map((frame) =>
+          frame.id === action.id
+            ? { 
+                ...frame, 
+                x: state.snapToGrid 
+                  ? snapToGrid(action.x, state.gridSize) 
+                  : action.x, 
+                y: state.snapToGrid 
+                  ? snapToGrid(action.y, state.gridSize) 
+                  : action.y 
+              }
+            : frame
+        ),
       };
     default:
       return state;

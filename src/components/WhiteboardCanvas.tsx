@@ -18,6 +18,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
+  const [frameStartPos, setFrameStartPos] = useState({ x: 0, y: 0 });
 
   // Handle canvas size changes
   useEffect(() => {
@@ -79,6 +80,22 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         x: e.clientX - dragStartPos.x,
         y: e.clientY - dragStartPos.y
       });
+    } else if (state.draggedFrameId !== null) {
+      // Handle frame dragging
+      const canvasRect = canvasRef.current?.getBoundingClientRect();
+      if (canvasRect) {
+        // Calculate the new position based on mouse movement and zoom level
+        const newX = (e.clientX - canvasRect.left - offset.x) / state.zoomLevel;
+        const newY = (e.clientY - canvasRect.top - offset.y) / state.zoomLevel;
+        
+        // Dispatch action to move the frame
+        dispatch({
+          type: "MOVE_FRAME",
+          id: state.draggedFrameId,
+          x: newX - frameStartPos.x,
+          y: newY - frameStartPos.y
+        });
+      }
     }
   };
 
@@ -89,6 +106,11 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
       if (canvasRef.current) {
         canvasRef.current.style.cursor = "default";
       }
+    }
+    
+    // Release dragged frame if any
+    if (state.draggedFrameId !== null) {
+      dispatch({ type: "SET_DRAGGED_FRAME", id: null });
     }
   };
 
@@ -129,8 +151,36 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     onSelectComponent(id);
   };
 
-  const handleFrameClick = (id: string) => {
+  const handleFrameClick = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     dispatch({ type: "SET_ACTIVE_FRAME", id });
+  };
+
+  // Handle frame mouse down event for drag initiation
+  const handleFrameMouseDown = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    // Set this frame as active
+    dispatch({ type: "SET_ACTIVE_FRAME", id });
+    
+    // Start frame drag
+    if (e.button === 0) { // Left mouse button
+      dispatch({ type: "SET_DRAGGED_FRAME", id });
+      
+      const frame = state.frames.find(f => f.id === id);
+      if (frame) {
+        const canvasRect = canvasRef.current?.getBoundingClientRect();
+        if (canvasRect) {
+          // Calculate cursor position relative to frame position
+          const cursorX = (e.clientX - canvasRect.left - offset.x) / state.zoomLevel;
+          const cursorY = (e.clientY - canvasRect.top - offset.y) / state.zoomLevel;
+          setFrameStartPos({
+            x: cursorX - frame.x,
+            y: cursorY - frame.y
+          });
+        }
+      }
+    }
   };
 
   return (
@@ -172,9 +222,10 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
               height: frame.height,
               left: frame.x,
               top: frame.y,
-              cursor: 'pointer',
+              cursor: state.draggedFrameId === frame.id ? 'grabbing' : 'grab',
             }}
-            onClick={() => handleFrameClick(frame.id)}
+            onClick={(e) => handleFrameClick(frame.id, e)}
+            onMouseDown={(e) => handleFrameMouseDown(frame.id, e)}
           >
             <div className={`absolute top-0 left-0 ${frame.id === state.activeFrameId ? 'bg-blue-400' : 'bg-gray-300'} text-white text-xs px-2 py-0.5 rounded-br`}>
               {frame.name} - {frame.width} × {frame.height}
