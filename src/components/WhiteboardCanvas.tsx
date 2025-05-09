@@ -148,9 +148,10 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
       </svg>
       
       {/* Canvas grid */}
-      <div className="absolute inset-0 bg-canvas-background"
+      <div className="absolute inset-0"
         style={{
           backgroundSize: `${state.gridSize}px ${state.gridSize}px`,
+          backgroundColor: state.sketchyMode ? '#FFFEF7' : '#F8F9FA', // Balsamiq cream background in sketchy mode
           backgroundImage: state.sketchyMode 
             ? "linear-gradient(to right, rgba(142, 145, 150, 0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(142, 145, 150, 0.2) 1px, transparent 1px)"
             : "linear-gradient(to right, #E9ECEF 1px, transparent 1px), linear-gradient(to bottom, #E9ECEF 1px, transparent 1px)"
@@ -166,7 +167,10 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
             height: state.frameSize.height,
             left: offset.x,
             top: offset.y,
-            ...(state.sketchyMode ? { filter: 'url(#sketchy-filter)' } : {})
+            ...(state.sketchyMode ? { 
+              filter: 'url(#sketchy-filter)',
+              backgroundColor: 'rgba(255, 254, 247, 0.5)' // Balsamiq cream background with transparency
+            } : {})
           }}
         >
           <div className={`absolute top-0 left-0 ${state.sketchyMode ? 'bg-gray-600' : 'bg-blue-400'} text-white text-xs px-2 py-0.5 rounded-br`}>

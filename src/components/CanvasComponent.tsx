@@ -158,6 +158,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
         transform: `rotate(${Math.random() * 0.6 - 0.3}deg)`,
         // Use a more comic-like font for Balsamiq feel
         fontFamily: '"Comic Sans MS", "Comic Neue", cursive',
+        backgroundColor: properties.backgroundColor === 'transparent' ? 'transparent' : '#F8F9FA', // Light gray background like Balsamiq
       };
     } else {
       return {
