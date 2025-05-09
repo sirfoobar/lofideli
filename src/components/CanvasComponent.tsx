@@ -12,7 +12,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
   isSelected,
   onSelect,
 }) => {
-  const { dispatch } = useWhiteboard();
+  const { dispatch, state } = useWhiteboard();
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -51,13 +51,19 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isDragging) {
+      // Calculate the new position
+      const newX = e.clientX - dragOffset.x;
+      const newY = e.clientY - dragOffset.y;
+      
+      // Move the component
       dispatch({
         type: "MOVE_COMPONENT",
         id: component.id,
-        x: e.clientX - dragOffset.x,
-        y: e.clientY - dragOffset.y
+        x: newX,
+        y: newY
       });
     } else if (isResizing) {
+      // ... keep existing code (resize logic)
       const newWidth = Math.max(50, resizeStart.width + (e.clientX - resizeStart.x));
       const newHeight = Math.max(30, resizeStart.height + (e.clientY - resizeStart.y));
       
@@ -131,7 +137,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
     };
   }, [isDragging, isResizing, isSelected]);
 
-  // Get component style
+  // Get component style with an optional indicator for frame attachment
   const getComponentStyle = () => {
     const { properties } = component;
     
@@ -148,6 +154,30 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
                 properties.shadow === "md" ? "0 4px 6px -1px rgba(0, 0, 0, 0.1)" : undefined,
     } as React.CSSProperties;
   };
+
+  // Check if component is in its assigned frame
+  const isComponentInCorrectFrame = () => {
+    if (!component.frameId) return true;
+    
+    const frame = state.frames.find(f => f.id === component.frameId);
+    if (!frame) return false;
+    
+    return (
+      component.x >= frame.x &&
+      component.y >= frame.y &&
+      component.x + component.width <= frame.x + frame.width &&
+      component.y + component.height <= frame.y + frame.height
+    );
+  };
+
+  const isInFrame = component.frameId !== undefined;
+  const isCorrectlyPositioned = isComponentInCorrectFrame();
+  
+  // Calculate border style based on frame attachment
+  let borderStyle = isSelected ? "border-blue-500" : "border-transparent";
+  if (isInFrame) {
+    borderStyle = isSelected ? "border-blue-500" : "border-dashed border-gray-400";
+  }
 
   // Render the component based on its type
   const renderComponent = () => {
@@ -271,9 +301,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
   return (
     <div
       ref={componentRef}
-      className={`absolute border ${
-        isSelected ? "border-blue-500" : "border-transparent"
-      }`}
+      className={`absolute border ${borderStyle}`}
       style={{
         left: component.x,
         top: component.y,
@@ -281,6 +309,8 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
         height: component.height,
         cursor: isDragging ? "grabbing" : "grab",
         zIndex: isSelected ? 100 : 10,
+        // Add a visual indicator if the component is attached to a frame
+        opacity: isInFrame && !isCorrectlyPositioned ? 0.6 : 1,
       }}
       onMouseDown={handleMouseDown}
       onDoubleClick={handleDoubleClick}

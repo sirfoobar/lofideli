@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import CanvasComponent from "@/components/CanvasComponent";
@@ -97,12 +96,13 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         const newX = (e.clientX - canvasRect.left - offset.x) / state.zoomLevel;
         const newY = (e.clientY - canvasRect.top - offset.y) / state.zoomLevel;
         
-        // Dispatch action to move the frame
+        // Dispatch action to move the frame with its attached components
         dispatch({
           type: "MOVE_FRAME",
           id: state.draggedFrameId,
           x: newX - frameStartPos.x,
-          y: newY - frameStartPos.y
+          y: newY - frameStartPos.y,
+          moveAttachedComponents: true
         });
       }
     }
@@ -190,6 +190,11 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         }
       }
     }
+  };
+
+  // Add visual indicator for components that are attached to frames
+  const getComponentsInFrame = (frameId: string) => {
+    return state.components.filter(component => component.frameId === frameId);
   };
 
   // Export frame as image
