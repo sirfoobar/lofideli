@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useReducer } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -79,7 +78,7 @@ const initialState: WhiteboardState = {
   snapToGrid: false,
   frames: [],
   activeFrameId: null,
-  zoomLevel: 1, // Default zoom level (100%)
+  zoomLevel: 0.8, // Changed from 1 to 0.8 for a better initial view
 };
 
 // Helper function for snapping to grid

@@ -18,7 +18,7 @@ const ZoomControls: React.FC = () => {
   };
   
   const handleZoomOut = () => {
-    const newZoom = Math.max(zoomLevel - 0.1, 0.5); // Min zoom 50%
+    const newZoom = Math.max(zoomLevel - 0.1, 0.2); // Min zoom 20% instead of 50%
     dispatch({ type: "SET_ZOOM_LEVEL", level: Number(newZoom.toFixed(1)) });
   };
   
@@ -32,7 +32,7 @@ const ZoomControls: React.FC = () => {
         variant="outline" 
         size="sm" 
         onClick={handleZoomOut} 
-        disabled={zoomLevel <= 0.5}
+        disabled={zoomLevel <= 0.2} // Changed from 0.5 to 0.2
       >
         <ZoomOut className="h-4 w-4" />
       </Button>
@@ -41,7 +41,7 @@ const ZoomControls: React.FC = () => {
         <Slider
           className="w-24"
           value={[zoomPercentage]}
-          min={50}
+          min={20} // Changed from 50 to 20
           max={300}
           step={10}
           onValueChange={handleZoomChange}

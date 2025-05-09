@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import CanvasComponent from "@/components/CanvasComponent";
@@ -60,9 +61,15 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
 
   // Handle dragging the canvas
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
-    if (e.target === canvasRef.current && e.button === 1) {  // Middle mouse button
+    // Allow dragging with left mouse button or middle mouse button
+    if (e.target === canvasRef.current && (e.button === 0 || e.button === 1)) {
       setIsDragging(true);
       setDragStartPos({ x: e.clientX - offset.x, y: e.clientY - offset.y });
+      
+      // Change cursor during drag
+      if (canvasRef.current) {
+        canvasRef.current.style.cursor = "grabbing";
+      }
     }
   };
 
@@ -76,7 +83,13 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   };
 
   const handleCanvasMouseUp = () => {
-    setIsDragging(false);
+    if (isDragging) {
+      setIsDragging(false);
+      // Restore cursor
+      if (canvasRef.current) {
+        canvasRef.current.style.cursor = "default";
+      }
+    }
   };
 
   // Handle component drop from the library
