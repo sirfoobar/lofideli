@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from "react";
 import { useWhiteboard, CanvasComponent as ComponentType } from "@/context/WhiteboardContext";
 
@@ -12,7 +13,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
   isSelected,
   onSelect,
 }) => {
-  const { state, dispatch } = useWhiteboard();
+  const { dispatch } = useWhiteboard();
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -135,8 +136,11 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
   const getComponentStyle = () => {
     const { properties } = component;
     
-    const baseStyle = {
-      backgroundColor: properties.backgroundColor === 'transparent' ? 'transparent' : (properties.backgroundColor || "#ffffff"),
+    return {
+      backgroundColor: properties.backgroundColor || "#ffffff",
+      borderColor: properties.borderColor || "#d1d5db",
+      borderWidth: `${properties.borderWidth || 1}px`,
+      borderRadius: `${properties.borderRadius || 4}px`,
       color: properties.textColor || "#000000",
       textAlign: properties.textAlign || "left",
       fontSize: `${properties.fontSize || 16}px`,
@@ -144,36 +148,10 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
       boxShadow: properties.shadow === "sm" ? "0 1px 2px rgba(0, 0, 0, 0.05)" : 
                 properties.shadow === "md" ? "0 4px 6px -1px rgba(0, 0, 0, 0.1)" : undefined,
     } as React.CSSProperties;
-
-    // Apply Balsamiq-like sketchy styling if sketchy mode is enabled
-    if (state.sketchyMode) {
-      return {
-        ...baseStyle,
-        borderStyle: 'solid',
-        borderWidth: `${properties.borderWidth || 1}px`,
-        borderColor: '#8E9196', // Balsamiq-like gray for borders
-        borderRadius: `${properties.borderRadius || 3}px`,
-        filter: 'url(#sketchy-lines-only)',
-        // Add a very slight rotation for a more hand-drawn feel
-        transform: `rotate(${Math.random() * 0.6 - 0.3}deg)`,
-        // Use a more comic-like font for Balsamiq feel
-        fontFamily: '"Comic Sans MS", "Comic Neue", cursive',
-        backgroundColor: properties.backgroundColor === 'transparent' ? 'transparent' : '#F8F9FA', // Light gray background like Balsamiq
-      };
-    } else {
-      return {
-        ...baseStyle,
-        borderColor: properties.borderColor || "#d1d5db",
-        borderWidth: `${properties.borderWidth || 1}px`,
-        borderRadius: `${properties.borderRadius || 4}px`,
-      };
-    }
   };
 
   // Render the component based on its type
   const renderComponent = () => {
-    const sketchyClass = state.sketchyMode ? "font-['Comic_Sans_MS']" : "";
-    
     switch (component.type) {
       case "button":
         return isEditing ? (
@@ -183,18 +161,18 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
             onChange={handleContentChange}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
-            className={`w-full h-full bg-transparent text-center outline-none ${sketchyClass}`}
+            className="w-full h-full bg-transparent text-center outline-none"
             autoFocus
           />
         ) : (
-          <div className={`w-full h-full flex items-center justify-center ${sketchyClass}`}>
+          <div className="w-full h-full flex items-center justify-center">
             {component.content}
           </div>
         );
         
       case "input":
         return (
-          <div className={`w-full h-full flex items-center px-2 ${sketchyClass}`}>
+          <div className="w-full h-full flex items-center px-2">
             <div className="w-full text-gray-400">
               {component.properties.placeholder || "Input field"}
             </div>
@@ -210,11 +188,11 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
             onChange={handleContentChange}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
-            className={`w-full h-full resize-none bg-transparent outline-none ${sketchyClass}`}
+            className="w-full h-full resize-none bg-transparent outline-none"
             autoFocus
           />
         ) : (
-          <div className={`w-full h-full overflow-hidden ${sketchyClass}`}>
+          <div className="w-full h-full overflow-hidden">
             {component.content}
           </div>
         );
@@ -295,7 +273,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
     <div
       ref={componentRef}
       className={`absolute border ${
-        isSelected ? (state.sketchyMode ? "border-gray-600" : "border-blue-500") : "border-transparent"
+        isSelected ? "border-blue-500" : "border-transparent"
       }`}
       style={{
         left: component.x,
@@ -315,16 +293,16 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
         {renderComponent()}
       </div>
       
-      {/* Resize handle with Balsamiq-like styling when in sketchy mode */}
+      {/* Resize handle */}
       {isSelected && (
         <>
           <div
-            className={`absolute w-3 h-3 ${state.sketchyMode ? "bg-gray-600 border-gray-200" : "bg-blue-500 border-white"} border right-0 bottom-0 cursor-nwse-resize`}
+            className="absolute w-3 h-3 bg-blue-500 border border-white right-0 bottom-0 cursor-nwse-resize"
             onMouseDown={handleResizeStart}
           />
-          <div className={`absolute -top-1 -left-1 w-2 h-2 ${state.sketchyMode ? "bg-gray-600 border-gray-200" : "bg-blue-500 border-white"} border`} />
-          <div className={`absolute -top-1 -right-1 w-2 h-2 ${state.sketchyMode ? "bg-gray-600 border-gray-200" : "bg-blue-500 border-white"} border`} />
-          <div className={`absolute -bottom-1 -left-1 w-2 h-2 ${state.sketchyMode ? "bg-gray-600 border-gray-200" : "bg-blue-500 border-white"} border`} />
+          <div className="absolute -top-1 -left-1 w-2 h-2 bg-blue-500 border border-white" />
+          <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 border border-white" />
+          <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-blue-500 border border-white" />
         </>
       )}
     </div>

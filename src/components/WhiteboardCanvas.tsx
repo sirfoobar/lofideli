@@ -121,59 +121,26 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
       onMouseUp={handleCanvasMouseUp}
       onMouseLeave={handleCanvasMouseUp}
     >
-      {/* SVG Filters for Balsamiq-like sketchy effect */}
-      <svg width="0" height="0" className="absolute">
-        <defs>
-          {/* Balsamiq-style sketchy filter for lines only */}
-          <filter id="sketchy-lines-only">
-            {/* More pronounced displacement for Balsamiq look */}
-            <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="5" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" result="displacedLines" />
-            {/* Thicken the lines slightly */}
-            <feMorphology operator="dilate" radius="0.2" in="displacedLines" result="thickenedLines" />
-            {/* Ensure the effect only applies to lines/borders */}
-            <feComponentTransfer>
-              <feFuncA type="linear" slope="1" intercept="0" />
-            </feComponentTransfer>
-          </filter>
-          
-          {/* Balsamiq-style sketchy filter for the frame outline */}
-          <filter id="sketchy-filter">
-            <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="2" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G" />
-            {/* Thicken the frame border */}
-            <feMorphology operator="dilate" radius="0.3" result="thickenedFrame" />
-          </filter>
-        </defs>
-      </svg>
-      
       {/* Canvas grid */}
-      <div className="absolute inset-0"
+      <div className="absolute inset-0 bg-canvas-background"
         style={{
           backgroundSize: `${state.gridSize}px ${state.gridSize}px`,
-          backgroundColor: state.sketchyMode ? '#FFFEF7' : '#F8F9FA', // Balsamiq cream background in sketchy mode
-          backgroundImage: state.sketchyMode 
-            ? "linear-gradient(to right, rgba(142, 145, 150, 0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(142, 145, 150, 0.2) 1px, transparent 1px)"
-            : "linear-gradient(to right, #E9ECEF 1px, transparent 1px), linear-gradient(to bottom, #E9ECEF 1px, transparent 1px)"
+          backgroundImage: "linear-gradient(to right, #E9ECEF 1px, transparent 1px), linear-gradient(to bottom, #E9ECEF 1px, transparent 1px)"
         }}
       />
       
       {/* Frame if selected */}
       {state.frameSize && (
         <div 
-          className={`absolute border-2 ${state.sketchyMode ? 'border-gray-600' : 'border-blue-400'} bg-white/5 pointer-events-none z-10 shadow-md`}
+          className="absolute border-2 border-blue-400 bg-white/5 pointer-events-none z-10 shadow-md"
           style={{
             width: state.frameSize.width,
             height: state.frameSize.height,
             left: offset.x,
             top: offset.y,
-            ...(state.sketchyMode ? { 
-              filter: 'url(#sketchy-filter)',
-              backgroundColor: 'rgba(255, 254, 247, 0.5)' // Balsamiq cream background with transparency
-            } : {})
           }}
         >
-          <div className={`absolute top-0 left-0 ${state.sketchyMode ? 'bg-gray-600' : 'bg-blue-400'} text-white text-xs px-2 py-0.5 rounded-br`}>
+          <div className="absolute top-0 left-0 bg-blue-400 text-white text-xs px-2 py-0.5 rounded-br">
             {state.frameSize.width} × {state.frameSize.height}
           </div>
         </div>

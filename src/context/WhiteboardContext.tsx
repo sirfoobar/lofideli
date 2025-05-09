@@ -44,7 +44,6 @@ interface WhiteboardState {
   gridSize: number;
   snapToGrid: boolean;
   frameSize: FrameSize | null;
-  sketchyMode: boolean;
 }
 
 // Actions
@@ -59,8 +58,7 @@ type WhiteboardAction =
   | { type: "UPDATE_CONTENT"; id: string; content: string }
   | { type: "TOGGLE_GRID_SNAP"; enabled: boolean }
   | { type: "SET_GRID_SIZE"; size: number }
-  | { type: "SET_FRAME_SIZE"; width: number; height: number }
-  | { type: "TOGGLE_SKETCHY_MODE" };
+  | { type: "SET_FRAME_SIZE"; width: number; height: number };
 
 // Initial state
 const initialState: WhiteboardState = {
@@ -70,7 +68,6 @@ const initialState: WhiteboardState = {
   gridSize: 20,
   snapToGrid: false,
   frameSize: null,
-  sketchyMode: false,
 };
 
 // Helper function for snapping to grid
@@ -187,11 +184,6 @@ const whiteboardReducer = (state: WhiteboardState, action: WhiteboardAction): Wh
         frameSize: action.width === 0 && action.height === 0 
           ? null 
           : { width: action.width, height: action.height },
-      };
-    case "TOGGLE_SKETCHY_MODE":
-      return {
-        ...state,
-        sketchyMode: !state.sketchyMode,
       };
     default:
       return state;
