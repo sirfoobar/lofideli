@@ -49,6 +49,7 @@ interface WhiteboardState {
   snapToGrid: boolean;
   frames: FrameSize[];
   activeFrameId: string | null;
+  zoomLevel: number;
 }
 
 // Actions
@@ -66,7 +67,8 @@ type WhiteboardAction =
   | { type: "ADD_FRAME"; frame: Omit<FrameSize, "id"> }
   | { type: "UPDATE_FRAME"; id: string; updates: Partial<Omit<FrameSize, "id">> }
   | { type: "DELETE_FRAME"; id: string }
-  | { type: "SET_ACTIVE_FRAME"; id: string | null };
+  | { type: "SET_ACTIVE_FRAME"; id: string | null }
+  | { type: "SET_ZOOM_LEVEL"; level: number };
 
 // Initial state
 const initialState: WhiteboardState = {
@@ -77,6 +79,7 @@ const initialState: WhiteboardState = {
   snapToGrid: false,
   frames: [],
   activeFrameId: null,
+  zoomLevel: 1, // Default zoom level (100%)
 };
 
 // Helper function for snapping to grid
@@ -219,6 +222,11 @@ const whiteboardReducer = (state: WhiteboardState, action: WhiteboardAction): Wh
       return {
         ...state,
         activeFrameId: action.id,
+      };
+    case "SET_ZOOM_LEVEL":
+      return {
+        ...state,
+        zoomLevel: action.level,
       };
     default:
       return state;

@@ -5,6 +5,7 @@ import ComponentLibrary from "@/components/ComponentLibrary";
 import PropertyPanel from "@/components/PropertyPanel";
 import GridControls from "@/components/GridControls";
 import FrameSizeControls from "@/components/FrameSizeControls";
+import ZoomControls from "@/components/ZoomControls";
 import { WhiteboardProvider } from "@/context/WhiteboardContext";
 
 const Index = () => {
@@ -28,11 +29,12 @@ const Index = () => {
         </div>
 
         {/* Main canvas area */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden relative">
           <WhiteboardCanvas 
             onSelectComponent={setSelectedComponentId} 
             selectedComponentId={selectedComponentId}
           />
+          <ZoomControls />
         </div>
 
         {/* Right sidebar - Properties */}

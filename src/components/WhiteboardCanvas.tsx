@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import CanvasComponent from "@/components/CanvasComponent";
@@ -88,8 +87,9 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     if (componentType) {
       const canvasRect = canvasRef.current?.getBoundingClientRect();
       if (canvasRect) {
-        const x = e.clientX - canvasRect.left - offset.x;
-        const y = e.clientY - canvasRect.top - offset.y;
+        // Adjust for zoom level when dropping
+        const x = (e.clientX - canvasRect.left - offset.x) / state.zoomLevel;
+        const y = (e.clientY - canvasRect.top - offset.y) / state.zoomLevel;
         
         // Add new component
         dispatch({
@@ -131,7 +131,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
       {/* Canvas grid */}
       <div className="absolute inset-0 bg-canvas-background"
         style={{
-          backgroundSize: `${state.gridSize}px ${state.gridSize}px`,
+          backgroundSize: `${state.gridSize * state.zoomLevel}px ${state.gridSize * state.zoomLevel}px`,
           backgroundImage: "linear-gradient(to right, #E9ECEF 1px, transparent 1px), linear-gradient(to bottom, #E9ECEF 1px, transparent 1px)"
         }}
       />
@@ -141,7 +141,8 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         ref={canvasRef}
         className="absolute w-[4000px] h-[4000px] transform"
         style={{ 
-          transform: `translate(${offset.x}px, ${offset.y}px)`,
+          transform: `translate(${offset.x}px, ${offset.y}px) scale(${state.zoomLevel})`,
+          transformOrigin: "0 0",
           cursor: isDragging ? "grabbing" : "default"
         }}
         onClick={handleCanvasClick}
