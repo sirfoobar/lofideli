@@ -216,7 +216,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         {state.frames.map((frame) => (
           <div 
             key={frame.id}
-            className={`absolute border-2 ${frame.id === state.activeFrameId ? 'border-blue-400' : 'border-gray-300'} bg-white/5 z-10 shadow-md`}
+            className={`absolute border-2 ${frame.id === state.activeFrameId ? 'border-blue-400' : 'border-gray-300'} bg-white z-10 shadow-md`}
             style={{
               width: frame.width,
               height: frame.height,
