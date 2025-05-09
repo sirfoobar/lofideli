@@ -121,6 +121,17 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
       onMouseUp={handleCanvasMouseUp}
       onMouseLeave={handleCanvasMouseUp}
     >
+      {/* SVG Filters for sketchy effect */}
+      <svg width="0" height="0" className="absolute">
+        <defs>
+          <filter id="sketchy-filter">
+            {/* Add some turbulence to create a hand-drawn effect */}
+            <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        </defs>
+      </svg>
+      
       {/* Canvas grid */}
       <div className="absolute inset-0 bg-canvas-background"
         style={{
@@ -138,6 +149,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
             height: state.frameSize.height,
             left: offset.x,
             top: offset.y,
+            ...(state.sketchyMode ? { filter: 'url(#sketchy-filter)' } : {})
           }}
         >
           <div className="absolute top-0 left-0 bg-blue-400 text-white text-xs px-2 py-0.5 rounded-br">

@@ -13,7 +13,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
   isSelected,
   onSelect,
 }) => {
-  const { dispatch } = useWhiteboard();
+  const { state, dispatch } = useWhiteboard();
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -136,11 +136,8 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
   const getComponentStyle = () => {
     const { properties } = component;
     
-    return {
-      backgroundColor: properties.backgroundColor || "#ffffff",
-      borderColor: properties.borderColor || "#d1d5db",
-      borderWidth: `${properties.borderWidth || 1}px`,
-      borderRadius: `${properties.borderRadius || 4}px`,
+    const baseStyle = {
+      backgroundColor: properties.backgroundColor === 'transparent' ? 'transparent' : (properties.backgroundColor || "#ffffff"),
       color: properties.textColor || "#000000",
       textAlign: properties.textAlign || "left",
       fontSize: `${properties.fontSize || 16}px`,
@@ -148,6 +145,27 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
       boxShadow: properties.shadow === "sm" ? "0 1px 2px rgba(0, 0, 0, 0.05)" : 
                 properties.shadow === "md" ? "0 4px 6px -1px rgba(0, 0, 0, 0.1)" : undefined,
     } as React.CSSProperties;
+
+    // Apply sketchy styling if sketchy mode is enabled
+    if (state.sketchyMode) {
+      return {
+        ...baseStyle,
+        borderStyle: 'solid',
+        borderWidth: `${properties.borderWidth || 1}px`,
+        borderColor: properties.borderColor || "#d1d5db",
+        borderRadius: `${properties.borderRadius || 4}px`,
+        filter: 'url(#sketchy-filter)',
+        // Add a very slight rotation for a more hand-drawn feel
+        transform: `rotate(${Math.random() * 0.5 - 0.25}deg)`,
+      };
+    } else {
+      return {
+        ...baseStyle,
+        borderColor: properties.borderColor || "#d1d5db",
+        borderWidth: `${properties.borderWidth || 1}px`,
+        borderRadius: `${properties.borderRadius || 4}px`,
+      };
+    }
   };
 
   // Render the component based on its type

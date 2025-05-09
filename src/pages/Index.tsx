@@ -5,6 +5,7 @@ import ComponentLibrary from "@/components/ComponentLibrary";
 import PropertyPanel from "@/components/PropertyPanel";
 import GridControls from "@/components/GridControls";
 import FrameSizeControls from "@/components/FrameSizeControls";
+import SketchyModeToggle from "@/components/SketchyModeToggle";
 import { WhiteboardProvider } from "@/context/WhiteboardContext";
 
 const Index = () => {
@@ -24,6 +25,10 @@ const Index = () => {
           
           <div className="mt-4 border-t border-border pt-4">
             <FrameSizeControls />
+          </div>
+
+          <div className="mt-4 border-t border-border pt-4">
+            <SketchyModeToggle />
           </div>
         </div>
 
