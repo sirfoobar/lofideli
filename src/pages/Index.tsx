@@ -6,6 +6,7 @@ import PropertyPanel from "@/components/PropertyPanel";
 import GridControls from "@/components/GridControls";
 import FrameSizeControls from "@/components/FrameSizeControls";
 import ZoomControls from "@/components/ZoomControls";
+import CanvasControls from "@/components/CanvasControls";
 import { WhiteboardProvider } from "@/context/WhiteboardContext";
 
 const Index = () => {
@@ -25,6 +26,10 @@ const Index = () => {
           
           <div className="mt-4 border-t border-border pt-4">
             <FrameSizeControls />
+          </div>
+
+          <div className="mt-4 border-t border-border pt-4">
+            <CanvasControls />
           </div>
         </div>
 

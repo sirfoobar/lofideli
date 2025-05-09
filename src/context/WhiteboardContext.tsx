@@ -1,6 +1,7 @@
 
-import React, { createContext, useContext, useReducer } from "react";
+import React, { createContext, useContext, useReducer, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { useToast } from "@/hooks/use-toast";
 
 // Component types
 export type ComponentType = 
@@ -73,7 +74,8 @@ type WhiteboardAction =
   | { type: "SET_ZOOM_LEVEL"; level: number }
   | { type: "SET_DRAGGED_FRAME"; id: string | null }
   | { type: "MOVE_FRAME"; id: string; x: number; y: number; moveAttachedComponents?: boolean }
-  | { type: "ASSIGN_COMPONENT_TO_FRAME"; componentId: string; frameId: string | undefined };
+  | { type: "ASSIGN_COMPONENT_TO_FRAME"; componentId: string; frameId: string | undefined }
+  | { type: "LOAD_FROM_STORAGE"; state: Partial<WhiteboardState> };
 
 // Initial state
 const initialState: WhiteboardState = {
@@ -87,6 +89,9 @@ const initialState: WhiteboardState = {
   zoomLevel: 0.8,
   draggedFrameId: null,
 };
+
+// Local storage key
+const STORAGE_KEY = "whiteboard_canvas_state";
 
 // Helper function for snapping to grid
 const snapToGrid = (value: number, gridSize: number): number => {
@@ -105,6 +110,8 @@ const isComponentInFrame = (component: CanvasComponent, frame: FrameSize): boole
 
 // Reducer
 const whiteboardReducer = (state: WhiteboardState, action: WhiteboardAction): WhiteboardState => {
+  let newState: WhiteboardState;
+
   switch (action.type) {
     case "ADD_COMPONENT": {
       const newComponent = {
@@ -140,7 +147,7 @@ const whiteboardReducer = (state: WhiteboardState, action: WhiteboardAction): Wh
         }
       }
       
-      return {
+      newState = {
         ...state,
         components: [
           ...state.components,
@@ -150,6 +157,7 @@ const whiteboardReducer = (state: WhiteboardState, action: WhiteboardAction): Wh
           },
         ],
       };
+      break;
     }
     
     case "MOVE_COMPONENT": {
@@ -198,14 +206,15 @@ const whiteboardReducer = (state: WhiteboardState, action: WhiteboardAction): Wh
         return component;
       });
       
-      return {
+      newState = {
         ...state,
         components: updatedComponents,
       };
+      break;
     }
     
     case "RESIZE_COMPONENT":
-      return {
+      newState = {
         ...state,
         components: state.components.map((component) =>
           component.id === action.id
@@ -221,9 +230,10 @@ const whiteboardReducer = (state: WhiteboardState, action: WhiteboardAction): Wh
             : component
         ),
       };
+      break;
 
     case "UPDATE_COMPONENT":
-      return {
+      newState = {
         ...state,
         components: state.components.map((component) =>
           component.id === action.id
@@ -234,29 +244,33 @@ const whiteboardReducer = (state: WhiteboardState, action: WhiteboardAction): Wh
             : component
         ),
       };
+      break;
 
     case "DELETE_COMPONENT":
-      return {
+      newState = {
         ...state,
         components: state.components.filter(
           (component) => component.id !== action.id
         ),
       };
+      break;
 
     case "SET_DRAGGING":
-      return {
+      newState = {
         ...state,
         isDragging: action.isDragging,
       };
+      break;
 
     case "SET_RESIZING":
-      return {
+      newState = {
         ...state,
         isResizing: action.isResizing,
       };
+      break;
 
     case "UPDATE_CONTENT":
-      return {
+      newState = {
         ...state,
         components: state.components.map((component) =>
           component.id === action.id
@@ -264,22 +278,25 @@ const whiteboardReducer = (state: WhiteboardState, action: WhiteboardAction): Wh
             : component
         ),
       };
+      break;
 
     case "TOGGLE_GRID_SNAP":
-      return {
+      newState = {
         ...state,
         snapToGrid: action.enabled,
       };
+      break;
 
     case "SET_GRID_SIZE":
-      return {
+      newState = {
         ...state,
         gridSize: action.size,
       };
+      break;
 
     case "ADD_FRAME":
       const newFrameId = uuidv4();
-      return {
+      newState = {
         ...state,
         frames: [
           ...state.frames,
@@ -290,9 +307,10 @@ const whiteboardReducer = (state: WhiteboardState, action: WhiteboardAction): Wh
         ],
         activeFrameId: state.frames.length === 0 ? newFrameId : state.activeFrameId,
       };
+      break;
 
     case "UPDATE_FRAME":
-      return {
+      newState = {
         ...state,
         frames: state.frames.map((frame) =>
           frame.id === action.id
@@ -300,10 +318,11 @@ const whiteboardReducer = (state: WhiteboardState, action: WhiteboardAction): Wh
             : frame
         ),
       };
+      break;
 
     case "DELETE_FRAME":
       // Remove frame and also remove frameId from components
-      return {
+      newState = {
         ...state,
         frames: state.frames.filter((frame) => frame.id !== action.id),
         activeFrameId: state.activeFrameId === action.id ? null : state.activeFrameId,
@@ -311,24 +330,28 @@ const whiteboardReducer = (state: WhiteboardState, action: WhiteboardAction): Wh
           component.frameId === action.id ? { ...component, frameId: undefined } : component
         ),
       };
+      break;
 
     case "SET_ACTIVE_FRAME":
-      return {
+      newState = {
         ...state,
         activeFrameId: action.id,
       };
+      break;
 
     case "SET_ZOOM_LEVEL":
-      return {
+      newState = {
         ...state,
         zoomLevel: action.level,
       };
+      break;
 
     case "SET_DRAGGED_FRAME":
-      return {
+      newState = {
         ...state,
         draggedFrameId: action.id,
       };
+      break;
 
     case "MOVE_FRAME": {
       const newX = state.snapToGrid 
@@ -364,15 +387,16 @@ const whiteboardReducer = (state: WhiteboardState, action: WhiteboardAction): Wh
         return component;
       });
       
-      return {
+      newState = {
         ...state,
         frames: updatedFrames,
         components: updatedComponents
       };
+      break;
     }
     
     case "ASSIGN_COMPONENT_TO_FRAME":
-      return {
+      newState = {
         ...state,
         components: state.components.map(component =>
           component.id === action.componentId 
@@ -380,16 +404,45 @@ const whiteboardReducer = (state: WhiteboardState, action: WhiteboardAction): Wh
             : component
         ),
       };
+      break;
+
+    case "LOAD_FROM_STORAGE":
+      newState = {
+        ...state,
+        ...action.state,
+      };
+      break;
 
     default:
-      return state;
+      newState = state;
   }
+
+  // Save to localStorage after each action (except in initial load)
+  if (action.type !== "LOAD_FROM_STORAGE") {
+    const stateToSave = {
+      components: newState.components,
+      frames: newState.frames,
+      snapToGrid: newState.snapToGrid,
+      gridSize: newState.gridSize,
+      zoomLevel: newState.zoomLevel,
+    };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+    } catch (error) {
+      console.error("Failed to save whiteboard to localStorage:", error);
+    }
+  }
+
+  return newState;
 };
 
 // Create context
 interface WhiteboardContextValue {
   state: WhiteboardState;
   dispatch: React.Dispatch<WhiteboardAction>;
+  saveToJSON: () => string;
+  loadFromJSON: (jsonData: string) => void;
+  clearCanvas: () => void;
 }
 
 const WhiteboardContext = createContext<WhiteboardContextValue | undefined>(undefined);
@@ -397,9 +450,81 @@ const WhiteboardContext = createContext<WhiteboardContextValue | undefined>(unde
 // Provider component
 export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(whiteboardReducer, initialState);
-  
+  const { toast } = useToast();
+
+  // Load from localStorage on initial mount
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        dispatch({ type: "LOAD_FROM_STORAGE", state: parsedData });
+        toast({
+          title: "Canvas Restored",
+          description: "Your previously saved canvas has been loaded.",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to load whiteboard from localStorage:", error);
+    }
+  }, [toast]);
+
+  // Function to export whiteboard data as JSON
+  const saveToJSON = () => {
+    const dataToSave = {
+      components: state.components,
+      frames: state.frames,
+      snapToGrid: state.snapToGrid,
+      gridSize: state.gridSize,
+      zoomLevel: state.zoomLevel,
+    };
+    return JSON.stringify(dataToSave, null, 2);
+  };
+
+  // Function to import whiteboard data from JSON
+  const loadFromJSON = (jsonData: string) => {
+    try {
+      const parsedData = JSON.parse(jsonData);
+      dispatch({ type: "LOAD_FROM_STORAGE", state: parsedData });
+      
+      // Also update localStorage
+      localStorage.setItem(STORAGE_KEY, jsonData);
+      
+      toast({
+        title: "Import Successful",
+        description: "Your canvas has been loaded from the imported data.",
+      });
+    } catch (error) {
+      console.error("Failed to parse imported JSON:", error);
+      toast({
+        title: "Import Failed",
+        description: "There was an error loading the imported data.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Function to clear the canvas
+  const clearCanvas = () => {
+    dispatch({ 
+      type: "LOAD_FROM_STORAGE", 
+      state: {
+        components: [],
+        frames: [],
+      }
+    });
+    
+    // Clear localStorage
+    localStorage.removeItem(STORAGE_KEY);
+    
+    toast({
+      title: "Canvas Cleared",
+      description: "All components and frames have been removed.",
+    });
+  };
+
   return (
-    <WhiteboardContext.Provider value={{ state, dispatch }}>
+    <WhiteboardContext.Provider value={{ state, dispatch, saveToJSON, loadFromJSON, clearCanvas }}>
       {children}
     </WhiteboardContext.Provider>
   );
