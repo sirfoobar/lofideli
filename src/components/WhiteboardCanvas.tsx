@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import CanvasComponent from "@/components/CanvasComponent";
@@ -413,7 +414,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
           <ContextMenu key={frame.id}>
             <ContextMenuTrigger asChild>
               <div 
-                className={`absolute border-2 ${frame.id === state.activeFrameId ? 'border-blue-400' : 'border-gray-300'} bg-white z-10 shadow-md`}
+                className={`absolute border-2 ${frame.id === state.activeFrameId ? 'border-blue-400' : 'border-gray-300'} bg-white z-10 shadow-md hand-drawn-frame`}
                 style={{
                   width: frame.width,
                   height: frame.height,

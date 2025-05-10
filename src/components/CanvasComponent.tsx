@@ -63,7 +63,6 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
         y: newY
       });
     } else if (isResizing) {
-      // ... keep existing code (resize logic)
       const newWidth = Math.max(50, resizeStart.width + (e.clientX - resizeStart.x));
       const newHeight = Math.max(30, resizeStart.height + (e.clientY - resizeStart.y));
       
@@ -137,24 +136,6 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
     };
   }, [isDragging, isResizing, isSelected]);
 
-  // Get component style with an optional indicator for frame attachment
-  const getComponentStyle = () => {
-    const { properties } = component;
-    
-    return {
-      backgroundColor: properties.backgroundColor || "transparent",
-      borderColor: properties.borderColor || "transparent",
-      borderWidth: `${properties.borderWidth || 0}px`,
-      borderRadius: `${properties.borderRadius || 4}px`,
-      color: properties.textColor || "#000000",
-      textAlign: properties.textAlign || "left",
-      fontSize: `${properties.fontSize || 16}px`,
-      padding: properties.padding ? `${properties.padding}px` : undefined,
-      boxShadow: properties.shadow === "sm" ? "0 1px 2px rgba(0, 0, 0, 0.05)" : 
-                properties.shadow === "md" ? "0 4px 6px -1px rgba(0, 0, 0, 0.1)" : undefined,
-    } as React.CSSProperties;
-  };
-
   // Check if component is in its assigned frame
   const isComponentInCorrectFrame = () => {
     if (!component.frameId) return true;
@@ -173,11 +154,36 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
   const isInFrame = component.frameId !== undefined;
   const isCorrectlyPositioned = isComponentInCorrectFrame();
   
-  // Calculate border style based on frame attachment
-  let borderStyle = isSelected ? "border-blue-500" : "border-transparent";
-  if (isInFrame) {
-    borderStyle = isSelected ? "border-blue-500" : "border-dashed border-gray-400";
+  // Calculate hand-drawn border style based on frame attachment and selection state
+  let borderStyle = "border";
+  let borderColor = "border-transparent";
+  
+  if (isSelected) {
+    borderColor = "border-blue-500";
+  } else if (isInFrame) {
+    borderColor = "border-dashed border-gray-400";
   }
+
+  // Add hand-drawn styling classes
+  const handDrawnClass = "hand-drawn-border";
+
+  // Get component style with an optional indicator for frame attachment
+  const getComponentStyle = () => {
+    const { properties } = component;
+    
+    return {
+      backgroundColor: properties.backgroundColor || "transparent",
+      borderColor: properties.borderColor || "transparent",
+      borderWidth: `${properties.borderWidth || 0}px`,
+      borderRadius: `${properties.borderRadius || 4}px`,
+      color: properties.textColor || "#000000",
+      textAlign: properties.textAlign || "left",
+      fontSize: `${properties.fontSize || 16}px`,
+      padding: properties.padding ? `${properties.padding}px` : undefined,
+      boxShadow: properties.shadow === "sm" ? "0 1px 2px rgba(0, 0, 0, 0.05)" : 
+                properties.shadow === "md" ? "0 4px 6px -1px rgba(0, 0, 0, 0.1)" : undefined,
+    } as React.CSSProperties;
+  };
 
   // Render the component based on its type
   const renderComponent = () => {
@@ -301,7 +307,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
   return (
     <div
       ref={componentRef}
-      className={`absolute border ${borderStyle}`}
+      className={`absolute ${borderStyle} ${borderColor} ${isSelected || isInFrame ? handDrawnClass : ''}`}
       style={{
         left: component.x,
         top: component.y,
