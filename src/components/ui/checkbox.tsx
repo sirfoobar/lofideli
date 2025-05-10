@@ -29,11 +29,13 @@ const Checkbox = React.forwardRef<
     onChange: onCheckedChange
   });
   
+  // Fix: Correctly cast the props to match what useCheckbox expects
   const { inputProps } = useCheckbox(
     {
       ...props,
       isSelected: state.isSelected,
-      value: value || '',  // Ensure value is a string
+      value: value || '',
+      // Remove onChange from props to avoid type conflict
     },
     state,
     ref

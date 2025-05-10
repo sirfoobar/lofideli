@@ -321,7 +321,7 @@ const SidebarInset = React.forwardRef<
       ref={ref}
       className={cn(
         "relative flex min-h-svh flex-1 flex-col bg-background",
-        "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
+        "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
         className
       )}
       {...props}
@@ -586,9 +586,7 @@ const SidebarMenuButton = React.forwardRef<
         {typeof tooltip === 'string' ? (
           <TooltipContent
             trigger={triggerRef}
-            side="right"
-            align="center"
-            hidden={state !== "collapsed" || isMobile}
+            className="z-50"
           >
             {tooltip}
           </TooltipContent>
@@ -596,9 +594,6 @@ const SidebarMenuButton = React.forwardRef<
           // When tooltip is a ReactNode, assume it's a properly configured TooltipContent
           React.cloneElement(tooltip as React.ReactElement, {
             trigger: triggerRef,
-            side: "right",
-            align: "center",
-            hidden: state !== "collapsed" || isMobile
           })
         )}
       </Tooltip>

@@ -7,15 +7,14 @@ import FramePropertyPanel from "@/components/FramePropertyPanel";
 import FrameSizeControls from "@/components/FrameSizeControls";
 import ZoomControls from "@/components/ZoomControls";
 import TopBar from "@/components/TopBar";
-import { WhiteboardProvider } from "@/context/WhiteboardContext";
-import { useWhiteboard } from "@/context/WhiteboardContext";
+import { WhiteboardProvider, useWhiteboard } from "@/context/WhiteboardContext";
 
 // Component to manage selection and property panels
 const WhiteboardManager = () => {
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
   const [showComponentLibrary, setShowComponentLibrary] = useState(true);
   const [showGrid, setShowGrid] = useState(true);
-  const { state } = useWhiteboard();
+  const { state, dispatch } = useWhiteboard();
   
   const toggleComponentLibrary = () => {
     setShowComponentLibrary(!showComponentLibrary);
@@ -68,7 +67,7 @@ const WhiteboardManager = () => {
           {!selectedComponentId && state.selectedFrameId && (
             <FramePropertyPanel 
               selectedFrameId={state.selectedFrameId} 
-              onClose={() => state.dispatch({ type: "SELECT_FRAME", id: null })}
+              onClose={() => dispatch({ type: "SELECT_FRAME", id: null })}
             />
           )}
         </div>

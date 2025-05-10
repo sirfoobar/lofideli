@@ -63,20 +63,25 @@ interface TooltipContentProps extends React.HTMLAttributes<HTMLDivElement> {
   trigger: React.RefObject<HTMLElement>;
   // New prop for complete style override
   contentClassName?: string;
+  // Make these optional to avoid type errors
+  side?: 'top' | 'right' | 'bottom' | 'left';
+  align?: 'start' | 'center' | 'end';
+  hidden?: boolean;
 }
 
 const TooltipContent = React.forwardRef<HTMLDivElement, TooltipContentProps>(
-  ({ className, contentClassName, sideOffset = 4, trigger, children, ...props }, forwardedRef) => {
+  ({ className, contentClassName, sideOffset = 4, trigger, side = 'top', align = 'center', hidden = false, children, ...props }, forwardedRef) => {
     const { delayDuration } = useTooltipContext();
     const state = useTooltipTriggerState({
       delay: delayDuration,
-      trigger: 'focus' // Changed from 'focus hover' to just 'focus' to match expected type
+      // Fix: Use the correct type 'focus' instead of 'focus hover'
+      trigger: 'focus'
     });
     
     const overlayRef = React.useRef<HTMLDivElement>(null);
     
     const { triggerProps, tooltipProps } = useTooltipTrigger(
-      { delay: delayDuration, trigger: 'focus' }, // Changed from 'focus hover' to just 'focus'
+      { delay: delayDuration, trigger: 'focus' },
       state,
       trigger
     );
@@ -86,12 +91,12 @@ const TooltipContent = React.forwardRef<HTMLDivElement, TooltipContentProps>(
     const { overlayProps } = useOverlayPosition({
       targetRef: trigger,
       overlayRef,
-      placement: 'top',
+      placement: side,
       offset: sideOffset,
-      isOpen: state.isOpen
+      isOpen: state.isOpen && !hidden
     });
     
-    if (!state.isOpen) {
+    if (!state.isOpen || hidden) {
       return null;
     }
     
