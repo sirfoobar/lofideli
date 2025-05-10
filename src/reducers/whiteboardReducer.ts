@@ -1,6 +1,5 @@
-
 import { v4 as uuidv4 } from "uuid";
-import { WhiteboardState, WhiteboardAction } from "../types/whiteboard";
+import { WhiteboardState, WhiteboardAction, FrameSize } from "../types/whiteboard";
 import { snapToGrid, isComponentInFrame, saveStateToLocalStorage } from "../utils/whiteboardUtils";
 
 // Initial state
@@ -14,6 +13,48 @@ export const initialState: WhiteboardState = {
   activeFrameId: null,
   zoomLevel: 0.8,
   draggedFrameId: null,
+  selectedFrameId: null, // Initialize selectedFrameId as null
+};
+
+// Helper function to check if two frames overlap
+const doFramesOverlap = (frame1: FrameSize, frame2: FrameSize, gap: number = 0): boolean => {
+  // Add a small gap between frames to prevent exact edge touching
+  return !(
+    frame1.x + frame1.width + gap < frame2.x ||
+    frame1.x > frame2.x + frame2.width + gap ||
+    frame1.y + frame1.height + gap < frame2.y ||
+    frame1.y > frame2.y + frame2.height + gap
+  );
+};
+
+// Helper function to find nearby frames for snapping
+const findNearbyFrameEdges = (frame: FrameSize, otherFrames: FrameSize[], threshold: number): { x: number | null, y: number | null } => {
+  let snapX: number | null = null;
+  let snapY: number | null = null;
+  
+  for (const otherFrame of otherFrames) {
+    if (otherFrame.id === frame.id) continue;
+    
+    // Check for horizontal snapping (left edge of frame to right edge of other)
+    if (Math.abs(frame.x - (otherFrame.x + otherFrame.width)) <= threshold) {
+      snapX = otherFrame.x + otherFrame.width;
+    }
+    // Check for horizontal snapping (right edge of frame to left edge of other)
+    else if (Math.abs((frame.x + frame.width) - otherFrame.x) <= threshold) {
+      snapX = otherFrame.x - frame.width;
+    }
+    
+    // Check for vertical snapping (top edge of frame to bottom edge of other)
+    if (Math.abs(frame.y - (otherFrame.y + otherFrame.height)) <= threshold) {
+      snapY = otherFrame.y + otherFrame.height;
+    }
+    // Check for vertical snapping (bottom edge of frame to top edge of other)
+    else if (Math.abs((frame.y + frame.height) - otherFrame.y) <= threshold) {
+      snapY = otherFrame.y - frame.height;
+    }
+  }
+  
+  return { x: snapX, y: snapY };
 };
 
 // Whiteboard reducer
@@ -121,7 +162,7 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
       break;
     }
     
-    case "RESIZE_COMPONENT":
+    case "RESIZE_COMPONENT": {
       newState = {
         ...state,
         components: state.components.map((component) =>
@@ -139,85 +180,126 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
         ),
       };
       break;
+    }
 
     case "UPDATE_COMPONENT":
-      newState = {
-        ...state,
-        components: state.components.map((component) =>
-          component.id === action.id
-            ? { 
-                ...component, 
-                properties: { ...component.properties, ...action.properties } 
-              }
-            : component
-        ),
-      };
-      break;
-
     case "DELETE_COMPONENT":
-      newState = {
-        ...state,
-        components: state.components.filter(
-          (component) => component.id !== action.id
-        ),
-      };
-      break;
-
     case "SET_DRAGGING":
-      newState = {
-        ...state,
-        isDragging: action.isDragging,
-      };
-      break;
-
     case "SET_RESIZING":
-      newState = {
-        ...state,
-        isResizing: action.isResizing,
-      };
-      break;
-
     case "UPDATE_CONTENT":
-      newState = {
-        ...state,
-        components: state.components.map((component) =>
-          component.id === action.id
-            ? { ...component, content: action.content }
-            : component
-        ),
-      };
-      break;
-
     case "TOGGLE_GRID_SNAP":
-      newState = {
-        ...state,
-        snapToGrid: action.enabled,
-      };
-      break;
+    case "SET_GRID_SIZE": {
+      newState = state;
+      switch (action.type) {
+        case "UPDATE_COMPONENT":
+          newState = {
+            ...state,
+            components: state.components.map((component) =>
+              component.id === action.id
+                ? { 
+                    ...component, 
+                    properties: { ...component.properties, ...action.properties } 
+                  }
+                : component
+            ),
+          };
+          break;
 
-    case "SET_GRID_SIZE":
-      newState = {
-        ...state,
-        gridSize: action.size,
-      };
-      break;
+        case "DELETE_COMPONENT":
+          newState = {
+            ...state,
+            components: state.components.filter(
+              (component) => component.id !== action.id
+            ),
+          };
+          break;
 
-    case "ADD_FRAME":
+        case "SET_DRAGGING":
+          newState = {
+            ...state,
+            isDragging: action.isDragging,
+          };
+          break;
+
+        case "SET_RESIZING":
+          newState = {
+            ...state,
+            isResizing: action.isResizing,
+          };
+          break;
+
+        case "UPDATE_CONTENT":
+          newState = {
+            ...state,
+            components: state.components.map((component) =>
+              component.id === action.id
+                ? { ...component, content: action.content }
+                : component
+            ),
+          };
+          break;
+
+        case "TOGGLE_GRID_SNAP":
+          newState = {
+            ...state,
+            snapToGrid: action.enabled,
+          };
+          break;
+
+        case "SET_GRID_SIZE":
+          newState = {
+            ...state,
+            gridSize: action.size,
+          };
+          break;
+      }
+      break;
+    }
+
+    case "ADD_FRAME": {
       const newFrameId = uuidv4();
+      const newFrame = {
+        ...action.frame,
+        id: newFrameId,
+      };
+      
+      // Check if the new frame overlaps with existing frames
+      let isOverlapping = false;
+      let adjustedFrame = { ...newFrame };
+      
+      // Add a small gap between frames (10px)
+      const gap = 10;
+      
+      for (const existingFrame of state.frames) {
+        if (doFramesOverlap(newFrame, existingFrame, gap)) {
+          isOverlapping = true;
+          // Find the rightmost edge of all frames
+          const rightmostEdge = Math.max(
+            ...state.frames.map(frame => frame.x + frame.width)
+          ) + gap;
+          
+          // Position the new frame to the right of all existing frames
+          adjustedFrame = {
+            ...newFrame,
+            x: rightmostEdge,
+          };
+          break;
+        }
+      }
+      
       newState = {
         ...state,
         frames: [
           ...state.frames,
-          {
-            ...action.frame,
-            id: newFrameId,
-          },
+          isOverlapping ? adjustedFrame : newFrame
         ],
         activeFrameId: state.frames.length === 0 ? newFrameId : state.activeFrameId,
+        selectedFrameId: newFrameId, // Select the newly created frame
       };
       break;
+    }
 
-    case "UPDATE_FRAME":
+    case "UPDATE_FRAME": {
       newState = {
         ...state,
         frames: state.frames.map((frame) =>
@@ -227,55 +309,92 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
         ),
       };
       break;
+    }
 
-    case "DELETE_FRAME":
+    case "DELETE_FRAME": {
       // Remove frame and also remove frameId from components
       newState = {
         ...state,
         frames: state.frames.filter((frame) => frame.id !== action.id),
         activeFrameId: state.activeFrameId === action.id ? null : state.activeFrameId,
+        selectedFrameId: state.selectedFrameId === action.id ? null : state.selectedFrameId,
         components: state.components.map(component => 
           component.frameId === action.id ? { ...component, frameId: undefined } : component
         ),
       };
       break;
+    }
 
-    case "SET_ACTIVE_FRAME":
+    case "SET_ACTIVE_FRAME": {
       newState = {
         ...state,
         activeFrameId: action.id,
       };
       break;
+    }
 
-    case "SET_ZOOM_LEVEL":
+    case "SET_ZOOM_LEVEL": {
       newState = {
         ...state,
         zoomLevel: action.level,
       };
       break;
+    }
 
-    case "SET_DRAGGED_FRAME":
+    case "SET_DRAGGED_FRAME": {
       newState = {
         ...state,
         draggedFrameId: action.id,
       };
       break;
+    }
 
     case "MOVE_FRAME": {
-      const newX = state.snapToGrid 
-        ? snapToGrid(action.x, state.gridSize) 
-        : action.x;
-      const newY = state.snapToGrid 
-        ? snapToGrid(action.y, state.gridSize) 
-        : action.y;
+      const frameToMove = state.frames.find(f => f.id === action.id);
+      if (!frameToMove) return state;
       
-      // Find the frame that's being moved
-      const frame = state.frames.find(f => f.id === action.id);
-      if (!frame) return state;
+      // Apply grid snapping if enabled
+      let newX = state.snapToGrid ? snapToGrid(action.x, state.gridSize) : action.x;
+      let newY = state.snapToGrid ? snapToGrid(action.y, state.gridSize) : action.y;
+      
+      // Find other frames for edge snapping (with 15px threshold)
+      const otherFrames = state.frames.filter(f => f.id !== action.id);
+      const snapThreshold = 15;
+      
+      // Create a temporary frame object with the new position
+      const movedFrame = { ...frameToMove, x: newX, y: newY };
+      
+      // Find nearby edges for snapping
+      const nearbyEdges = findNearbyFrameEdges(movedFrame, otherFrames, snapThreshold);
+      
+      // Apply snapping if edges are found
+      if (nearbyEdges.x !== null) {
+        newX = nearbyEdges.x;
+      }
+      
+      if (nearbyEdges.y !== null) {
+        newY = nearbyEdges.y;
+      }
       
       // Calculate the movement delta
-      const deltaX = newX - frame.x;
-      const deltaY = newY - frame.y;
+      const deltaX = newX - frameToMove.x;
+      const deltaY = newY - frameToMove.y;
+      
+      // Check if the new position would cause an overlap
+      let wouldOverlap = false;
+      const updatedFrame = { ...frameToMove, x: newX, y: newY };
+      
+      for (const otherFrame of otherFrames) {
+        if (doFramesOverlap(updatedFrame, otherFrame)) {
+          wouldOverlap = true;
+          break;
+        }
+      }
+      
+      // Don't move the frame if it would cause an overlap
+      if (wouldOverlap) {
+        return state;
+      }
       
       // Update frames
       const updatedFrames = state.frames.map(f => 
@@ -303,7 +422,7 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
       break;
     }
     
-    case "ASSIGN_COMPONENT_TO_FRAME":
+    case "ASSIGN_COMPONENT_TO_FRAME": {
       newState = {
         ...state,
         components: state.components.map(component =>
@@ -313,13 +432,25 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
         ),
       };
       break;
+    }
+    
+    case "SELECT_FRAME": {
+      newState = {
+        ...state,
+        selectedFrameId: action.id,
+        // Clear selected component when selecting a frame
+        // This ensures only one type of element is selected at a time
+      };
+      break;
+    }
 
-    case "LOAD_FROM_STORAGE":
+    case "LOAD_FROM_STORAGE": {
       newState = {
         ...state,
         ...action.state,
       };
       break;
+    }
 
     default:
       newState = state;

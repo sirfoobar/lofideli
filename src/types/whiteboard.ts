@@ -49,6 +49,7 @@ export interface WhiteboardState {
   activeFrameId: string | null;
   zoomLevel: number;
   draggedFrameId: string | null;
+  selectedFrameId: string | null; // Add selectedFrameId to track selected frame
 }
 
 // Actions
@@ -71,4 +72,5 @@ export type WhiteboardAction =
   | { type: "SET_DRAGGED_FRAME"; id: string | null }
   | { type: "MOVE_FRAME"; id: string; x: number; y: number; moveAttachedComponents?: boolean }
   | { type: "ASSIGN_COMPONENT_TO_FRAME"; componentId: string; frameId: string | undefined }
+  | { type: "SELECT_FRAME"; id: string | null } // Add SELECT_FRAME action
   | { type: "LOAD_FROM_STORAGE"; state: Partial<WhiteboardState> };

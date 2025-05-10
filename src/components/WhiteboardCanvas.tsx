@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import CanvasComponent from "@/components/CanvasComponent";
@@ -24,7 +23,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   selectedComponentId,
   showGrid
 }) => {
-  const { state, dispatch } = useWhiteboard();
+  const { state, dispatch, selectFrame } = useWhiteboard();
   const canvasRef = useRef<HTMLDivElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -69,6 +68,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   const handleCanvasClick = (e: React.MouseEvent) => {
     if (e.target === canvasRef.current) {
       onSelectComponent(null);
+      selectFrame(null); // Deselect frame when clicking on empty canvas
     }
   };
 
@@ -162,22 +162,31 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
 
   const handleSelectComponent = (id: string) => {
     onSelectComponent(id);
+    selectFrame(null); // Deselect frame when selecting a component
   };
 
+  // Handle frame click - now specifically for selecting frames
   const handleFrameClick = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    dispatch({ type: "SET_ACTIVE_FRAME", id });
+    
+    if (e.ctrlKey || e.metaKey) {
+      // If holding Ctrl/Cmd, set as active frame instead of selecting
+      dispatch({ type: "SET_ACTIVE_FRAME", id });
+      toast(`Frame set as active`);
+    } else {
+      // Regular click selects the frame and shows properties
+      selectFrame(id);
+      onSelectComponent(null); // Deselect any selected component
+    }
   };
 
   // Handle frame mouse down event for drag initiation
   const handleFrameMouseDown = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     
-    // Set this frame as active
-    dispatch({ type: "SET_ACTIVE_FRAME", id });
-    
-    // Start frame drag
-    if (e.button === 0) { // Left mouse button
+    // Only start dragging if not Ctrl-clicking (which sets active frame)
+    if (e.button === 0 && !(e.ctrlKey || e.metaKey)) { // Left mouse button without ctrl/cmd
+      // Start frame drag
       dispatch({ type: "SET_DRAGGED_FRAME", id });
       
       const frame = state.frames.find(f => f.id === id);
@@ -417,7 +426,13 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
           <ContextMenu key={frame.id}>
             <ContextMenuTrigger asChild>
               <div 
-                className={`absolute border-2 ${frame.id === state.activeFrameId ? 'border-blue-400' : 'border-gray-300'} bg-white z-10 shadow-md hand-drawn-frame`}
+                className={`absolute border-2 ${
+                  frame.id === state.selectedFrameId 
+                    ? 'border-purple-500 ring-2 ring-purple-300' 
+                    : frame.id === state.activeFrameId 
+                      ? 'border-blue-400' 
+                      : 'border-gray-300'
+                } bg-white bg-opacity-90 z-10 shadow-md hand-drawn-frame`}
                 style={{
                   width: frame.width,
                   height: frame.height,
@@ -428,8 +443,19 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
                 onClick={(e) => handleFrameClick(frame.id, e)}
                 onMouseDown={(e) => handleFrameMouseDown(frame.id, e)}
               >
-                <div className={`absolute top-0 left-0 ${frame.id === state.activeFrameId ? 'bg-blue-400' : 'bg-gray-300'} text-white text-xs px-2 py-0.5 rounded-br`}>
+                <div className={`absolute top-0 left-0 ${
+                  frame.id === state.selectedFrameId 
+                    ? 'bg-purple-500' 
+                    : frame.id === state.activeFrameId 
+                      ? 'bg-blue-400' 
+                      : 'bg-gray-300'
+                } text-white text-xs px-2 py-0.5 rounded-br`}>
                   {frame.name} - {frame.width} × {frame.height}
+                  {frame.id === state.activeFrameId && <span className="ml-1">(Active)</span>}
+                </div>
+                <div className="absolute bottom-0 right-0 text-xs text-gray-500 px-1">
+                  {getComponentsInFrame(frame.id).length > 0 && 
+                    `${getComponentsInFrame(frame.id).length} component${getComponentsInFrame(frame.id).length !== 1 ? 's' : ''}`}
                 </div>
               </div>
             </ContextMenuTrigger>
@@ -442,6 +468,22 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
               <ContextMenuItem onClick={() => generateAIPrompt(frame.id)} className="cursor-pointer">
                 <Bot className="mr-2 h-4 w-4" />
                 <span>Copy AI Prompt</span>
+              </ContextMenuItem>
+              <ContextMenuSeparator />
+              <ContextMenuItem onClick={() => selectFrame(frame.id)} className="cursor-pointer">
+                <span>Edit Properties</span>
+              </ContextMenuItem>
+              <ContextMenuItem onClick={() => dispatch({ type: "SET_ACTIVE_FRAME", id: frame.id })} className="cursor-pointer">
+                <span>Set as Active Frame</span>
+              </ContextMenuItem>
+              <ContextMenuItem 
+                onClick={() => {
+                  dispatch({ type: "DELETE_FRAME", id: frame.id });
+                  toast("Frame deleted");
+                }} 
+                className="cursor-pointer text-destructive"
+              >
+                <span>Delete Frame</span>
               </ContextMenuItem>
             </ContextMenuContent>
           </ContextMenu>

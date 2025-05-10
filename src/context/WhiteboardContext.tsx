@@ -16,6 +16,7 @@ interface WhiteboardContextValue {
   saveToJSON: () => string;
   loadFromJSON: (jsonData: string) => void;
   clearCanvas: () => void;
+  selectFrame: (id: string | null) => void;
 }
 
 const WhiteboardContext = createContext<WhiteboardContextValue | undefined>(undefined);
@@ -42,8 +43,20 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   }, [toast]);
 
+  // Helper function to select a frame
+  const selectFrame = (id: string | null) => {
+    dispatch({ type: "SELECT_FRAME", id });
+  };
+
   return (
-    <WhiteboardContext.Provider value={{ state, dispatch, saveToJSON, loadFromJSON, clearCanvas }}>
+    <WhiteboardContext.Provider value={{ 
+      state, 
+      dispatch, 
+      saveToJSON, 
+      loadFromJSON, 
+      clearCanvas,
+      selectFrame
+    }}>
       {children}
     </WhiteboardContext.Provider>
   );
