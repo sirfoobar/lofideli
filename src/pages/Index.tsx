@@ -7,6 +7,7 @@ import FrameSizeControls from "@/components/FrameSizeControls";
 import ZoomControls from "@/components/ZoomControls";
 import TopBar from "@/components/TopBar";
 import { WhiteboardProvider } from "@/context/WhiteboardContext";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const Index = () => {
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
@@ -40,6 +41,11 @@ const Index = () => {
           >
             {showComponentLibrary && (
               <div className="p-4">
+                {/* Theme toggle button */}
+                <div className="flex justify-end mb-2">
+                  <ThemeToggle />
+                </div>
+                
                 {/* Frames section - Now at the top */}
                 <FrameSizeControls />
                 
