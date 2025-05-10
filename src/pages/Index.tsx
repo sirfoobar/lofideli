@@ -29,7 +29,7 @@ const Index = () => {
                 <FrameSizeControls />
                 
                 <div className="mt-6 border-t border-border pt-4">
-                  <h2 className="text-lg font-small mb-4">Components</h2>
+                  <h2 className="font-small mb-4 text-xs">Components</h2>
                   <ComponentLibrary />
                 </div>
               </div>}
