@@ -1,7 +1,7 @@
 
 import React from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
-import { Laptop, Smartphone, Square, Plus } from "lucide-react";
+import { Laptop, Smartphone, Plus } from "lucide-react";
 
 interface FrameSize {
   name: string;
@@ -36,9 +36,9 @@ const FrameSizeControls: React.FC = () => {
   };
   
   return (
-    <div className="flex flex-col gap-2 p-2">
-      <div className="flex justify-between items-center mb-1">
-        <h3 className="text-sm font-medium">Frames</h3>
+    <div className="flex flex-col gap-2">
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="text-lg font-medium">Frames</h2>
         <button
           onClick={handleAddCustomFrame}
           className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
@@ -48,7 +48,7 @@ const FrameSizeControls: React.FC = () => {
         </button>
       </div>
       
-      <div className="flex gap-2">
+      <div className="flex gap-2 mb-2">
         {frameSizes.map((size) => (
           <button
             key={size.name}
@@ -62,7 +62,7 @@ const FrameSizeControls: React.FC = () => {
         ))}
       </div>
       
-      <div className="mt-2">
+      <div>
         {state.frames.length > 0 && (
           <div className="text-xs text-muted-foreground mb-1">
             {state.frames.length} frame{state.frames.length !== 1 ? 's' : ''} on canvas

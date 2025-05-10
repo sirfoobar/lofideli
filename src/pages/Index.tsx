@@ -40,11 +40,12 @@ const Index = () => {
           >
             {showComponentLibrary && (
               <div className="p-4">
-                <h2 className="text-lg font-medium mb-4">Components</h2>
-                <ComponentLibrary />
+                {/* Frames section - Now at the top */}
+                <FrameSizeControls />
                 
-                <div className="mt-4 border-t border-border pt-4">
-                  <FrameSizeControls />
+                <div className="mt-6 border-t border-border pt-4">
+                  <h2 className="text-lg font-medium mb-4">Components</h2>
+                  <ComponentLibrary />
                 </div>
               </div>
             )}
