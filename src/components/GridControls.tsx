@@ -1,14 +1,17 @@
 
 import React from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
+import { Checkbox } from "./ui/checkbox";
+import { Select } from "./ui/select";
+import { Label } from "./ui/label";
 
 const GridControls: React.FC = () => {
   const { dispatch, state } = useWhiteboard();
   
-  const toggleGridSnap = () => {
+  const toggleGridSnap = (checked: boolean) => {
     dispatch({ 
       type: "TOGGLE_GRID_SNAP", 
-      enabled: !state.snapToGrid 
+      enabled: checked 
     });
   };
   
@@ -23,15 +26,17 @@ const GridControls: React.FC = () => {
     <div className="flex flex-col gap-2 p-2">
       <h3 className="text-sm font-small mb-1">Grid Settings</h3>
       <div className="flex items-center gap-2">
-        <label className="flex items-center gap-1.5 text-xs">
-          <input
-            type="checkbox"
+        <div className="flex items-center gap-1.5">
+          <Checkbox
+            id="snap-to-grid"
             checked={state.snapToGrid}
-            onChange={toggleGridSnap}
+            onCheckedChange={toggleGridSnap}
             className="w-3.5 h-3.5"
           />
-          Snap to grid
-        </label>
+          <Label htmlFor="snap-to-grid" className="text-xs">
+            Snap to grid
+          </Label>
+        </div>
         
         <select
           value={state.gridSize}

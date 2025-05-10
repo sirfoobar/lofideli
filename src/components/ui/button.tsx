@@ -40,10 +40,12 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
+  // New prop for complete class override
+  rootClassName?: string
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, forwardedRef) => {
+  ({ className, variant, size, asChild = false, rootClassName, ...props }, forwardedRef) => {
     const ref = useObjectRef(forwardedRef);
     const { buttonProps } = useButton(props, ref);
     
@@ -51,7 +53,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={rootClassName || cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...buttonProps}
         {...props}

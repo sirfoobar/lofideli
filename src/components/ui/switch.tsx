@@ -3,7 +3,7 @@ import * as React from "react"
 import { useToggleState } from "@react-stately/toggle"
 import { useSwitch } from "@react-aria/switch"
 import { useObjectRef } from "@react-aria/utils"
-import { VisuallyHidden } from "@react-aria/focus"
+import { VisuallyHidden } from "@react-aria/visually-hidden"
 
 import { cn } from "@/lib/utils"
 
@@ -12,10 +12,21 @@ export interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputEle
   defaultChecked?: boolean
   onCheckedChange?: (checked: boolean) => void
   className?: string
+  // New props for customization
+  thumbClassName?: string
+  trackClassName?: string
 }
 
 const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
-  ({ className, checked, defaultChecked, onCheckedChange, ...props }, forwardedRef) => {
+  ({ 
+    className, 
+    checked, 
+    defaultChecked, 
+    onCheckedChange, 
+    thumbClassName,
+    trackClassName,
+    ...props 
+  }, forwardedRef) => {
     const ref = useObjectRef(forwardedRef)
     const inputRef = React.useRef<HTMLInputElement>(null)
     
@@ -32,6 +43,7 @@ const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
         className={cn(
           "peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
           state.isSelected ? "bg-primary" : "bg-input",
+          trackClassName,
           className
         )}
         onClick={() => state.toggle()}
@@ -42,7 +54,8 @@ const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
         <div
           className={cn(
             "pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform",
-            state.isSelected ? "translate-x-5" : "translate-x-0"
+            state.isSelected ? "translate-x-5" : "translate-x-0",
+            thumbClassName
           )}
         />
       </div>

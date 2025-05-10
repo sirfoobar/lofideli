@@ -35,10 +35,12 @@ export interface ToggleProps
   pressed?: boolean
   defaultPressed?: boolean
   onPressedChange?: (pressed: boolean) => void
+  // New prop for complete class name customization
+  rootClassName?: string
 }
 
 const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
-  ({ className, variant, size, pressed, defaultPressed, onPressedChange, ...props }, forwardedRef) => {
+  ({ className, variant, size, pressed, defaultPressed, onPressedChange, rootClassName, ...props }, forwardedRef) => {
     const ref = useObjectRef(forwardedRef)
     const state = useToggleState({
       isSelected: pressed,
@@ -51,7 +53,7 @@ const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
     return (
       <button
         type="button"
-        className={cn(toggleVariants({ variant, size, className }))}
+        className={rootClassName || cn(toggleVariants({ variant, size, className }))}
         data-selected={state.isSelected}
         ref={ref}
         {...buttonProps}
