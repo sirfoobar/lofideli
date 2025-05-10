@@ -1,28 +1,151 @@
+
 import * as React from "react"
-import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+import { useTooltip, useTooltipTrigger } from "@react-aria/tooltip"
+import { mergeProps } from "@react-aria/utils"
+import { useOverlayPosition } from "@react-aria/overlays"
+import { useTooltipTriggerState } from "@react-stately/tooltip"
 
 import { cn } from "@/lib/utils"
 
-const TooltipProvider = TooltipPrimitive.Provider
+interface TooltipProviderProps {
+  children: React.ReactNode;
+  delayDuration?: number;
+}
 
-const Tooltip = TooltipPrimitive.Root
+const TooltipProvider: React.FC<TooltipProviderProps> = ({ 
+  children,
+  delayDuration = 700
+}) => {
+  return (
+    <TooltipContext.Provider value={{ delayDuration }}>
+      {children}
+    </TooltipContext.Provider>
+  );
+};
 
-const TooltipTrigger = TooltipPrimitive.Trigger
+type TooltipContextValue = {
+  delayDuration: number;
+};
 
-const TooltipContent = React.forwardRef<
-  React.ElementRef<typeof TooltipPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
->(({ className, sideOffset = 4, ...props }, ref) => (
-  <TooltipPrimitive.Content
-    ref={ref}
-    sideOffset={sideOffset}
-    className={cn(
-      "z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
-      className
-    )}
-    {...props}
-  />
-))
-TooltipContent.displayName = TooltipPrimitive.Content.displayName
+const TooltipContext = React.createContext<TooltipContextValue>({ 
+  delayDuration: 700 
+});
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+const useTooltipContext = () => {
+  return React.useContext(TooltipContext);
+};
+
+interface TooltipProps {
+  children: React.ReactNode;
+}
+
+const Tooltip: React.FC<TooltipProps> = ({ children }) => {
+  return <>{children}</>;
+};
+
+interface TooltipTriggerProps {
+  children: React.ReactNode;
+  asChild?: boolean;
+}
+
+const TooltipTrigger = React.forwardRef<HTMLElement, TooltipTriggerProps>(
+  ({ children, asChild = false }, forwardedRef) => {
+    // We're not using ref here because we delegate that to the actual element
+    return React.Children.only(children);
+  }
+);
+
+TooltipTrigger.displayName = "TooltipTrigger";
+
+interface TooltipContentProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string;
+  sideOffset?: number;
+  trigger: React.RefObject<HTMLElement>;
+}
+
+const TooltipContent = React.forwardRef<HTMLDivElement, TooltipContentProps>(
+  ({ className, sideOffset = 4, trigger, children, ...props }, forwardedRef) => {
+    const { delayDuration } = useTooltipContext();
+    const state = useTooltipTriggerState({
+      delay: delayDuration,
+      trigger: 'focus hover'
+    });
+    
+    const overlayRef = React.useRef<HTMLDivElement>(null);
+    
+    const { triggerProps, tooltipProps } = useTooltipTrigger(
+      { delay: delayDuration, trigger: 'focus hover' },
+      state,
+      trigger
+    );
+    
+    const { tooltipProps: ariaTooltipProps } = useTooltip(tooltipProps, state);
+    
+    const { overlayProps } = useOverlayPosition({
+      targetRef: trigger,
+      overlayRef,
+      placement: 'top',
+      offset: sideOffset,
+      isOpen: state.isOpen
+    });
+    
+    if (!state.isOpen) {
+      return null;
+    }
+    
+    return (
+      <div 
+        ref={overlayRef}
+        className={cn(
+          "z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+          className
+        )}
+        {...mergeProps(ariaTooltipProps, overlayProps, props)}
+      >
+        {children}
+      </div>
+    );
+  }
+);
+
+TooltipContent.displayName = "TooltipContent";
+
+// This is a convenience wrapper that combines the Tooltip components
+function TooltipWrapper({
+  children,
+  content,
+  className,
+  delayDuration = 700,
+  sideOffset = 4,
+}: {
+  children: React.ReactNode;
+  content: React.ReactNode;
+  className?: string;
+  delayDuration?: number;
+  sideOffset?: number;
+}) {
+  const triggerRef = React.useRef<HTMLElement>(null);
+  const childElement = React.Children.only(children) as React.ReactElement;
+  const clonedChild = React.cloneElement(childElement, {
+    ref: triggerRef,
+  });
+
+  return (
+    <TooltipProvider delayDuration={delayDuration}>
+      <Tooltip>
+        <TooltipTrigger>{clonedChild}</TooltipTrigger>
+        <TooltipContent trigger={triggerRef} className={className} sideOffset={sideOffset}>
+          {content}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+export { 
+  Tooltip, 
+  TooltipTrigger, 
+  TooltipContent, 
+  TooltipProvider,
+  TooltipWrapper
+}
