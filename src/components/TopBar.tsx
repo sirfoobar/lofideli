@@ -104,7 +104,7 @@ const TopBar: React.FC<TopBarProps> = ({
     <TooltipProvider>
       <div className="h-8 border-b border-border bg-card flex items-center px-4 justify-between">
         <div className="flex items-center">
-          <h1 className="font-papercut text-lg tracking-wider mr-6">LofiDeli</h1>
+          <h1 className="font-mono text-lg font-semibold mr-6">LofiDeli</h1>
           
           <div className="flex gap-1">
             <Tooltip>
