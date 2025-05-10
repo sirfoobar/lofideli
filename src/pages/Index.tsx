@@ -44,7 +44,7 @@ const Index = () => {
                 <FrameSizeControls />
                 
                 <div className="mt-6 border-t border-border pt-4">
-                  <h2 className="text-lg font-medium mb-4">Components</h2>
+                  <h2 className="text-lg font-small mb-4">Components</h2>
                   <ComponentLibrary />
                 </div>
               </div>
@@ -67,7 +67,7 @@ const Index = () => {
               selectedComponentId ? 'translate-x-0' : 'translate-x-full'
             } absolute right-0 top-0 bottom-0 z-10`}
           >
-            <h2 className="text-lg font-medium mb-4">Properties</h2>
+            <h2 className="text-lg font-small mb-4">Properties</h2>
             <PropertyPanel selectedComponentId={selectedComponentId} />
           </div>
         </div>

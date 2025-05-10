@@ -58,7 +58,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium capitalize">{selectedComponent.type}</span>
+        <span className="text-sm font-small capitalize">{selectedComponent.type}</span>
         <button
           className="text-xs text-white bg-destructive px-2 py-1 rounded"
           onClick={handleDeleteComponent}

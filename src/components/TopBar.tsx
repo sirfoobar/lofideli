@@ -128,7 +128,7 @@ const TopBar: React.FC<TopBarProps> = ({
               
               <PopoverContent className="w-64 p-4">
                 <div className="flex flex-col gap-3">
-                  <h3 className="text-sm font-medium">Grid Settings</h3>
+                  <h3 className="text-sm font-small">Grid Settings</h3>
                   
                   <div className="flex items-center justify-between">
                     <label className="flex items-center gap-2 text-sm">
@@ -182,7 +182,7 @@ const TopBar: React.FC<TopBarProps> = ({
               
               <PopoverContent className="w-64 p-4">
                 <div className="flex flex-col gap-3">
-                  <h3 className="text-sm font-medium">Canvas Data</h3>
+                  <h3 className="text-sm font-small">Canvas Data</h3>
                   
                   <Button 
                     variant="outline" 

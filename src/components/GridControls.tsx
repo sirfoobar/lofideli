@@ -21,7 +21,7 @@ const GridControls: React.FC = () => {
   
   return (
     <div className="flex flex-col gap-2 p-2">
-      <h3 className="text-sm font-medium mb-1">Grid Settings</h3>
+      <h3 className="text-sm font-small mb-1">Grid Settings</h3>
       <div className="flex items-center gap-2">
         <label className="flex items-center gap-1.5 text-xs">
           <input

@@ -65,7 +65,7 @@ const CanvasControls = () => {
 
   return (
     <div className="space-y-2">
-      <h2 className="text-lg font-medium mb-2">Canvas Data</h2>
+      <h2 className="text-lg font-small mb-2">Canvas Data</h2>
       <div className="flex flex-col gap-2">
         <Button 
           variant="outline" 
