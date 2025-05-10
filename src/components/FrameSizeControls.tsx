@@ -41,7 +41,7 @@ const FrameSizeControls: React.FC = () => {
   return <div className="flex flex-col gap-2">
       <div className="flex justify-between items-center mb-2">
         <h2 className="font-small text-xs">Frames</h2>
-        <button onClick={handleAddCustomFrame} className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground hover:bg-primary/90" title="Add new frame">
+        <button onClick={handleAddCustomFrame} title="Add new frame" className="flex items-center justify-center w-6 h-6 rounded-full text-primary-foreground hover:bg-primary/90">
           <Plus className="w-4 h-4" />
         </button>
       </div>
