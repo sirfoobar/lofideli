@@ -1,6 +1,6 @@
-
 import React, { useState, useRef } from "react";
-import { useWhiteboard, CanvasComponent as ComponentType } from "@/context/WhiteboardContext";
+import { useWhiteboard } from "@/context/WhiteboardContext";
+import { CanvasComponent as ComponentType } from "@/types/whiteboard";
 
 interface CanvasComponentProps {
   component: ComponentType;

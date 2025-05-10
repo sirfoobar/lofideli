@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import CanvasComponent from "@/components/CanvasComponent";
@@ -11,6 +10,7 @@ import {
 } from "@/components/ui/context-menu";
 import { FileImage, Bot } from "lucide-react";
 import { toast } from "sonner";
+import { getDefaultContentForComponent, getDefaultPropertiesForComponent } from "@/utils/whiteboardUtils";
 
 interface WhiteboardCanvasProps {
   onSelectComponent: (id: string | null) => void;
@@ -457,75 +457,5 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     </div>
   );
 };
-
-// Helper functions to set default content and properties
-function getDefaultContentForComponent(type: string): string {
-  switch (type) {
-    case "button":
-      return "Button";
-    case "input":
-      return "Input";
-    case "text":
-      return "Text";
-    case "heading":
-      return "Heading";
-    case "paragraph":
-      return "This is a paragraph of text. Double click to edit.";
-    default:
-      return "";
-  }
-}
-
-function getDefaultPropertiesForComponent(type: string): Record<string, any> {
-  const baseProperties = {
-    backgroundColor: "transparent",
-    borderColor: "transparent",
-    borderWidth: 0,
-    borderRadius: 4,
-    textColor: "#000000",
-    textAlign: "left",
-    fontSize: 16,
-  };
-  
-  switch (type) {
-    case "button":
-      return {
-        ...baseProperties,
-        textAlign: "center",
-        padding: "8px 16px",
-      };
-    case "input":
-      return {
-        ...baseProperties,
-        placeholder: "Enter text...",
-        padding: "8px 12px",
-      };
-    case "checkbox":
-      return {
-        ...baseProperties,
-        checked: false,
-        label: "Checkbox",
-      };
-    case "radio":
-      return {
-        ...baseProperties,
-        options: ["Option 1", "Option 2", "Option 3"],
-        selected: 0,
-      };
-    case "select":
-      return {
-        ...baseProperties,
-        options: ["Option 1", "Option 2", "Option 3"],
-        selected: 0,
-      };
-    case "card":
-      return {
-        ...baseProperties,
-        padding: 16,
-      };
-    default:
-      return baseProperties;
-  }
-}
 
 export default WhiteboardCanvas;
