@@ -9,11 +9,13 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 interface TopBarProps {
   onToggleComponentLibrary: () => void;
   onToggleGrid: () => void;
+  showGrid: boolean; // Added missing prop
 }
 
 const TopBar: React.FC<TopBarProps> = ({
   onToggleComponentLibrary,
-  onToggleGrid
+  onToggleGrid,
+  showGrid // Added missing prop
 }) => {
   const {
     saveToJSON,

@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import CanvasComponent from "@/components/CanvasComponent";
@@ -15,6 +16,7 @@ import { getDefaultContentForComponent, getDefaultPropertiesForComponent } from 
 interface WhiteboardCanvasProps {
   onSelectComponent: (id: string | null) => void;
   selectedComponentId: string | null;
+  showGrid: boolean; // Added missing prop
 }
 
 const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
