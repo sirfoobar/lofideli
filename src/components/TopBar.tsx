@@ -2,7 +2,7 @@
 import React from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import { Button } from "@/components/ui/button";
-import { Grid2X2, Component, Export } from "lucide-react";
+import { Grid2X2, Component, FileDown } from "lucide-react";
 
 interface TopBarProps {
   onToggleComponentLibrary: () => void;
@@ -61,7 +61,7 @@ const TopBar: React.FC<TopBarProps> = ({
             onClick={handleExport} 
             title="Export Canvas"
           >
-            <Export size={18} />
+            <FileDown size={18} />
           </Button>
         </div>
       </div>
