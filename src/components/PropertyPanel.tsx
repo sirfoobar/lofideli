@@ -75,11 +75,11 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
             <Input
               type="number"
               value={Math.round(selectedComponent.x)}
-              onChange={(e) =>
+              onChange={(value) =>
                 dispatch({
                   type: "MOVE_COMPONENT",
                   id: selectedComponentId!,
-                  x: Number(e.target.value),
+                  x: Number(value),
                   y: selectedComponent.y,
                 })
               }
@@ -91,12 +91,12 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
             <Input
               type="number"
               value={Math.round(selectedComponent.y)}
-              onChange={(e) =>
+              onChange={(value) =>
                 dispatch({
                   type: "MOVE_COMPONENT",
                   id: selectedComponentId!,
                   x: selectedComponent.x,
-                  y: Number(e.target.value),
+                  y: Number(value),
                 })
               }
               className="h-8"
@@ -111,11 +111,11 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
             <Input
               type="number"
               value={Math.round(selectedComponent.width)}
-              onChange={(e) =>
+              onChange={(value) =>
                 dispatch({
                   type: "RESIZE_COMPONENT",
                   id: selectedComponentId!,
-                  width: Number(e.target.value),
+                  width: Number(value),
                   height: selectedComponent.height,
                 })
               }
@@ -127,12 +127,12 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
             <Input
               type="number"
               value={Math.round(selectedComponent.height)}
-              onChange={(e) =>
+              onChange={(value) =>
                 dispatch({
                   type: "RESIZE_COMPONENT",
                   id: selectedComponentId!,
                   width: selectedComponent.width,
-                  height: Number(e.target.value),
+                  height: Number(value),
                 })
               }
               className="h-8"
@@ -148,8 +148,8 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
             <Input
               type="color"
               value={selectedComponent.properties.backgroundColor === 'transparent' ? '#ffffff' : selectedComponent.properties.backgroundColor || '#ffffff'}
-              onChange={(e) =>
-                handlePropertyChange("backgroundColor", e.target.value)
+              onChange={(value) =>
+                handlePropertyChange("backgroundColor", value)
               }
               className="w-10 h-8 p-0"
               disabled={selectedComponent.properties.backgroundColor === 'transparent'}
@@ -158,8 +158,8 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
             <Input
               type="text"
               value={selectedComponent.properties.backgroundColor || '#ffffff'}
-              onChange={(e) =>
-                handlePropertyChange("backgroundColor", e.target.value)
+              onChange={(value) =>
+                handlePropertyChange("backgroundColor", value)
               }
               className="flex-1 h-8"
               disabled={selectedComponent.properties.backgroundColor === 'transparent'}
@@ -183,16 +183,16 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
             <Input
               type="color"
               value={selectedComponent.properties.borderColor || "#d1d5db"}
-              onChange={(e) =>
-                handlePropertyChange("borderColor", e.target.value)
+              onChange={(value) =>
+                handlePropertyChange("borderColor", value)
               }
               className="w-10 h-8 p-0"
             />
             <Input
               type="text"
               value={selectedComponent.properties.borderColor || "#d1d5db"}
-              onChange={(e) =>
-                handlePropertyChange("borderColor", e.target.value)
+              onChange={(value) =>
+                handlePropertyChange("borderColor", value)
               }
               className="flex-1 h-8"
             />
@@ -242,16 +242,16 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                 <Input
                   type="color"
                   value={selectedComponent.properties.textColor || "#000000"}
-                  onChange={(e) =>
-                    handlePropertyChange("textColor", e.target.value)
+                  onChange={(value) =>
+                    handlePropertyChange("textColor", value)
                   }
                   className="w-10 h-8 p-0"
                 />
                 <Input
                   type="text"
                   value={selectedComponent.properties.textColor || "#000000"}
-                  onChange={(e) =>
-                    handlePropertyChange("textColor", e.target.value)
+                  onChange={(value) =>
+                    handlePropertyChange("textColor", value)
                   }
                   className="flex-1 h-8"
                 />
@@ -303,8 +303,8 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
             <Input
               type="text"
               value={selectedComponent.properties.placeholder || ""}
-              onChange={(e) =>
-                handlePropertyChange("placeholder", e.target.value)
+              onChange={(value) =>
+                handlePropertyChange("placeholder", value)
               }
               className="h-8"
             />
@@ -327,8 +327,8 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
             <Input
               type="text"
               value={selectedComponent.properties.label || ""}
-              onChange={(e) =>
-                handlePropertyChange("label", e.target.value)
+              onChange={(value) =>
+                handlePropertyChange("label", value)
               }
               className="h-8"
             />
@@ -345,11 +345,11 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                   <Input
                     type="text"
                     value={option}
-                    onChange={(e) => {
+                    onChange={(value) => {
                       const newOptions = [
                         ...(selectedComponent.properties.options || []),
                       ];
-                      newOptions[index] = e.target.value;
+                      newOptions[index] = value;
                       handlePropertyChange("options", newOptions);
                     }}
                     className="h-8 flex-1"

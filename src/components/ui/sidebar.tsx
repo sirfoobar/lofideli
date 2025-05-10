@@ -536,7 +536,7 @@ const SidebarMenuButton = React.forwardRef<
   React.ComponentProps<"button"> & {
     asChild?: boolean
     isActive?: boolean
-    tooltip?: string | React.ComponentProps<typeof TooltipContent>
+    tooltip?: string | React.ReactNode
   } & VariantProps<typeof sidebarMenuButtonVariants>
 >(
   (
@@ -553,10 +553,21 @@ const SidebarMenuButton = React.forwardRef<
   ) => {
     const Comp = asChild ? Slot : "button"
     const { isMobile, state } = useSidebar()
+    const triggerRef = React.useRef<HTMLElement>(null)
 
     const button = (
       <Comp
-        ref={ref}
+        ref={(node: any) => {
+          // Assign ref to both refs
+          if (ref) {
+            if (typeof ref === 'function') {
+              ref(node)
+            } else {
+              (ref as React.MutableRefObject<any>).current = node
+            }
+          }
+          triggerRef.current = node
+        }}
         data-sidebar="menu-button"
         data-size={size}
         data-active={isActive}
@@ -569,21 +580,27 @@ const SidebarMenuButton = React.forwardRef<
       return button
     }
 
-    if (typeof tooltip === "string") {
-      tooltip = {
-        children: tooltip,
-      }
-    }
-
     return (
       <Tooltip>
         <TooltipTrigger asChild>{button}</TooltipTrigger>
-        <TooltipContent
-          side="right"
-          align="center"
-          hidden={state !== "collapsed" || isMobile}
-          {...tooltip}
-        />
+        {typeof tooltip === 'string' ? (
+          <TooltipContent
+            trigger={triggerRef}
+            side="right"
+            align="center"
+            hidden={state !== "collapsed" || isMobile}
+          >
+            {tooltip}
+          </TooltipContent>
+        ) : (
+          // When tooltip is a ReactNode, assume it's a properly configured TooltipContent
+          React.cloneElement(tooltip as React.ReactElement, {
+            trigger: triggerRef,
+            side: "right",
+            align: "center",
+            hidden: state !== "collapsed" || isMobile
+          })
+        )}
       </Tooltip>
     )
   }

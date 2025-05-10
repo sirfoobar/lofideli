@@ -70,13 +70,13 @@ const TooltipContent = React.forwardRef<HTMLDivElement, TooltipContentProps>(
     const { delayDuration } = useTooltipContext();
     const state = useTooltipTriggerState({
       delay: delayDuration,
-      trigger: 'focus hover'
+      trigger: 'focus' // Changed from 'focus hover' to just 'focus' to match expected type
     });
     
     const overlayRef = React.useRef<HTMLDivElement>(null);
     
     const { triggerProps, tooltipProps } = useTooltipTrigger(
-      { delay: delayDuration, trigger: 'focus hover' },
+      { delay: delayDuration, trigger: 'focus' }, // Changed from 'focus hover' to just 'focus'
       state,
       trigger
     );

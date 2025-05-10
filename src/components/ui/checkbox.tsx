@@ -14,12 +14,14 @@ export interface CheckboxProps extends Omit<React.ComponentPropsWithoutRef<typeo
   onCheckedChange?: (checked: boolean) => void;
   rootClassName?: string;
   indicatorClassName?: string;
+  // Fix - ensure value is properly typed for React Aria
+  value?: string;
 }
 
 const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
   CheckboxProps
->(({ className, rootClassName, indicatorClassName, checked, defaultChecked, onCheckedChange, ...props }, forwardedRef) => {
+>(({ className, rootClassName, indicatorClassName, checked, defaultChecked, onCheckedChange, value, ...props }, forwardedRef) => {
   const ref = useObjectRef(forwardedRef);
   const state = useToggleState({
     isSelected: checked,
@@ -31,6 +33,7 @@ const Checkbox = React.forwardRef<
     {
       ...props,
       isSelected: state.isSelected,
+      value: value || '',  // Ensure value is a string
     },
     state,
     ref

@@ -13,9 +13,21 @@ export interface InputProps extends Omit<React.ComponentProps<"input">, "onChang
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, rootClassName, type, onChange, ...props }, forwardedRef) => {
     const ref = useObjectRef(forwardedRef);
+    
+    // Create filtered props to pass to React Aria
+    const ariaProps = {...props} as any;
+    
+    // Fix autoCapitalize type issue
+    if (ariaProps.autoCapitalize) {
+      const validValues = ['none', 'off', 'on', 'sentences', 'words', 'characters'];
+      if (!validValues.includes(ariaProps.autoCapitalize)) {
+        ariaProps.autoCapitalize = 'none';
+      }
+    }
+    
     const { inputProps } = useTextField(
       {
-        ...props,
+        ...ariaProps,
         type,
         onChange,
       },
