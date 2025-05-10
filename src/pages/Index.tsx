@@ -42,8 +42,12 @@ const Index = () => {
           <ZoomControls />
         </div>
 
-        {/* Right sidebar - Properties */}
-        <div className="w-64 border-l border-border bg-card overflow-y-auto p-4">
+        {/* Right sidebar - Properties - Only shown when a component is selected */}
+        <div 
+          className={`w-64 border-l border-border bg-card overflow-y-auto p-4 transition-all duration-300 ease-in-out transform ${
+            selectedComponentId ? 'translate-x-0' : 'translate-x-full'
+          } absolute right-0 top-0 bottom-0 z-10`}
+        >
           <h2 className="text-lg font-medium mb-4">Properties</h2>
           <PropertyPanel selectedComponentId={selectedComponentId} />
         </div>
