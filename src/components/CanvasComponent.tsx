@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from "react";
 import { useWhiteboard, CanvasComponent as ComponentType } from "@/context/WhiteboardContext";
 
@@ -154,8 +155,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
   const isInFrame = component.frameId !== undefined;
   const isCorrectlyPositioned = isComponentInCorrectFrame();
   
-  // Calculate hand-drawn border style based on frame attachment and selection state
-  let borderStyle = "border";
+  // Calculate border color based on selection and frame attachment state
   let borderColor = "border-transparent";
   
   if (isSelected) {
@@ -163,9 +163,6 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
   } else if (isInFrame) {
     borderColor = "border-dashed border-gray-400";
   }
-
-  // Add hand-drawn styling classes
-  const handDrawnClass = "hand-drawn-border";
 
   // Get component style with an optional indicator for frame attachment
   const getComponentStyle = () => {
@@ -307,7 +304,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
   return (
     <div
       ref={componentRef}
-      className={`absolute ${borderStyle} ${borderColor} ${isSelected || isInFrame ? handDrawnClass : ''}`}
+      className={`absolute border hand-drawn-border ${borderColor}`}
       style={{
         left: component.x,
         top: component.y,
