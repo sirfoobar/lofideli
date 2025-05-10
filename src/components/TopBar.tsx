@@ -223,7 +223,12 @@ const TopBar: React.FC<TopBarProps> = ({
         
         {/* Theme toggle in top right */}
         <div>
-          <ThemeToggle />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <ThemeToggle />
+            </TooltipTrigger>
+            <TooltipContent>Toggle Theme</TooltipContent>
+          </Tooltip>
         </div>
       </div>
     </TooltipProvider>
