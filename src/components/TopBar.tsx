@@ -72,14 +72,16 @@ const TopBar: React.FC<TopBarProps> = ({
             </Tooltip>
             
             <Popover>
-              <TooltipTrigger asChild>
-                <PopoverTrigger asChild>
-                  <Button variant="ghost" size="icon" title="Grid Settings">
-                    <Grid2X2 size={18} />
-                  </Button>
-                </PopoverTrigger>
-              </TooltipTrigger>
-              <TooltipContent>Grid Settings</TooltipContent>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" title="Grid Settings">
+                      <Grid2X2 size={18} />
+                    </Button>
+                  </PopoverTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Grid Settings</TooltipContent>
+              </Tooltip>
               
               <PopoverContent className="w-64 p-4">
                 <div className="flex flex-col gap-3">
