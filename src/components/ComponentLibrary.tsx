@@ -23,19 +23,21 @@ const ComponentLibrary: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-2">
-      {components.map((component) => (
-        <div
-          key={component.type}
-          className="flex items-center gap-2 p-2 bg-background hover:bg-accent rounded-md cursor-grab transition-colors"
-          draggable
-          onDragStart={(e) => handleDragStart(e, component.type)}
-        >
-          <div className="flex items-center justify-center w-8 h-8 bg-muted rounded text-xl">
-            {component.icon}
+      <div className="grid grid-cols-2 gap-2">
+        {components.map((component) => (
+          <div
+            key={component.type}
+            className="flex items-center gap-1.5 p-1.5 bg-background hover:bg-accent rounded-md cursor-grab transition-colors"
+            draggable
+            onDragStart={(e) => handleDragStart(e, component.type)}
+          >
+            <div className="flex items-center justify-center w-6 h-6 bg-muted rounded text-sm">
+              {component.icon}
+            </div>
+            <span className="text-xs truncate">{component.name}</span>
           </div>
-          <span className="text-sm">{component.name}</span>
-        </div>
-      ))}
+        ))}
+      </div>
       
       <div className="mt-6">
         <p className="text-xs text-muted-foreground mb-2">Instructions:</p>
