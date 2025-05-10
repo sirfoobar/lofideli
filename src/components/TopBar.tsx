@@ -2,26 +2,31 @@
 import React from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import { Button } from "@/components/ui/button";
-import { Grid2X2, Component, FileDown } from "lucide-react";
+import { Grid2X2, Component, FileDown, Upload, Trash2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 
 interface TopBarProps {
   onToggleComponentLibrary: () => void;
   onToggleGrid: () => void;
-  showGrid: boolean; // Added missing prop
+  showGrid: boolean;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
   onToggleComponentLibrary,
   onToggleGrid,
-  showGrid // Added missing prop
+  showGrid
 }) => {
   const {
     saveToJSON,
+    loadFromJSON,
+    clearCanvas,
     state,
     dispatch
   } = useWhiteboard();
+  
+  const { toast } = useToast();
 
   const toggleGridSnap = () => {
     dispatch({ 
@@ -53,6 +58,45 @@ const TopBar: React.FC<TopBarProps> = ({
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
+    toast({
+      title: "Export Successful",
+      description: "Your canvas has been exported as a JSON file.",
+    });
+  };
+  
+  const handleImport = () => {
+    // Create file input element
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    
+    // Handle file selection
+    input.onchange = (e) => {
+      const target = e.target as HTMLInputElement;
+      if (!target.files?.length) return;
+      
+      const file = target.files[0];
+      const reader = new FileReader();
+      
+      reader.onload = (event) => {
+        const result = event.target?.result;
+        if (typeof result === "string") {
+          loadFromJSON(result);
+        }
+      };
+      
+      reader.readAsText(file);
+    };
+    
+    // Trigger file selection dialog
+    input.click();
+  };
+
+  const handleClear = () => {
+    if (window.confirm("Are you sure you want to clear the canvas? This cannot be undone.")) {
+      clearCanvas();
+    }
   };
 
   return (
@@ -125,14 +169,54 @@ const TopBar: React.FC<TopBarProps> = ({
               </PopoverContent>
             </Popover>
             
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={handleExport} title="Export Canvas">
-                  <FileDown size={18} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Export Canvas</TooltipContent>
-            </Tooltip>
+            <Popover>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" title="Canvas Data">
+                      <FileDown size={18} />
+                    </Button>
+                  </PopoverTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Canvas Data</TooltipContent>
+              </Tooltip>
+              
+              <PopoverContent className="w-64 p-4">
+                <div className="flex flex-col gap-3">
+                  <h3 className="text-sm font-medium">Canvas Data</h3>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="flex items-center gap-2 w-full justify-start text-xs" 
+                    onClick={handleExport}
+                    size="sm"
+                  >
+                    <FileDown size={16} />
+                    Export Canvas
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="flex items-center gap-2 w-full justify-start text-xs" 
+                    onClick={handleImport}
+                    size="sm"
+                  >
+                    <Upload size={16} />
+                    Import Canvas
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="flex items-center gap-2 w-full justify-start text-xs text-destructive hover:text-destructive" 
+                    onClick={handleClear}
+                    size="sm"
+                  >
+                    <Trash2 size={16} />
+                    Clear Canvas
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       </div>

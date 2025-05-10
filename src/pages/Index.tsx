@@ -5,7 +5,6 @@ import ComponentLibrary from "@/components/ComponentLibrary";
 import PropertyPanel from "@/components/PropertyPanel";
 import FrameSizeControls from "@/components/FrameSizeControls";
 import ZoomControls from "@/components/ZoomControls";
-import CanvasControls from "@/components/CanvasControls";
 import TopBar from "@/components/TopBar";
 import { WhiteboardProvider } from "@/context/WhiteboardContext";
 
@@ -46,10 +45,6 @@ const Index = () => {
                 
                 <div className="mt-4 border-t border-border pt-4">
                   <FrameSizeControls />
-                </div>
-
-                <div className="mt-4 border-t border-border pt-4">
-                  <CanvasControls />
                 </div>
               </div>
             )}
