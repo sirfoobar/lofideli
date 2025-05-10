@@ -16,12 +16,13 @@ import { getDefaultContentForComponent, getDefaultPropertiesForComponent } from 
 interface WhiteboardCanvasProps {
   onSelectComponent: (id: string | null) => void;
   selectedComponentId: string | null;
-  showGrid: boolean; // Added missing prop
+  showGrid: boolean;
 }
 
 const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   onSelectComponent,
-  selectedComponentId
+  selectedComponentId,
+  showGrid
 }) => {
   const { state, dispatch } = useWhiteboard();
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -384,17 +385,17 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
 
   return (
     <div 
-      className="relative w-full h-full overflow-hidden bg-canvas-background cursor-default"
+      className="relative w-full h-full overflow-hidden bg-background dark:bg-gray-900 cursor-default"
       onMouseDown={handleCanvasMouseDown}
       onMouseMove={handleCanvasMouseMove}
       onMouseUp={handleCanvasMouseUp}
       onMouseLeave={handleCanvasMouseUp}
     >
       {/* Canvas grid */}
-      <div className="absolute inset-0 bg-canvas-background"
+      <div className="absolute inset-0 bg-canvas-background dark:bg-gray-900"
         style={{
           backgroundSize: `${state.gridSize * state.zoomLevel}px ${state.gridSize * state.zoomLevel}px`,
-          backgroundImage: "linear-gradient(to right, #E9ECEF 1px, transparent 1px), linear-gradient(to bottom, #E9ECEF 1px, transparent 1px)"
+          backgroundImage: showGrid ? "linear-gradient(to right, var(--canvas-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--canvas-grid) 1px, transparent 1px)" : "none"
         }}
       />
       

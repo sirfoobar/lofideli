@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,7 @@ import { Grid2X2, Component, FileDown, Upload, Trash2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 interface TopBarProps {
   onToggleComponentLibrary: () => void;
@@ -217,6 +219,11 @@ const TopBar: React.FC<TopBarProps> = ({
               </PopoverContent>
             </Popover>
           </div>
+        </div>
+        
+        {/* Theme toggle in top right */}
+        <div>
+          <ThemeToggle />
         </div>
       </div>
     </TooltipProvider>
