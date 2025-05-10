@@ -3,7 +3,6 @@ import { useState } from "react";
 import WhiteboardCanvas from "@/components/WhiteboardCanvas";
 import ComponentLibrary from "@/components/ComponentLibrary";
 import PropertyPanel from "@/components/PropertyPanel";
-import GridControls from "@/components/GridControls";
 import FrameSizeControls from "@/components/FrameSizeControls";
 import ZoomControls from "@/components/ZoomControls";
 import CanvasControls from "@/components/CanvasControls";
@@ -29,7 +28,8 @@ const Index = () => {
         {/* Top Bar */}
         <TopBar 
           onToggleComponentLibrary={toggleComponentLibrary} 
-          onToggleGrid={toggleGrid} 
+          onToggleGrid={toggleGrid}
+          showGrid={showGrid}
         />
         
         <div className="flex flex-1 overflow-hidden">
@@ -43,10 +43,6 @@ const Index = () => {
               <div className="p-4">
                 <h2 className="text-lg font-medium mb-4">Components</h2>
                 <ComponentLibrary />
-                
-                <div className="mt-6 border-t border-border pt-4">
-                  <GridControls />
-                </div>
                 
                 <div className="mt-4 border-t border-border pt-4">
                   <FrameSizeControls />
@@ -64,6 +60,7 @@ const Index = () => {
             <WhiteboardCanvas 
               onSelectComponent={setSelectedComponentId} 
               selectedComponentId={selectedComponentId}
+              showGrid={showGrid}
             />
             <ZoomControls />
           </div>
