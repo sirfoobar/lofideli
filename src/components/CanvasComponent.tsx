@@ -156,12 +156,10 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
   const isCorrectlyPositioned = isComponentInCorrectFrame();
   
   // Calculate border color based on selection and frame attachment state
-  let borderColor = "border-transparent";
+  let borderColor = isSelected ? "border-blue-500" : "border-gray-400";
   
-  if (isSelected) {
-    borderColor = "border-blue-500";
-  } else if (isInFrame) {
-    borderColor = "border-dashed border-gray-400";
+  if (component.frameId !== undefined) {
+    borderColor = isSelected ? "border-blue-500" : "border-dashed border-gray-400";
   }
 
   // Get component style with an optional indicator for frame attachment
@@ -304,7 +302,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
   return (
     <div
       ref={componentRef}
-      className={`absolute border hand-drawn-border ${borderColor}`}
+      className={`absolute border-2 hand-drawn-border ${borderColor}`}
       style={{
         left: component.x,
         top: component.y,
@@ -313,7 +311,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
         cursor: isDragging ? "grabbing" : "grab",
         zIndex: isSelected ? 100 : 10,
         // Add a visual indicator if the component is attached to a frame
-        opacity: isInFrame && !isCorrectlyPositioned ? 0.6 : 1,
+        opacity: component.frameId !== undefined && !isComponentInCorrectFrame() ? 0.6 : 1,
       }}
       onMouseDown={handleMouseDown}
       onDoubleClick={handleDoubleClick}

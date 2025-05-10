@@ -103,17 +103,12 @@
 
 /* Hand-drawn border style */
 .hand-drawn-border {
-  border-width: 2px;
-  border-top-left-radius: 255px 15px;
-  border-top-right-radius: 15px 225px;
-  border-bottom-right-radius: 225px 15px;
-  border-bottom-left-radius: 15px 255px;
+  position: relative;
+  border: 2px solid;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
 }
 
 /* Add hand-drawn border to frames */
 .hand-drawn-frame {
-  border-top-left-radius: 255px 15px;
-  border-top-right-radius: 15px 225px;
-  border-bottom-right-radius: 225px 15px;
-  border-bottom-left-radius: 15px 255px;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
 }
