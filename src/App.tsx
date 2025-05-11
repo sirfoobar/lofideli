@@ -14,12 +14,14 @@ const App: React.FC = () => {
     <ThemeProvider defaultTheme="light" storageKey="ui-theme">
       <ComponentsProvider>
         <WhiteboardProvider>
-          <WhiteboardCanvas 
-            onSelectComponent={setSelectedComponentId} 
-            selectedComponentId={selectedComponentId}
-            showGrid={showGrid}
-          />
-          <Toaster />
+          <div className="h-screen w-screen flex flex-col">
+            <WhiteboardCanvas 
+              onSelectComponent={setSelectedComponentId} 
+              selectedComponentId={selectedComponentId}
+              showGrid={showGrid}
+            />
+            <Toaster />
+          </div>
         </WhiteboardProvider>
       </ComponentsProvider>
     </ThemeProvider>
