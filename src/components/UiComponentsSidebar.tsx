@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { X } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -16,7 +15,7 @@ import {
   Square, 
   Type, 
   Heading, 
-  Paragraph, 
+  FileText, 
   CircleDot, 
   CreditCard, 
   SeparatorHorizontal, 
@@ -38,7 +37,7 @@ const COMPONENT_CATEGORIES = [
       { name: 'Button', icon: Square },
       { name: 'Text', icon: Type },
       { name: 'Heading', icon: Heading },
-      { name: 'Paragraph', icon: Paragraph },
+      { name: 'Paragraph', icon: FileText },
       { name: 'Input', icon: FormInput },
       { name: 'Checkbox', icon: CheckSquare },
       { name: 'Radio', icon: CircleDot },
