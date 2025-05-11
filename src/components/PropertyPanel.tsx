@@ -157,7 +157,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
             {/* Text input for color code */}
             <Input
               type="text"
-              value={selectedComponent.properties.backgroundColor || '#ffffff'}
+              value={selectedComponent.properties.backgroundColor === 'transparent' ? 'transparent' : selectedComponent.properties.backgroundColor || '#ffffff'}
               onChange={(value) =>
                 handlePropertyChange("backgroundColor", value)
               }
@@ -182,7 +182,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
           <div className="flex gap-2">
             <Input
               type="color"
-              value={selectedComponent.properties.borderColor || "#d1d5db"}
+              value={selectedComponent.properties.borderColor || "#000000"}
               onChange={(value) =>
                 handlePropertyChange("borderColor", value)
               }
@@ -190,7 +190,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
             />
             <Input
               type="text"
-              value={selectedComponent.properties.borderColor || "#d1d5db"}
+              value={selectedComponent.properties.borderColor || "#000000"}
               onChange={(value) =>
                 handlePropertyChange("borderColor", value)
               }
