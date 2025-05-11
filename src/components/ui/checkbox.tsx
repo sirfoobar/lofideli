@@ -14,7 +14,6 @@ export interface CheckboxProps extends Omit<React.ComponentPropsWithoutRef<typeo
   onCheckedChange?: (checked: boolean) => void;
   rootClassName?: string;
   indicatorClassName?: string;
-  // Fix - ensure value is properly typed for React Aria
   value?: string;
 }
 
@@ -29,13 +28,16 @@ const Checkbox = React.forwardRef<
     onChange: onCheckedChange
   });
   
-  // Fix: Correctly cast the props to match what useCheckbox expects
+  // Create a properly typed props object for useCheckbox
+  // Explicitly select only the properties that useCheckbox expects
   const { inputProps } = useCheckbox(
     {
       ...props,
+      isDisabled: props.disabled,
       isSelected: state.isSelected,
       value: value || '',
-      // Remove onChange from props to avoid type conflict
+      // Exclude onChange which causes the type error
+      onChange: undefined
     },
     state,
     ref
