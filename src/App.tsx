@@ -1,34 +1,22 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "next-themes";
-import { ComponentsProvider } from "@/context/ComponentsProvider";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import React from 'react';
+import { ThemeProvider } from '@/context/theme-provider';
+import { WhiteboardProvider } from '@/context/WhiteboardContext';
+import { Toaster } from '@/components/ui/toaster';
+import { ComponentsProvider } from '@/context/ComponentsProvider';
+import WhiteboardCanvas from '@/components/WhiteboardCanvas';
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="dark" attribute="class">
-      <TooltipProvider>
-        <ComponentsProvider>
+const App: React.FC = () => {
+  return (
+    <ThemeProvider defaultTheme="light" storageKey="ui-theme">
+      <ComponentsProvider>
+        <WhiteboardProvider>
+          <WhiteboardCanvas />
           <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </ComponentsProvider>
-      </TooltipProvider>
+        </WhiteboardProvider>
+      </ComponentsProvider>
     </ThemeProvider>
-  </QueryClientProvider>
-);
+  );
+};
 
 export default App;
