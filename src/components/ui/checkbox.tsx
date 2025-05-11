@@ -28,19 +28,20 @@ const Checkbox = React.forwardRef<
     onChange: onCheckedChange
   });
   
-  // Create a properly typed props object for useCheckbox
-  // Explicitly select only the properties that useCheckbox expects
+  // Create a proper input element ref for React Aria
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  
+  // Use React Aria's useCheckbox with the correct ref type
   const { inputProps } = useCheckbox(
     {
       ...props,
       isDisabled: props.disabled,
       isSelected: state.isSelected,
       value: value || '',
-      // Exclude onChange which causes the type error
-      onChange: undefined
+      onChange: undefined // Exclude onChange which causes the type error
     },
     state,
-    ref
+    inputRef // Pass the input ref instead of the button ref
   );
 
   return (
@@ -59,6 +60,14 @@ const Checkbox = React.forwardRef<
       >
         <Check className="h-4 w-4" />
       </CheckboxPrimitive.Indicator>
+      
+      {/* Hidden input for accessibility and React Aria integration */}
+      <input 
+        ref={inputRef}
+        type="checkbox"
+        {...inputProps}
+        style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', border: 0 }}
+      />
     </CheckboxPrimitive.Root>
   )
 })
