@@ -1,12 +1,12 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import { Button } from "@/components/ui/button";
-import { Grid2X2, Component, FileDown, Upload, Trash2 } from "lucide-react";
+import { Grid2X2, Component, FileDown, Upload, Trash2, Palette } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { TooltipWrapper } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import UiComponentsSidebar from "@/components/UiComponentsSidebar";
 
 interface TopBarProps {
   onToggleComponentLibrary: () => void;
@@ -28,6 +28,7 @@ const TopBar: React.FC<TopBarProps> = ({
   } = useWhiteboard();
   
   const { toast } = useToast();
+  const [showUiComponents, setShowUiComponents] = useState(false);
   
   const toggleGridSnap = () => {
     dispatch({
@@ -99,12 +100,23 @@ const TopBar: React.FC<TopBarProps> = ({
   return (
     <div className="h-8 border-b border-border bg-card flex items-center justify-between px-[8px]">
       <div className="flex items-center">
-        <h1 className="font-mono font-semibold mr-2 text-sm">LofiDeli</h1>
+        <h1 className="font-pacifico font-semibold mr-2 text-sm">LofiDeli</h1>
         
         <div className="flex gap-1">
           <TooltipWrapper content="Component Library">
             <Button variant="ghost" size="icon" onClick={onToggleComponentLibrary} title="Toggle Component Library">
               <Component size={18} />
+            </Button>
+          </TooltipWrapper>
+          
+          <TooltipWrapper content="UI Components">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setShowUiComponents(true)} 
+              title="Show UI Components"
+            >
+              <Palette size={18} />
             </Button>
           </TooltipWrapper>
           
@@ -183,6 +195,12 @@ const TopBar: React.FC<TopBarProps> = ({
           <ThemeToggle />
         </TooltipWrapper>
       </div>
+      
+      {/* UI Components Sidebar */}
+      <UiComponentsSidebar 
+        open={showUiComponents} 
+        onClose={() => setShowUiComponents(false)} 
+      />
     </div>
   );
 };
