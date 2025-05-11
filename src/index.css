@@ -93,6 +93,10 @@
   h2 {
     font-size: 16px;
   }
+
+  .font-pacifico {
+    font-family: 'Pacifico', cursive;
+  }
 }
 
 @layer base {
@@ -115,4 +119,9 @@
 /* Add hand-drawn border to frames */
 .hand-drawn-frame {
   border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+}
+
+/* LofiDeli brand styling */
+.lofideli-brand {
+  @apply font-pacifico text-2xl;
 }

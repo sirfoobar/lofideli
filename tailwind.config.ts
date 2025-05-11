@@ -21,6 +21,7 @@ export default {
 			fontFamily: {
 				sans: ['Inter', 'sans-serif'],
 				mono: ['IBM Plex Mono', 'monospace'],
+				pacifico: ['Pacifico', 'cursive'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
