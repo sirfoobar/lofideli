@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TooltipWrapper } from '@/components/ui/tooltip';
+import { Table } from '@/components/ui/table';
 
 // Define the component map interface
 export interface ComponentsMap {
@@ -17,6 +18,7 @@ export interface ComponentsMap {
   Input: typeof Input;
   Label: typeof Label;
   TooltipWrapper: typeof TooltipWrapper;
+  Table: typeof Table; // Added Table component
 }
 
 // Create default components object
@@ -27,7 +29,8 @@ const defaultComponents: ComponentsMap = {
   Checkbox,
   Input,
   Label,
-  TooltipWrapper
+  TooltipWrapper,
+  Table // Added Table component
 };
 
 // Create the context with default components
