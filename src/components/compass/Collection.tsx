@@ -1,9 +1,5 @@
 
 import React from 'react';
-import {
-  Collection as AriaCollection,
-  Section as AriaSection,
-} from 'react-aria-components';
 
 export type CollectionComponentProps = React.PropsWithChildren<{
   className?: string;
