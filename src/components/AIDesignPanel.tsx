@@ -38,7 +38,7 @@ const AIDesignPanel: React.FC<AIDesignPanelProps> = ({
     }
   };
   if (!isOpen) return null;
-  return <div className="absolute right-0 top-0 bottom-0 w-80 bg-card border-l border-border shadow-lg z-20 overflow-hidden flex flex-col">
+  return <div className="absolute right-0 top-0 bottom-0 w-80 bg-card border-l border-border shadow-lg z-20 overflow-hidden flex flex-col pt-8">
       <div className="flex items-center justify-between p-4 border-b border-border">
         <div className="flex items-center gap-2">
           <Wand2 className="h-4 w-4" />
