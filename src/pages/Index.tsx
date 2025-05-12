@@ -21,8 +21,8 @@ const WhiteboardManager = () => {
   
   const { state, dispatch } = useWhiteboard();
   
-  // Determine if any right panel is open
-  const isRightPanelOpen = showAIPanel || selectedComponentId || state.selectedFrameId;
+  // Determine if any right panel is open - ensure boolean result
+  const isRightPanelOpen = Boolean(showAIPanel || selectedComponentId || state.selectedFrameId);
   
   const toggleComponentLibrary = () => {
     setShowComponentLibrary(!showComponentLibrary);
