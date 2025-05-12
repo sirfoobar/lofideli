@@ -177,8 +177,20 @@ const TopBar: React.FC<TopBarProps> = ({
         </div>
       </div>
       
-      {/* Theme toggle in top right */}
-      <div>
+      {/* Theme toggle and Clear Canvas button in top right */}
+      <div className="flex items-center gap-1">
+        <TooltipWrapper content="Clear Canvas">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handleClear} 
+            className="text-destructive hover:text-destructive" 
+            title="Clear Canvas"
+          >
+            <Trash2 size={18} />
+          </Button>
+        </TooltipWrapper>
+        
         <TooltipWrapper content="Toggle Theme">
           <ThemeToggle />
         </TooltipWrapper>
