@@ -12,12 +12,14 @@ interface TopBarProps {
   onToggleComponentLibrary: () => void;
   onToggleGrid: () => void;
   showGrid: boolean;
+  rightPanelOpen?: boolean; // Add new prop to track if any right panel is open
 }
 
 const TopBar: React.FC<TopBarProps> = ({
   onToggleComponentLibrary,
   onToggleGrid,
-  showGrid
+  showGrid,
+  rightPanelOpen = false
 }) => {
   const {
     saveToJSON,
@@ -97,7 +99,7 @@ const TopBar: React.FC<TopBarProps> = ({
   };
   
   return (
-    <div className="h-8 border-b border-border bg-card flex items-center justify-between px-[8px]">
+    <div className="h-8 border-b border-border bg-card flex items-center justify-between px-[8px] relative z-30">
       <div className="flex items-center">
         <h1 className="font-mono font-semibold mr-2 text-sm">LofiDeli</h1>
         
@@ -177,8 +179,8 @@ const TopBar: React.FC<TopBarProps> = ({
         </div>
       </div>
       
-      {/* Theme toggle and Clear Canvas button in top right */}
-      <div className="flex items-center gap-1">
+      {/* Theme toggle and Clear Canvas button in top right - with animation when panel is open */}
+      <div className={`flex items-center gap-1 transition-transform duration-300 ${rightPanelOpen ? 'transform -translate-x-[70px]' : ''}`}>
         <TooltipWrapper content="Clear Canvas">
           <Button 
             variant="ghost" 

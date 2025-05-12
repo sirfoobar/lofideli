@@ -21,6 +21,9 @@ const WhiteboardManager = () => {
   
   const { state, dispatch } = useWhiteboard();
   
+  // Determine if any right panel is open
+  const isRightPanelOpen = showAIPanel || selectedComponentId || state.selectedFrameId;
+  
   const toggleComponentLibrary = () => {
     setShowComponentLibrary(!showComponentLibrary);
   };
@@ -31,11 +34,12 @@ const WhiteboardManager = () => {
   
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-background">
-      {/* Top Bar */}
+      {/* Top Bar with right panel status */}
       <TopBar 
         onToggleComponentLibrary={toggleComponentLibrary} 
         onToggleGrid={toggleGrid} 
         showGrid={showGrid}
+        rightPanelOpen={isRightPanelOpen}
       />
       
       <div className="flex flex-1 overflow-hidden">
