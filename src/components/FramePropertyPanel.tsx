@@ -58,7 +58,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({
 
   // Count components in this frame
   const componentsInFrame = state.components.filter(component => component.frameId === selectedFrameId).length;
-  return <div className="flex flex-col gap-4">
+  return <div className="flex flex-col gap-4 mt-6">
       <div className="flex items-center justify-between">
         <span className="text-xs font-small">Frame Properties</span>
         <button className="text-xs text-white bg-destructive px-2 py-1 rounded" onClick={handleDeleteFrame}>
