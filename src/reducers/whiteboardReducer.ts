@@ -14,6 +14,8 @@ export const initialState: WhiteboardState = {
   zoomLevel: 0.8,
   draggedFrameId: null,
   selectedFrameId: null, // Initialize selectedFrameId as null
+  clipboard: null,  // Initialize clipboard as null
+  selectedComponentId: null, // Track the selected component ID
 };
 
 // Helper function to check if two frames overlap
@@ -105,6 +107,8 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
             frameId,
           },
         ],
+        // Set the newly added component as selected
+        selectedComponentId: newComponent.id
       };
       break;
     }
@@ -211,6 +215,10 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
             components: state.components.filter(
               (component) => component.id !== action.id
             ),
+            // Clear selectedComponentId if deleted component was selected
+            selectedComponentId: state.selectedComponentId === action.id 
+              ? null 
+              : state.selectedComponentId
           };
           break;
 
@@ -253,6 +261,70 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
           };
           break;
       }
+      break;
+    }
+    
+    case "SET_CLIPBOARD": {
+      newState = {
+        ...state,
+        clipboard: action.component
+      };
+      break;
+    }
+    
+    case "PASTE_COMPONENT": {
+      if (!state.clipboard) {
+        return state; // No component to paste
+      }
+      
+      // Create a new component based on the clipboard with a new ID
+      const pastedComponent = {
+        ...state.clipboard,
+        id: uuidv4(),
+        x: action.x,
+        y: action.y
+      };
+      
+      // Check if it should be assigned to a frame
+      let frameId: string | undefined = undefined;
+      
+      // Check frames as with ADD_COMPONENT
+      if (state.activeFrameId) {
+        const activeFrame = state.frames.find(frame => frame.id === state.activeFrameId);
+        if (activeFrame && isComponentInFrame(pastedComponent, activeFrame)) {
+          frameId = activeFrame.id;
+        }
+      }
+      
+      if (!frameId) {
+        for (const frame of state.frames) {
+          if (isComponentInFrame(pastedComponent, frame)) {
+            frameId = frame.id;
+            break;
+          }
+        }
+      }
+      
+      const newPastedComponent = {
+        ...pastedComponent,
+        frameId
+      };
+      
+      newState = {
+        ...state,
+        components: [...state.components, newPastedComponent],
+        selectedComponentId: newPastedComponent.id // Select the pasted component
+      };
+      break;
+    }
+
+    case "SELECT_COMPONENT": {
+      newState = {
+        ...state,
+        selectedComponentId: action.id,
+        // Clear selected frame when selecting a component
+        selectedFrameId: null
+      };
       break;
     }
 
@@ -439,7 +511,7 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
         ...state,
         selectedFrameId: action.id,
         // Clear selected component when selecting a frame
-        // This ensures only one type of element is selected at a time
+        selectedComponentId: null
       };
       break;
     }

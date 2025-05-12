@@ -18,6 +18,8 @@ interface WhiteboardContextValue {
   clearCanvas: () => void;
   selectFrame: (id: string | null) => void;
   generateUIFromPrompt: (prompt: string) => Promise<void>;
+  copySelectedComponent: () => void;
+  pasteComponent: (x?: number, y?: number) => void;
 }
 
 const WhiteboardContext = createContext<WhiteboardContextValue | undefined>(undefined);
@@ -49,6 +51,59 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     dispatch({ type: "SELECT_FRAME", id });
   };
 
+  // Copy selected component to clipboard
+  const copySelectedComponent = () => {
+    const selectedComponent = state.components.find(c => 
+      c.id === state.selectedComponentId);
+    
+    if (!selectedComponent) {
+      toast({
+        title: "Nothing to Copy",
+        description: "Please select a component first.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Store component in clipboard state
+    dispatch({ 
+      type: "SET_CLIPBOARD", 
+      component: selectedComponent 
+    });
+    
+    toast({
+      title: "Component Copied",
+      description: "Component copied to clipboard. Use Ctrl+V or right-click to paste."
+    });
+  };
+  
+  // Paste component from clipboard
+  const pasteComponent = (x?: number, y?: number) => {
+    if (!state.clipboard) {
+      toast({
+        title: "Nothing to Paste",
+        description: "Clipboard is empty.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Create a duplicate with an offset if coordinates aren't provided
+    const offsetX = x !== undefined ? x : state.clipboard.x + 20;
+    const offsetY = y !== undefined ? y : state.clipboard.y + 20;
+    
+    dispatch({
+      type: "PASTE_COMPONENT",
+      x: offsetX,
+      y: offsetY
+    });
+    
+    toast({
+      title: "Component Pasted",
+      description: "Component pasted from clipboard."
+    });
+  };
+
   return (
     <WhiteboardContext.Provider value={{ 
       state, 
@@ -57,7 +112,9 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       loadFromJSON, 
       clearCanvas,
       selectFrame,
-      generateUIFromPrompt
+      generateUIFromPrompt,
+      copySelectedComponent,
+      pasteComponent
     }}>
       {children}
     </WhiteboardContext.Provider>

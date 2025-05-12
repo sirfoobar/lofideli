@@ -13,7 +13,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
   isSelected,
   onSelect,
 }) => {
-  const { dispatch, state } = useWhiteboard();
+  const { dispatch, state, copySelectedComponent, pasteComponent } = useWhiteboard();
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -25,6 +25,9 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
     onSelect();
+    
+    // Set this component as selected in the state
+    dispatch({ type: "SELECT_COMPONENT", id: component.id });
     
     if (!isEditing) {
       setIsDragging(true);
@@ -117,14 +120,29 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
     }
   };
 
-  // Handle deleting component with Delete key
+  // Handle key press events for copy, paste, delete
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (isSelected && e.key === "Delete") {
+    if (!isSelected) return;
+    
+    // Delete key deletes the component
+    if (e.key === "Delete") {
       e.preventDefault();
       dispatch({
         type: "DELETE_COMPONENT",
         id: component.id
       });
+    }
+    
+    // Ctrl+C or Cmd+C copies the component
+    if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+      e.preventDefault();
+      copySelectedComponent();
+    }
+    
+    // Ctrl+V or Cmd+V pastes the component
+    if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+      e.preventDefault();
+      pasteComponent();
     }
   };
 
@@ -296,6 +314,35 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
         return (
           <div className="w-full h-full flex items-center">
             <div className="w-full border-t border-gray-300"></div>
+          </div>
+        );
+        
+      case "table":
+        return (
+          <div className="w-full h-full flex items-center justify-center bg-white">
+            <div className="w-full h-full border border-gray-300 overflow-hidden">
+              <table className="min-w-full table-fixed border-collapse">
+                <thead>
+                  <tr>
+                    <th className="border border-gray-300 p-1 text-xs text-left">Header 1</th>
+                    <th className="border border-gray-300 p-1 text-xs text-left">Header 2</th>
+                    <th className="border border-gray-300 p-1 text-xs text-left">Header 3</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="border border-gray-300 p-1 text-xs">Data 1</td>
+                    <td className="border border-gray-300 p-1 text-xs">Data 2</td>
+                    <td className="border border-gray-300 p-1 text-xs">Data 3</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-1 text-xs">Data 4</td>
+                    <td className="border border-gray-300 p-1 text-xs">Data 5</td>
+                    <td className="border border-gray-300 p-1 text-xs">Data 6</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         );
         

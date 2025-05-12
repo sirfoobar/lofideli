@@ -8,7 +8,7 @@ import {
   ContextMenuItem,
   ContextMenuSeparator
 } from "@/components/ui/context-menu";
-import { FileImage, Bot } from "lucide-react";
+import { FileImage, Bot, Copy, Clipboard, Scissors, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { getDefaultContentForComponent, getDefaultPropertiesForComponent } from "@/utils/whiteboardUtils";
 
@@ -23,13 +23,14 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   selectedComponentId,
   showGrid
 }) => {
-  const { state, dispatch, selectFrame } = useWhiteboard();
+  const { state, dispatch, selectFrame, copySelectedComponent, pasteComponent } = useWhiteboard();
   const canvasRef = useRef<HTMLDivElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
   const [frameStartPos, setFrameStartPos] = useState({ x: 0, y: 0 });
+  const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
 
   // Handle canvas size changes
   useEffect(() => {
@@ -63,6 +64,42 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
       }
     }
   }, [state.frames]);
+
+  // Handle keyboard shortcuts for copy/paste on the canvas level
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle if we have a selected component
+      if (state.selectedComponentId) {
+        // Ctrl+C or Cmd+C copies the selected component
+        if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+          copySelectedComponent();
+          e.preventDefault();
+        }
+      }
+      
+      // Ctrl+V or Cmd+V pastes from clipboard
+      if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+        if (state.clipboard) {
+          // Paste at mouse position if available
+          if (canvasRef.current) {
+            const canvasRect = canvasRef.current.getBoundingClientRect();
+            // Calculate position accounting for zoom and offset
+            const x = (e.clientX - canvasRect.left - offset.x) / state.zoomLevel;
+            const y = (e.clientY - canvasRect.top - offset.y) / state.zoomLevel;
+            pasteComponent(x, y);
+          } else {
+            pasteComponent(); // Paste with default offset
+          }
+          e.preventDefault();
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [state.selectedComponentId, state.clipboard, state.zoomLevel]);
 
   // Handle clicks on empty canvas areas
   const handleCanvasClick = (e: React.MouseEvent) => {
@@ -160,8 +197,31 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     e.preventDefault();
   };
 
+  // Handle right-click on canvas
+  const handleContextMenu = (e: React.MouseEvent) => {
+    if (canvasRef.current) {
+      // Calculate position accounting for zoom and offset
+      const canvasRect = canvasRef.current.getBoundingClientRect();
+      const x = (e.clientX - canvasRect.left - offset.x) / state.zoomLevel;
+      const y = (e.clientY - canvasRect.top - offset.y) / state.zoomLevel;
+      
+      // Store context menu position for paste operation
+      setContextMenuPos({ x, y });
+    }
+  };
+
+  // Handle paste from context menu
+  const handleContextMenuPaste = () => {
+    if (state.clipboard) {
+      pasteComponent(contextMenuPos.x, contextMenuPos.y);
+    } else {
+      toast.error("Nothing to paste");
+    }
+  };
+
   const handleSelectComponent = (id: string) => {
     onSelectComponent(id);
+    dispatch({ type: "SELECT_COMPONENT", id });
     selectFrame(null); // Deselect frame when selecting a component
   };
 
@@ -281,12 +341,12 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
           }
           
           // Add padding
-          const padding = component.properties.padding ? parseInt(component.properties.padding) : 0;
+          const padding = component.properties.padding ? parseInt(component.properties.padding as string) : 0;
           
           ctx.fillText(
             component.content,
             textX + padding,
-            component.y - frame.y + component.properties.fontSize + padding
+            component.y - frame.y + (component.properties.fontSize || 16) + padding
           );
         }
       });
@@ -393,113 +453,151 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   };
 
   return (
-    <div 
-      className="relative w-full h-full overflow-hidden bg-background dark:bg-gray-900 cursor-default"
-      onMouseDown={handleCanvasMouseDown}
-      onMouseMove={handleCanvasMouseMove}
-      onMouseUp={handleCanvasMouseUp}
-      onMouseLeave={handleCanvasMouseUp}
-    >
-      {/* Canvas grid */}
-      <div className="absolute inset-0 bg-canvas-background dark:bg-gray-900"
-        style={{
-          backgroundSize: `${state.gridSize * state.zoomLevel}px ${state.gridSize * state.zoomLevel}px`,
-          backgroundImage: showGrid ? "linear-gradient(to right, var(--canvas-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--canvas-grid) 1px, transparent 1px)" : "none"
-        }}
-      />
-      
-      {/* Canvas content */}
-      <div 
-        ref={canvasRef}
-        className="absolute w-[4000px] h-[4000px] transform"
-        style={{ 
-          transform: `translate(${offset.x}px, ${offset.y}px) scale(${state.zoomLevel})`,
-          transformOrigin: "0 0",
-          cursor: isDragging ? "grabbing" : "default"
-        }}
-        onClick={handleCanvasClick}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-      >
-        {/* Render frames with context menu */}
-        {state.frames.map((frame) => (
-          <ContextMenu key={frame.id}>
-            <ContextMenuTrigger asChild>
-              <div 
-                className={`absolute border-2 ${
-                  frame.id === state.selectedFrameId 
-                    ? 'border-purple-500 ring-2 ring-purple-300' 
-                    : frame.id === state.activeFrameId 
-                      ? 'border-blue-400' 
-                      : 'border-gray-300'
-                } bg-white bg-opacity-90 z-10 shadow-md hand-drawn-frame`}
-                style={{
-                  width: frame.width,
-                  height: frame.height,
-                  left: frame.x,
-                  top: frame.y,
-                  cursor: state.draggedFrameId === frame.id ? 'grabbing' : 'grab',
-                }}
-                onClick={(e) => handleFrameClick(frame.id, e)}
-                onMouseDown={(e) => handleFrameMouseDown(frame.id, e)}
-              >
-                <div className={`absolute top-0 left-0 ${
-                  frame.id === state.selectedFrameId 
-                    ? 'bg-purple-500' 
-                    : frame.id === state.activeFrameId 
-                      ? 'bg-blue-400' 
-                      : 'bg-gray-300'
-                } text-white text-xs px-2 py-0.5 rounded-br`}>
-                  {frame.name} - {frame.width} × {frame.height}
-                  {frame.id === state.activeFrameId && <span className="ml-1">(Active)</span>}
-                </div>
-                <div className="absolute bottom-0 right-0 text-xs text-gray-500 px-1">
-                  {getComponentsInFrame(frame.id).length > 0 && 
-                    `${getComponentsInFrame(frame.id).length} component${getComponentsInFrame(frame.id).length !== 1 ? 's' : ''}`}
-                </div>
-              </div>
-            </ContextMenuTrigger>
-            <ContextMenuContent>
-              <ContextMenuItem onClick={() => exportFrameAsImage(frame.id)} className="cursor-pointer">
-                <FileImage className="mr-2 h-4 w-4" />
-                <span>Export as Image</span>
-              </ContextMenuItem>
-              <ContextMenuSeparator />
-              <ContextMenuItem onClick={() => generateAIPrompt(frame.id)} className="cursor-pointer">
-                <Bot className="mr-2 h-4 w-4" />
-                <span>Copy AI Prompt</span>
-              </ContextMenuItem>
-              <ContextMenuSeparator />
-              <ContextMenuItem onClick={() => selectFrame(frame.id)} className="cursor-pointer">
-                <span>Edit Properties</span>
-              </ContextMenuItem>
-              <ContextMenuItem onClick={() => dispatch({ type: "SET_ACTIVE_FRAME", id: frame.id })} className="cursor-pointer">
-                <span>Set as Active Frame</span>
-              </ContextMenuItem>
-              <ContextMenuItem 
-                onClick={() => {
-                  dispatch({ type: "DELETE_FRAME", id: frame.id });
-                  toast("Frame deleted");
-                }} 
-                className="cursor-pointer text-destructive"
-              >
-                <span>Delete Frame</span>
-              </ContextMenuItem>
-            </ContextMenuContent>
-          </ContextMenu>
-        ))}
-
-        {/* Render components */}
-        {state.components.map((component) => (
-          <CanvasComponent
-            key={component.id}
-            component={component}
-            isSelected={component.id === selectedComponentId}
-            onSelect={() => handleSelectComponent(component.id)}
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
+        <div 
+          className="relative w-full h-full overflow-hidden bg-background dark:bg-gray-900 cursor-default"
+          onMouseDown={handleCanvasMouseDown}
+          onMouseMove={handleCanvasMouseMove}
+          onMouseUp={handleCanvasMouseUp}
+          onMouseLeave={handleCanvasMouseUp}
+          onContextMenu={handleContextMenu}
+        >
+          {/* Canvas grid */}
+          <div className="absolute inset-0 bg-canvas-background dark:bg-gray-900"
+            style={{
+              backgroundSize: `${state.gridSize * state.zoomLevel}px ${state.gridSize * state.zoomLevel}px`,
+              backgroundImage: showGrid ? "linear-gradient(to right, var(--canvas-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--canvas-grid) 1px, transparent 1px)" : "none"
+            }}
           />
-        ))}
-      </div>
-    </div>
+          
+          {/* Canvas content */}
+          <div 
+            ref={canvasRef}
+            className="absolute w-[4000px] h-[4000px] transform"
+            style={{ 
+              transform: `translate(${offset.x}px, ${offset.y}px) scale(${state.zoomLevel})`,
+              transformOrigin: "0 0",
+              cursor: isDragging ? "grabbing" : "default"
+            }}
+            onClick={handleCanvasClick}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+          >
+            {/* Render frames with context menu */}
+            {state.frames.map((frame) => (
+              <ContextMenu key={frame.id}>
+                <ContextMenuTrigger asChild>
+                  <div 
+                    className={`absolute border-2 ${
+                      frame.id === state.selectedFrameId 
+                        ? 'border-purple-500 ring-2 ring-purple-300' 
+                        : frame.id === state.activeFrameId 
+                          ? 'border-blue-400' 
+                          : 'border-gray-300'
+                    } bg-white bg-opacity-90 z-10 shadow-md hand-drawn-frame`}
+                    style={{
+                      width: frame.width,
+                      height: frame.height,
+                      left: frame.x,
+                      top: frame.y,
+                      cursor: state.draggedFrameId === frame.id ? 'grabbing' : 'grab',
+                    }}
+                    onClick={(e) => handleFrameClick(frame.id, e)}
+                    onMouseDown={(e) => handleFrameMouseDown(frame.id, e)}
+                  >
+                    <div className={`absolute top-0 left-0 ${
+                      frame.id === state.selectedFrameId 
+                        ? 'bg-purple-500' 
+                        : frame.id === state.activeFrameId 
+                          ? 'bg-blue-400' 
+                          : 'bg-gray-300'
+                    } text-white text-xs px-2 py-0.5 rounded-br`}>
+                      {frame.name} - {frame.width} × {frame.height}
+                      {frame.id === state.activeFrameId && <span className="ml-1">(Active)</span>}
+                    </div>
+                    <div className="absolute bottom-0 right-0 text-xs text-gray-500 px-1">
+                      {getComponentsInFrame(frame.id).length > 0 && 
+                        `${getComponentsInFrame(frame.id).length} component${getComponentsInFrame(frame.id).length !== 1 ? 's' : ''}`}
+                    </div>
+                  </div>
+                </ContextMenuTrigger>
+                <ContextMenuContent>
+                  <ContextMenuItem onClick={() => exportFrameAsImage(frame.id)} className="cursor-pointer">
+                    <FileImage className="mr-2 h-4 w-4" />
+                    <span>Export as Image</span>
+                  </ContextMenuItem>
+                  <ContextMenuSeparator />
+                  <ContextMenuItem onClick={() => generateAIPrompt(frame.id)} className="cursor-pointer">
+                    <Bot className="mr-2 h-4 w-4" />
+                    <span>Copy AI Prompt</span>
+                  </ContextMenuItem>
+                  <ContextMenuSeparator />
+                  <ContextMenuItem onClick={() => selectFrame(frame.id)} className="cursor-pointer">
+                    <span>Edit Properties</span>
+                  </ContextMenuItem>
+                  <ContextMenuItem onClick={() => dispatch({ type: "SET_ACTIVE_FRAME", id: frame.id })} className="cursor-pointer">
+                    <span>Set as Active Frame</span>
+                  </ContextMenuItem>
+                  <ContextMenuItem 
+                    onClick={() => {
+                      dispatch({ type: "DELETE_FRAME", id: frame.id });
+                      toast("Frame deleted");
+                    }} 
+                    className="cursor-pointer text-destructive"
+                  >
+                    <span>Delete Frame</span>
+                  </ContextMenuItem>
+                </ContextMenuContent>
+              </ContextMenu>
+            ))}
+
+            {/* Render components with context menus */}
+            {state.components.map((component) => (
+              <ContextMenu key={component.id}>
+                <ContextMenuTrigger asChild>
+                  <div className="relative">
+                    <CanvasComponent
+                      component={component}
+                      isSelected={component.id === selectedComponentId}
+                      onSelect={() => handleSelectComponent(component.id)}
+                    />
+                  </div>
+                </ContextMenuTrigger>
+                <ContextMenuContent>
+                  <ContextMenuItem onClick={() => {
+                    dispatch({ type: "SELECT_COMPONENT", id: component.id });
+                    copySelectedComponent();
+                  }} className="cursor-pointer">
+                    <Copy className="mr-2 h-4 w-4" />
+                    <span>Copy</span>
+                  </ContextMenuItem>
+                  {state.clipboard && (
+                    <ContextMenuItem onClick={handleContextMenuPaste} className="cursor-pointer">
+                      <Clipboard className="mr-2 h-4 w-4" />
+                      <span>Paste</span>
+                    </ContextMenuItem>
+                  )}
+                  <ContextMenuSeparator />
+                  <ContextMenuItem onClick={() => dispatch({ type: "DELETE_COMPONENT", id: component.id })} className="cursor-pointer text-destructive">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    <span>Delete</span>
+                  </ContextMenuItem>
+                </ContextMenuContent>
+              </ContextMenu>
+            ))}
+          </div>
+        </div>
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        {state.clipboard && (
+          <ContextMenuItem onClick={handleContextMenuPaste} className="cursor-pointer">
+            <Clipboard className="mr-2 h-4 w-4" />
+            <span>Paste</span>
+          </ContextMenuItem>
+        )}
+      </ContextMenuContent>
+    </ContextMenu>
   );
 };
 

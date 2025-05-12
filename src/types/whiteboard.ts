@@ -1,19 +1,40 @@
 
-// Component types
-export type ComponentType = 
-  | "button" 
-  | "input" 
-  | "text" 
-  | "card" 
-  | "checkbox"
-  | "select"
-  | "radio"
-  | "image"
+// File: src/types/whiteboard.ts
+import { ReactNode } from "react";
+
+export type ComponentType =
+  | "button"
+  | "input"
+  | "text"
   | "heading"
   | "paragraph"
-  | "divider";
+  | "checkbox"
+  | "radio"
+  | "select"
+  | "card"
+  | "image"
+  | "divider"
+  | "table"; // Added table type
 
-// Component data structure
+export interface ComponentProperties {
+  backgroundColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  borderRadius?: number;
+  textColor?: string;
+  fontSize?: number;
+  textAlign?: "left" | "center" | "right";
+  placeholder?: string;
+  type?: string;
+  label?: string;
+  checked?: boolean;
+  options?: string[];
+  selected?: number;
+  shadow?: "none" | "sm" | "md" | "lg";
+  padding?: string | number;
+  [key: string]: any;
+}
+
 export interface CanvasComponent {
   id: string;
   type: ComponentType;
@@ -22,42 +43,43 @@ export interface CanvasComponent {
   width: number;
   height: number;
   content?: string;
-  properties: {
-    [key: string]: any;
-  };
-  frameId?: string; // Add frameId to track which frame the component belongs to
+  properties: ComponentProperties;
+  frameId?: string;
 }
 
-// Frame size for viewport constraints
 export interface FrameSize {
   id: string;
+  name: string;
   width: number;
   height: number;
-  name: string;
   x: number;
   y: number;
 }
 
-// State type
 export interface WhiteboardState {
   components: CanvasComponent[];
   isDragging: boolean;
   isResizing: boolean;
-  gridSize: number;
   snapToGrid: boolean;
+  gridSize: number;
   frames: FrameSize[];
   activeFrameId: string | null;
   zoomLevel: number;
   draggedFrameId: string | null;
-  selectedFrameId: string | null; // Add selectedFrameId to track selected frame
+  selectedFrameId: string | null;
+  clipboard: CanvasComponent | null;
+  selectedComponentId: string | null;
 }
 
-// Actions
 export type WhiteboardAction =
   | { type: "ADD_COMPONENT"; component: Omit<CanvasComponent, "id"> }
   | { type: "MOVE_COMPONENT"; id: string; x: number; y: number }
   | { type: "RESIZE_COMPONENT"; id: string; width: number; height: number }
-  | { type: "UPDATE_COMPONENT"; id: string; properties: Partial<CanvasComponent["properties"]> }
+  | {
+      type: "UPDATE_COMPONENT";
+      id: string;
+      properties: Partial<ComponentProperties>;
+    }
   | { type: "DELETE_COMPONENT"; id: string }
   | { type: "SET_DRAGGING"; isDragging: boolean }
   | { type: "SET_RESIZING"; isResizing: boolean }
@@ -72,5 +94,12 @@ export type WhiteboardAction =
   | { type: "SET_DRAGGED_FRAME"; id: string | null }
   | { type: "MOVE_FRAME"; id: string; x: number; y: number; moveAttachedComponents?: boolean }
   | { type: "ASSIGN_COMPONENT_TO_FRAME"; componentId: string; frameId: string | undefined }
-  | { type: "SELECT_FRAME"; id: string | null } // Add SELECT_FRAME action
+  | { type: "SELECT_FRAME"; id: string | null }
+  | { type: "SET_CLIPBOARD"; component: CanvasComponent }
+  | { type: "PASTE_COMPONENT"; x: number; y: number }
+  | { type: "SELECT_COMPONENT"; id: string | null }
   | { type: "LOAD_FROM_STORAGE"; state: Partial<WhiteboardState> };
+
+export interface CanvasProps {
+  children?: ReactNode;
+}
