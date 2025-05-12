@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Collection, Section } from "@/components/compass/Collection";
-import { BaseButton, SecondaryButton, TertiaryButton, IconButton } from "@/components/compass/Buttons";
+import { BaseButton } from "@/components/compass/Buttons";
 import { theme } from "@/components/compass/theme";
 
 const ComponentLibrary: React.FC = () => {
