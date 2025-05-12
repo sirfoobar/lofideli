@@ -1,26 +1,27 @@
 
 import React from 'react';
-import { 
-  DatePicker as AriaDatePicker, 
-  DatePickerProps as AriaDatePickerProps,
-  DateValue
-} from 'react-aria-components';
+import { DateValue } from 'react-aria-components';
 
-export type DatePickerProps = Omit<AriaDatePickerProps<DateValue>, 'children'> & {
+export type DatePickerProps = React.PropsWithChildren<{
   className?: string;
-  children: React.ReactNode;
-};
+  value?: DateValue;
+  onChange?: (value: DateValue) => void;
+  isDisabled?: boolean;
+  isReadOnly?: boolean;
+  autoFocus?: boolean;
+  'aria-label'?: string;
+}>;
 
 export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(
   ({ className = '', children, ...props }, ref) => {
     return (
-      <AriaDatePicker
+      <div
         {...props}
         ref={ref}
         className={`flex flex-col gap-2 ${className}`}
       >
         {children}
-      </AriaDatePicker>
+      </div>
     );
   }
 );
