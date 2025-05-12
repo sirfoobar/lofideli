@@ -1,6 +1,4 @@
-
 import React from "react";
-
 const ComponentLibrary: React.FC = () => {
   const components = [{
     type: "button",
@@ -51,14 +49,12 @@ const ComponentLibrary: React.FC = () => {
     name: "Table",
     icon: "▤"
   }];
-  
   const handleDragStart = (e: React.DragEvent, type: string) => {
     e.dataTransfer.setData("componentType", type);
     e.dataTransfer.effectAllowed = "copy";
   };
-  
   return <div className="flex flex-col gap-2">
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2">
         {components.map(component => <div key={component.type} draggable onDragStart={e => handleDragStart(e, component.type)} className="flex items-center gap-1.5 p-1.5 bg-background hover:bg-accent rounded-md cursor-grab transition-colors px-0 py-0">
             <div className="flex items-center justify-center w-6 h-6 bg-muted rounded text-sm">
               {component.icon}
@@ -67,17 +63,7 @@ const ComponentLibrary: React.FC = () => {
           </div>)}
       </div>
       
-      <div className="mt-6">
-        <p className="text-xs text-muted-foreground mb-2">Instructions:</p>
-        <ul className="text-xs text-muted-foreground space-y-1">
-          <li>• Drag components onto the canvas</li>
-          <li>• Click to select a component</li>
-          <li>• Double-click text to edit</li>
-          <li>• Press Delete to remove a component</li>
-          <li>• Use middle mouse to pan the canvas</li>
-        </ul>
-      </div>
+      
     </div>;
 };
-
 export default ComponentLibrary;
