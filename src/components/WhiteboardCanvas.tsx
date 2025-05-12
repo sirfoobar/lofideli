@@ -98,6 +98,9 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     if (e.target === canvasRef.current) {
       onSelectComponent(null);
       selectFrame(null); // Deselect frame when clicking on empty canvas
+      
+      // Also dispatch SELECT_FRAME action to update state
+      dispatch({ type: "SELECT_FRAME", id: null });
     }
   };
 
@@ -215,6 +218,9 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     onSelectComponent(id);
     dispatch({ type: "SELECT_COMPONENT", id });
     selectFrame(null); // Deselect frame when selecting a component
+    
+    // Also dispatch SELECT_FRAME action to update state
+    dispatch({ type: "SELECT_FRAME", id: null });
   };
 
   // Handle frame click - now specifically for selecting frames
