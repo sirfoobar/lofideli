@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
+import { Eye, EyeOff } from "lucide-react";
+import { useComponents } from "@/context/ComponentsProvider";
 
 interface PropertyPanelProps {
   selectedComponentId: string | null;
@@ -14,6 +16,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
   selectedComponentId,
 }) => {
   const { state, dispatch } = useWhiteboard();
+  const { Button: CustomButton } = useComponents();
   
   const selectedComponent = state.components.find(
     (component) => component.id === selectedComponentId
@@ -53,6 +56,14 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
     // If already transparent, set to white, otherwise make transparent
     const newBg = currentBg === 'transparent' ? '#ffffff' : 'transparent';
     handlePropertyChange("backgroundColor", newBg);
+  };
+
+  // Function to toggle border transparency
+  const toggleTransparentBorder = () => {
+    const currentBorder = selectedComponent.properties.borderColor;
+    // If already transparent, set to black, otherwise make transparent
+    const newBorder = currentBorder === 'transparent' ? '#000000' : 'transparent';
+    handlePropertyChange("borderColor", newBorder);
   };
 
   return (
@@ -142,7 +153,18 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
 
         {/* Style */}
         <div className="space-y-1">
-          <Label className="text-xs">Background</Label>
+          <div className="flex items-center justify-between mb-1">
+            <Label className="text-xs">Background</Label>
+            <Button
+              onClick={toggleTransparentBackground}
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0"
+              title={selectedComponent.properties.backgroundColor === 'transparent' ? "Make Solid" : "Make Transparent"}
+            >
+              {selectedComponent.properties.backgroundColor === 'transparent' ? <Eye size={16} /> : <EyeOff size={16} />}
+            </Button>
+          </div>
           <div className="flex gap-2">
             {/* Color picker for background */}
             <Input
@@ -164,37 +186,41 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
               className="flex-1 h-8"
               disabled={selectedComponent.properties.backgroundColor === 'transparent'}
             />
-            {/* Transparent toggle button */}
-            <Button
-              onClick={toggleTransparentBackground}
-              variant={selectedComponent.properties.backgroundColor === 'transparent' ? 'default' : 'outline'}
-              className="h-8 px-2 text-xs"
-              title="Toggle transparent background"
-            >
-              {selectedComponent.properties.backgroundColor === 'transparent' ? 'Solid' : 'Clear'}
-            </Button>
           </div>
         </div>
 
         {/* Border */}
         <div className="space-y-1">
-          <Label className="text-xs">Border Color</Label>
+          <div className="flex items-center justify-between mb-1">
+            <Label className="text-xs">Border Color</Label>
+            <Button
+              onClick={toggleTransparentBorder}
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0"
+              title={selectedComponent.properties.borderColor === 'transparent' ? "Make Solid" : "Make Transparent"}
+            >
+              {selectedComponent.properties.borderColor === 'transparent' ? <Eye size={16} /> : <EyeOff size={16} />}
+            </Button>
+          </div>
           <div className="flex gap-2">
             <Input
               type="color"
-              value={selectedComponent.properties.borderColor || "#000000"}
+              value={selectedComponent.properties.borderColor === 'transparent' ? '#000000' : selectedComponent.properties.borderColor || '#000000'}
               onChange={(value) =>
                 handlePropertyChange("borderColor", value)
               }
               className="w-10 h-8 p-0"
+              disabled={selectedComponent.properties.borderColor === 'transparent'}
             />
             <Input
               type="text"
-              value={selectedComponent.properties.borderColor || "#000000"}
+              value={selectedComponent.properties.borderColor === 'transparent' ? 'transparent' : selectedComponent.properties.borderColor || '#000000'}
               onChange={(value) =>
                 handlePropertyChange("borderColor", value)
               }
               className="flex-1 h-8"
+              disabled={selectedComponent.properties.borderColor === 'transparent'}
             />
           </div>
         </div>
