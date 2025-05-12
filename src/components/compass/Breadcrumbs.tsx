@@ -1,26 +1,39 @@
-import styled from '@emotion/styled';
+
+import React from 'react';
 import {
   Breadcrumbs as AriaBreadcrumbs,
   Breadcrumb as AriaBreadcrumb,
 } from 'react-aria-components';
+import type { BreadcrumbsProps, BreadcrumbProps } from 'react-aria-components';
 
-import { theme } from './theme';
-
-export const Breadcrumbs = styled(AriaBreadcrumbs)`
-  display: flex;
-  align-items: center;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  font-size: ${theme.fontSizes.small};
-  color: var(--text-color);
-`;
-
-export const Breadcrumb = styled(AriaBreadcrumb)`
-  :not(:last-child)::after {
-    content: '/';
-    content: '/' / '';
-    alt: ' ';
-    padding: 0 5px;
+export const Breadcrumbs = React.forwardRef<HTMLOListElement, BreadcrumbsProps>(
+  ({ className = '', children, ...props }, ref) => {
+    return (
+      <AriaBreadcrumbs
+        {...props}
+        ref={ref}
+        className={`flex items-center list-none m-0 p-0 text-sm text-neutral-700 ${className}`}
+      >
+        {children}
+      </AriaBreadcrumbs>
+    );
   }
-`;
+);
+
+Breadcrumbs.displayName = 'Breadcrumbs';
+
+export const Breadcrumb = React.forwardRef<HTMLLIElement, BreadcrumbProps>(
+  ({ className = '', children, ...props }, ref) => {
+    return (
+      <AriaBreadcrumb
+        {...props}
+        ref={ref}
+        className={`${className} [&:not(:last-child)]:after:content-['/'] [&:not(:last-child)]:after:px-[5px]`}
+      >
+        {children}
+      </AriaBreadcrumb>
+    );
+  }
+);
+
+Breadcrumb.displayName = 'Breadcrumb';
