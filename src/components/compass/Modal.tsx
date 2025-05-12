@@ -1,29 +1,19 @@
+
 import React from 'react';
-import styled from '@emotion/styled';
-import { theme } from './theme';
 
-const Overlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 100;
-  background: rgba(22, 22, 22, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
+const Overlay: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props) => (
+  <div
+    {...props}
+    className={`fixed top-0 left-0 w-screen h-screen z-100 bg-[rgba(22,22,22,0.8)] flex items-center justify-center ${props.className || ''}`}
+  />
+);
 
-const ModalContent = styled.div`
-  box-shadow: 0px 0px 8px 0px rgba(22, 22, 22, 0.12);
-  border-radius: ${theme.radii.card};
-  background: ${theme.colors.white};
-  color: ${theme.colors.n900};
-  outline: none;
-  max-width: 500px;
-  width: 100%;
-`;
+const ModalContent: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props) => (
+  <div
+    {...props}
+    className={`shadow-md rounded-lg bg-white text-gray-900 outline-none max-w-[500px] w-full ${props.className || ''}`}
+  />
+);
 
 export interface ModalProps {
   isOpen: boolean;
