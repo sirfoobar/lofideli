@@ -1,55 +1,47 @@
+/* Sketchy mode styles */
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap');
 
-import React from 'react';
+import styled from '@emotion/styled';
+import {
+  Dialog as AriaDialog,
+  DatePicker as AriaDatePicker,
+  DateRangePicker as AriaDateRangePicker,
+} from 'react-aria-components';
 
-interface DateValue {
-  day: number;
-  month: number;
-  year: number;
-}
+import { theme } from './theme';
 
-export type DatePickerProps = React.HTMLAttributes<HTMLDivElement> & {
-  value?: DateValue;
-  onChange?: (value: DateValue) => void;
-  isDisabled?: boolean;
-  isReadOnly?: boolean;
-  autoFocus?: boolean;
-};
+export const DatePicker = styled(AriaDatePicker)`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.space.space8};
+`;
 
-export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(
-  ({ className = '', children, onChange, value, isDisabled, isReadOnly, autoFocus, ...props }, ref) => {
-    const handleChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-      if (onChange && e.target.value) {
-        try {
-          const date = new Date(e.target.value);
-          onChange({
-            day: date.getDate(),
-            month: date.getMonth() + 1,
-            year: date.getFullYear()
-          });
-        } catch (error) {
-          console.error('Invalid date input', error);
-        }
-      }
-    }, [onChange]);
+export const DatePickerDialog = styled(AriaDialog)`
+  max-height: inherit;
+  overflow: auto;
+  padding: ${theme.space.space16};
+  background-color: ${theme.colors.white};
+  gap: ${theme.space.space2};
+  outline: none;
+  border: ${theme.borderWidths.regular} solid ${theme.colors.n80};
+  border-radius: ${theme.radii.card};
+`;
 
-    return (
-      <div
-        {...props}
-        ref={ref}
-        className={`flex flex-col gap-2 ${className}`}
-      >
-        <input 
-          type="date" 
-          className="border border-neutral-200 rounded p-2 outline-none focus:border-blue-400"
-          onChange={handleChange}
-          disabled={isDisabled}
-          readOnly={isReadOnly}
-          autoFocus={autoFocus}
-        />
-        {children}
-      </div>
-    );
+export const DateRangePicker = styled(AriaDateRangePicker)`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.space.space8};
+
+  &[slot='start'] {
+    flex: 0;
   }
-);
+  &[slot='start'] + span {
+    padding: 0 ${theme.space.space4};
+    flex: 0;
+  }
 
-DatePicker.displayName = 'DatePicker';
+  &[slot='end'] {
+    margin-right: ${theme.space.space32};
+    flex: 1;
+  }
+`;

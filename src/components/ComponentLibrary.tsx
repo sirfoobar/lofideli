@@ -1,7 +1,8 @@
 
 import React from "react";
 import { Collection, Section } from "@/components/compass/Collection";
-import { BaseButton } from "@/components/compass/Buttons";
+import { BaseButton, SecondaryButton, TertiaryButton, IconButton } from "@/components/compass/Buttons";
+import { theme } from "@/components/compass/theme";
 
 const ComponentLibrary: React.FC = () => {
   const components = [{
@@ -60,8 +61,8 @@ const ComponentLibrary: React.FC = () => {
   };
   
   return (
-    <div className="flex flex-col gap-2 w-full">
-      <div className="p-2 border-none bg-transparent">
+    <Collection className="flex flex-col gap-2 w-full">
+      <Section className="p-2 border-none bg-transparent">
         {components.map(component => (
           <div 
             key={component.type} 
@@ -79,8 +80,8 @@ const ComponentLibrary: React.FC = () => {
             </BaseButton>
           </div>
         ))}
-      </div>
-    </div>
+      </Section>
+    </Collection>
   );
 };
 

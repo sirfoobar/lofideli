@@ -1,32 +1,56 @@
-
-import React from 'react';
+import styled from '@emotion/styled';
 import {
-  Button,
+  Button as AriaButton,
   Select as AriaSelect,
   SelectValue as AriaSelectValue,
 } from 'react-aria-components';
 
-export const SelectValue: React.FC<React.ComponentProps<typeof AriaSelectValue>> = (props) => {
-  return <AriaSelectValue {...props} className={`min-w-0 ${props.className || ''}`} />;
-};
+import { theme } from './theme';
 
-export const Select: React.FC<React.ComponentProps<typeof AriaSelect>> = (props) => {
-  return (
-    <AriaSelect
-      {...props}
-      className={`flex flex-col gap-2 data-[invalid]:button:border-red-500 ${props.className || ''}`}
-    />
-  );
-};
+export const SelectValue = styled(AriaSelectValue)`
+  min-width: 0;
+`;
 
-export const SelectButton: React.FC<React.ComponentProps<typeof Button>> = (props) => {
-  return (
-    <Button
-      {...props}
-      className={`flex flex-row gap-1 bg-white justify-between items-center box-border h-10 border border-neutral-200 p-3 px-4 p-3 px-3 min-w-[200px] max-w-[560px] rounded-md outline-none text-neutral-900
-      data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed
-      data-[hovered]:bg-neutral-100 data-[hovered]:border-neutral-300
-      data-[focus-visible]:outline-2 data-[focus-visible]:outline-blue-400 data-[focus-visible]:outline-offset-2 ${props.className || ''}`}
-    />
-  );
-};
+export const Select = styled(AriaSelect)`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.space.space8};
+
+  &[data-invalid] > button {
+    border-color: ${theme.colors.red500};
+  }
+`;
+
+export const SelectButton = styled(AriaButton)`
+  display: flex;
+  flex-direction: row;
+  gap: ${theme.space.space4};
+  background: ${theme.colors.white};
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  border: ${theme.borderWidths.regular} solid ${theme.colors.n80};
+  padding: ${theme.space.space12} ${theme.space.space16} ${theme.space.space12}
+    ${theme.space.space12};
+  min-width: 200px;
+  max-width: 560px;
+  border-radius: ${theme.radii.field};
+  outline: none;
+  color: ${theme.colors.n900};
+
+  &[data-disabled] {
+    opacity: ${theme.opacity.semiOpaque};
+    cursor: not-allowed;
+  }
+
+  &[data-hovered] {
+    background: ${theme.colors.n60};
+    border: ${theme.borderWidths.regular} solid ${theme.colors.n90};
+  }
+
+  &[data-focus-visible] {
+    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
+    outline-offset: ${theme.space.space2};
+  }
+`;

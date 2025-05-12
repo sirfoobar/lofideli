@@ -1,123 +1,129 @@
-
+import styled from '@emotion/styled';
 import React from 'react';
 import {
   Table as AriaTable,
   TableHeader as AriaTableHeader,
   Column as AriaColumn,
-  ColumnProps,
+  ColumnProps as AriaColumnProps,
   TableBody as AriaTableBody,
   Row as AriaRow,
   Cell as AriaCell,
+  Group,
 } from 'react-aria-components';
 
-type SortDirection = 'ascending' | 'descending' | undefined;
+import {
+  ArrowGroupDownIcon,
+  ArrowGroupUnsortedIcon,
+  ArrowGroupUpIcon,
+} from '../../icons';
+import { theme } from './theme';
 
-interface ArrowIconProps {
-  size?: number;
-}
+export const Table = styled(AriaTable)`
+  padding: 0;
+  border: none;
+  outline: none;
+  border-spacing: 0;
+  min-height: 100px;
+  max-width: 100%;
+  word-break: break-word;
+  forced-color-adjust: none;
 
-const ArrowGroupUpIcon: React.FC<ArrowIconProps> = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m7 15 5-5 5 5"/>
-  </svg>
+  &[data-focus-visible] {
+    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
+    outline-offset: ${theme.space.space2};
+  }
+`;
+
+export const TableHeader = styled(AriaTableHeader)`
+  background: ${theme.colors.n50};
+`;
+
+const StyledColumn = styled(AriaColumn)`
+  &[data-focused] {
+    z-index: 20;
+    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
+    outline-offset: -4px;
+    border-radius: 11px;
+  }
+`;
+
+const ColumnGroup = styled(Group)`
+  display: flex;
+  align-content: center;
+  gap: ${theme.space.space4};
+  outline: none;
+  border: none;
+  padding: ${theme.space.space16};
+  text-align: start;
+  font-weight: ${theme.fontWeights.medium};
+  color: ${theme.colors.n600};
+`;
+
+export const Column = (props: AriaColumnProps) => (
+  <StyledColumn {...props}>
+    {({ allowsSorting, sortDirection }) => (
+      <ColumnGroup role="presentation">
+        <span>{props.children}</span>
+        {allowsSorting && sortDirection && (
+          <span aria-hidden="true">
+            {sortDirection === 'ascending' ? (
+              <ArrowGroupUpIcon size={16} />
+            ) : (
+              <ArrowGroupDownIcon size={16} />
+            )}
+          </span>
+        )}
+        {allowsSorting && !sortDirection && (
+          <span aria-hidden="true">
+            <ArrowGroupUnsortedIcon size={16} />
+          </span>
+        )}
+      </ColumnGroup>
+    )}
+  </StyledColumn>
 );
 
-const ArrowGroupDownIcon: React.FC<ArrowIconProps> = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m7 9 5 5 5-5"/>
-  </svg>
-);
+export const TableBody = styled(AriaTableBody)`
+  background: ${theme.colors.n50};
+`;
 
-const ArrowGroupUnsortedIcon: React.FC<ArrowIconProps> = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m7 15 5-5 5 5 M7 9 l5 5 5-5"/>
-  </svg>
-);
+export const Row = styled(AriaRow)`
+  &[data-focus-visible] {
+    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
+    outline-offset: -4px;
+    border-radius: 11px;
+  }
 
-export const Table = React.forwardRef<HTMLTableElement, React.PropsWithChildren<{ className?: string }>>(
-  ({ className = '', children, ...props }, ref) => (
-    <AriaTable
-      {...props}
-      ref={ref}
-      className={`p-0 border-none outline-none border-spacing-0 min-h-[100px] max-w-full break-words ${className}`}
-    >
-      {children}
-    </AriaTable>
-  )
-);
+  &[data-hovered] {
+    td {
+      background: ${theme.colors.n50};
+    }
+  }
 
-Table.displayName = 'Table';
+  &[data-selected] {
+    td {
+      background: ${theme.colors.blue50};
+    }
+  }
 
-export const TableHeader = React.forwardRef<HTMLTableSectionElement, React.PropsWithChildren<{ className?: string }>>(
-  ({ className = '', children, ...props }, ref) => (
-    <AriaTableHeader
-      {...props}
-      ref={ref}
-      className={`bg-neutral-50 ${className}`}
-    >
-      {children}
-    </AriaTableHeader>
-  )
-);
+  td {
+    border-top: ${theme.borderWidths.regular} solid ${theme.colors.n70};
+  }
 
-TableHeader.displayName = 'TableHeader';
+  & not(:last-of-type) {
+    td {
+      border-bottom: ${theme.borderWidths.regular} solid ${theme.colors.n70};
+    }
+  }
+`;
 
-// Render children directly instead of using a function
-export const Column: React.FC<ColumnProps> = ({ children, allowsSorting, ...props }) => (
-  <AriaColumn {...props}>
-    <div className="flex items-center gap-1 outline-none border-none p-4 text-start font-medium text-neutral-600">
-      <span>{children}</span>
-      {allowsSorting && (
-        <span aria-hidden="true">
-          <ArrowGroupUnsortedIcon size={16} />
-        </span>
-      )}
-    </div>
-  </AriaColumn>
-);
-
-export const TableBody = React.forwardRef<HTMLTableSectionElement, React.PropsWithChildren<{ className?: string }>>(
-  ({ className = '', children, ...props }, ref) => (
-    <AriaTableBody
-      {...props}
-      ref={ref}
-      className={`bg-neutral-50 ${className}`}
-    >
-      {children}
-    </AriaTableBody>
-  )
-);
-
-TableBody.displayName = 'TableBody';
-
-export const Row = React.forwardRef<HTMLTableRowElement, React.PropsWithChildren<{ className?: string }>>(
-  ({ className = '', children, ...props }, ref) => (
-    <AriaRow
-      {...props}
-      ref={ref}
-      className={`data-[focus-visible]:outline-2 data-[focus-visible]:outline-blue-400 data-[focus-visible]:outline-offset-[-4px] data-[focus-visible]:rounded-[11px]
-      data-[hovered]:td:bg-neutral-50
-      data-[selected]:td:bg-blue-50
-      td:border-t td:border-t-neutral-70
-      [&:not(:last-of-type)]:td:border-b [&:not(:last-of-type)]:td:border-b-neutral-70 ${className}`}
-    >
-      {children}
-    </AriaRow>
-  )
-);
-
-Row.displayName = 'Row';
-
-export const Cell = React.forwardRef<HTMLTableCellElement, React.PropsWithChildren<{ className?: string }>>(
-  ({ className = '', children, ...props }, ref) => (
-    <AriaCell
-      {...props}
-      ref={ref}
-      className={`p-4 outline-none bg-white data-[focused]:outline-2 data-[focused]:outline-blue-400 data-[focused]:outline-offset-[-4px] data-[focused]:rounded-md ${className}`}
-    >
-      {children}
-    </AriaCell>
-  )
-);
-
-Cell.displayName = 'Cell';
+export const Cell = styled(AriaCell)`
+  padding: ${theme.space.space16};
+  outline: none;
+  background: ${theme.colors.white};
+  &[data-focused] {
+    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
+    outline-offset: -4px;
+    border-radius: ${theme.radii.field};
+  }
+`;

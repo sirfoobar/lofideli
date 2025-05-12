@@ -1,33 +1,93 @@
-
+import styled from '@emotion/styled';
 import React from 'react';
-import { Switch as RACSwitch, SwitchProps } from 'react-aria-components';
+import { Switch as RACSwitch } from 'react-aria-components';
+import type { SwitchProps as RACSwitchProps } from 'react-aria-components';
 
-export const Switch: React.FC<SwitchProps & { labelOn?: 'left' | 'right' }> = ({
+import { theme } from './theme';
+
+const StyledSwitch = styled(RACSwitch)`
+  display: flex;
+  align-items: center;
+  gap: ${theme.space.space12};
+  color: ${theme.colors.n900};
+  forced-color-adjust: none;
+  width: fit-content;
+
+  .indicator {
+    width: ${theme.space.space32};
+    height: 1.125rem;
+    border: ${theme.borderWidths.regular} solid ${theme.colors.n400};
+    background: ${theme.colors.n200};
+    border-radius: ${theme.radii.circle};
+    transition: all 200ms;
+    transition: outline 0ms;
+    box-sizing: content-box;
+
+    &:before {
+      content: '';
+      display: block;
+      margin: ${theme.space.space2};
+      width: 0.875rem;
+      height: 0.875rem;
+      background: ${theme.colors.white};
+      border-radius: ${theme.radii.circle};
+      transition: transform 200ms;
+    }
+  }
+
+  &[data-hovered] .indicator {
+    background: ${theme.colors.n300};
+  }
+
+  &[data-pressed] .indicator {
+    background: ${theme.colors.n400};
+  }
+
+  &[data-selected] {
+    &[data-hovered] .indicator {
+      background: ${theme.colors.blue600};
+      border-color: ${theme.colors.blue600};
+    }
+
+    &[data-pressed] .indicator {
+      background: ${theme.colors.blue700};
+    }
+
+    .indicator {
+      background: ${theme.colors.blue500};
+      border-color: ${theme.colors.blue500};
+
+      &:before {
+        background: ${theme.colors.white};
+        transform: translateX(100%);
+      }
+    }
+  }
+
+  &[data-disabled] {
+    opacity: ${theme.opacity.semiOpaque};
+    cursor: not-allowed;
+  }
+
+  &[data-focus-visible] .indicator {
+    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
+    outline-offset: ${theme.space.space2};
+  }
+`;
+
+interface SwitchProps extends Omit<RACSwitchProps, 'children'> {
+  labelOn?: 'left' | 'right';
+  children: React.ReactNode;
+}
+
+export const Switch = ({
   labelOn = 'left',
-  className = '',
   children,
   ...props
-}) => {
-  return (
-    <RACSwitch
-      {...props}
-      className={`flex items-center gap-3 text-neutral-900 w-fit ${className}`}
-    >
-      {labelOn === 'right' && <IndicatorSpan />}
-      {children}
-      {labelOn === 'left' && <IndicatorSpan />}
-    </RACSwitch>
-  );
-};
-
-const IndicatorSpan: React.FC = () => (
-  <span className="indicator w-8 h-[1.125rem] border border-neutral-400 bg-neutral-200 rounded-full transition-all box-border
-    before:content-[''] before:block before:m-0.5 before:w-[0.875rem] before:h-[0.875rem] before:bg-white before:rounded-full before:transition-transform
-    group-data-[hovered]/switch:bg-neutral-300
-    group-data-[pressed]/switch:bg-neutral-400
-    group-data-[selected]/switch:bg-blue-500 group-data-[selected]/switch:border-blue-500 group-data-[selected]/switch:before:translate-x-full
-    group-data-[selected][data-hovered]/switch:bg-blue-600 group-data-[selected][data-hovered]/switch:border-blue-600
-    group-data-[selected][data-pressed]/switch:bg-blue-700
-    group-data-[disabled]/switch:opacity-50 group-data-[disabled]/switch:cursor-not-allowed
-    group-data-[focus-visible]/switch:outline-2 group-data-[focus-visible]/switch:outline-blue-400 group-data-[focus-visible]/switch:outline-offset-2" />
+}: SwitchProps) => (
+  <StyledSwitch {...props}>
+    {labelOn === 'right' && <span className="indicator" />}
+    {children}
+    {labelOn === 'left' && <span className="indicator" />}
+  </StyledSwitch>
 );

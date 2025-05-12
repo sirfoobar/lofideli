@@ -1,19 +1,22 @@
-
-import React from 'react';
+import styled from '@emotion/styled';
 import { SearchField as AriaSearchField } from 'react-aria-components';
 
-export const SearchField: React.FC<React.ComponentProps<typeof AriaSearchField>> = (props) => {
-  return <AriaSearchField {...props} className={`flex flex-col gap-2 ${props.className || ''}`} />;
-};
+import { theme } from '../theme';
 
-export const InlineSearchField: React.FC<React.ComponentProps<typeof AriaSearchField>> = (props) => {
-  return <AriaSearchField {...props} className={`flex-grow-1 ${props.className || ''}`} />;
-};
+import { InputGroup } from './Forms/Inputs';
 
-export const SearchGroup: React.FC<React.PropsWithChildren<{ className?: string }>> = ({ className = '', children }) => {
-  return (
-    <div className={`flex items-center border rounded-full px-4 w-[320px] ${className}`}>
-      {children}
-    </div>
-  );
-};
+export const SearchGroup = styled(InputGroup)`
+  border-radius: ${theme.radii.circle};
+  padding-left: ${theme.space.space16};
+  width: 320px;
+`;
+
+export const SearchField = styled(AriaSearchField)`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.space.space8};
+`;
+
+export const InlineSearchField = styled(AriaSearchField)`
+  flex-grow: 1;
+`;

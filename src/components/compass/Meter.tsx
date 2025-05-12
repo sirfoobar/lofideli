@@ -1,36 +1,44 @@
-
-import React from 'react';
+import styled from '@emotion/styled';
 import { Meter as AriaMeter } from 'react-aria-components';
+
+import { theme } from './theme';
+
 import { Label } from './Form';
 
-export const Meter: React.FC<React.ComponentProps<typeof AriaMeter>> = ({ className = '', children, ...props }) => {
-  return (
-    <AriaMeter
-      {...props}
-      className={`grid grid-areas-[label_value/bar_bar] grid-cols-[1fr_auto] gap-1 w-[250px] text-neutral-900 ${className}`}
-    >
-      {children}
-    </AriaMeter>
-  );
-};
+export const Meter = styled(AriaMeter)`
+  display: grid;
+  grid-template-areas:
+    'label value'
+    'bar bar';
+  grid-template-columns: 1fr auto;
+  gap: 4px;
+  width: 250px;
+  color: ${theme.colors.n900};
+`;
 
-export const MeterLabel: React.FC<React.ComponentProps<typeof Label>> = ({ className = '', ...props }) => {
-  return <Label {...props} className={`grid-area-[label] ${className}`} />;
-};
+export const MeterLabel = styled(Label)`
+  grid-area: label;
+`;
 
-export const MeterValue: React.FC<React.HTMLAttributes<HTMLSpanElement>> = ({ className = '', ...props }) => {
-  return <span {...props} className={`grid-area-[value] text-base leading-normal ${className}`} />;
-};
+export const MeterValue = styled.span`
+  grid-area: value;
+  font-size: ${theme.fontSizes.body};
+  line-height: ${theme.lineHeights.body};
+`;
 
-export const MeterBar: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className = '', ...props }) => {
-  return (
-    <div
-      {...props}
-      className={`grid-area-[bar] shadow-[inset_0px_0px_0px_1px_#e5e7eb] h-[10px] rounded-md overflow-hidden ${className}`}
-    />
-  );
-};
+export const MeterBar = styled.div`
+  grid-area: bar;
+  box-shadow: inset 0px 0px 0px 1px ${theme.colors.n70};
+  forced-color-adjust: none;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+`;
 
-export const MeterFill: React.FC<React.HTMLAttributes<HTMLDivElement> & { percentage: number }> = ({ percentage, className = '', ...props }) => {
-  return <div {...props} className={`w-[${percentage}%] bg-blue-500 h-full ${className}`} style={{ width: `${percentage}%` }} />;
-};
+export const MeterFill = styled.div<{ percentage: number }>(
+  ({ percentage }) => `
+    width: ${percentage}%;
+    background: ${theme.colors.blue500};
+    height: 100%;
+  `,
+);

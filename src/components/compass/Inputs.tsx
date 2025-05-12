@@ -1,60 +1,127 @@
+import styled from '@emotion/styled';
+import {
+  TextArea as AriaTextArea,
+  Input as AriaInput,
+  Group as AriaGroup,
+} from 'react-aria-components';
 
-import React from 'react';
-import { Input as AriaInput, TextArea as AriaTextArea, Group } from 'react-aria-components';
+import { theme } from './theme';
 
-export const Input: React.FC<React.ComponentProps<typeof AriaInput>> = (props) => {
-  return (
-    <AriaInput
-      {...props}
-      className={`border border-neutral-200 p-2 py-2.5 box-border h-10 min-w-[200px] max-w-[560px] rounded-md outline-none
-      data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed
-      data-[hovered]:border-neutral-300
-      data-[invalid]:border-red-500
-      data-[focus-visible]:outline-2 data-[focus-visible]:outline-blue-400 data-[focus-visible]:outline-offset-2 ${props.className || ''}`}
-    />
-  );
-};
+export const Input = styled(AriaInput)`
+  border: ${theme.borderWidths.regular} solid ${theme.colors.n80};
+  padding: ${theme.space.space8} ${theme.space.space12};
+  sizing: border-box;
+  height: 40px;
+  min-width: 200px;
+  max-width: 560px;
+  border-radius: ${theme.radii.field};
+  outline: none;
 
-export const TextArea: React.FC<React.ComponentProps<typeof AriaTextArea>> = (props) => {
-  return (
-    <AriaTextArea
-      {...props}
-      className={`border border-neutral-200 p-2 min-w-[200px] max-w-[560px] rounded-md outline-none
-      data-[disabled]:opacity-50
-      data-[hovered]:border-neutral-300
-      data-[invalid]:border-red-500
-      data-[focus-visible]:outline-2 data-[focus-visible]:outline-blue-400 data-[focus-visible]:outline-offset-2 ${props.className || ''}`}
-    />
-  );
-};
+  &[data-disabled] {
+    opacity: ${theme.opacity.semiOpaque};
+    cursor: not-allowed;
+  }
 
-export const InputGroup: React.FC<React.ComponentProps<typeof Group>> = (props) => {
-  return (
-    <Group
-      {...props}
-      className={`flex flex-row gap-1 justify-between items-center box-border h-10 bg-white border border-neutral-200 p-1 px-3 min-w-[200px] max-w-[560px] rounded-md outline-none
-      data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed
-      data-[hovered]:border-neutral-300
-      data-[invalid]:border-red-500
-      data-[focus-visible]:outline-2 data-[focus-visible]:outline-blue-400 data-[focus-visible]:outline-offset-2 ${props.className || ''}`}
-    />
-  );
-};
+  &[data-hovered] {
+    border: ${theme.borderWidths.regular} solid ${theme.colors.n90};
+  }
 
-export const InlineInputGroup: React.FC<React.ComponentProps<typeof Group>> = (props) => {
-  return (
-    <Group
-      {...props}
-      className={`flex flex-row gap-1 items-center w-full flex-grow-1 h-10 border-none outline-none p-1 flex-grow-1 h-6 ${props.className || ''}`}
-    />
-  );
-};
+  &[data-invalid] {
+    border: ${theme.borderWidths.regular} solid ${theme.colors.red500};
+  }
 
-export const UnstyledInput: React.FC<React.ComponentProps<typeof AriaInput>> = (props) => {
-  return (
-    <AriaInput
-      {...props}
-      className={`border-none outline-none p-1 flex-grow-1 h-6 ${props.className || ''}`}
-    />
-  );
-};
+  &[data-focus-visible] {
+    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
+    outline-offset: ${theme.space.space2};
+  }
+`;
+
+export const TextArea = styled(AriaTextArea)`
+  border: ${theme.borderWidths.regular} solid ${theme.colors.n80};
+  padding: ${theme.space.space8} ${theme.space.space12};
+  min-width: 200px;
+  max-width: 560px;
+  border-radius: ${theme.radii.field};
+  outline: none;
+
+  &[data-disabled] {
+    opacity: ${theme.opacity.semiOpaque};
+  }
+
+  &[data-hovered] {
+    border: ${theme.borderWidths.regular} solid ${theme.colors.n90};
+  }
+
+  &[data-invalid] {
+    border: ${theme.borderWidths.regular} solid ${theme.colors.red500};
+  }
+
+  &[data-focus-visible] {
+    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
+    outline-offset: ${theme.space.space2};
+  }
+`;
+
+export const InputGroup = styled(AriaGroup)`
+  display: flex;
+  flex-direction: row;
+  gap: ${theme.space.space4};
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  background: ${theme.colors.white};
+  border: ${theme.borderWidths.regular} solid ${theme.colors.n80};
+  padding: ${theme.space.space4} ${theme.space.space12};
+  min-width: 200px;
+  max-width: 560px;
+  border-radius: ${theme.radii.field};
+  outline: none;
+
+  &[data-disabled] {
+    opacity: ${theme.opacity.semiOpaque};
+    cursor: not-allowed;
+  }
+
+  &[data-hovered] {
+    border: ${theme.borderWidths.regular} solid ${theme.colors.n90};
+  }
+
+  &[data-invalid] {
+    border: ${theme.borderWidths.regular} solid ${theme.colors.red500};
+  }
+
+  &[data-focus-visible] {
+    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
+    outline-offset: ${theme.space.space2};
+  }
+`;
+
+export const InlineInputGroup = styled(AriaGroup)`
+  display: flex;
+  flex-direction: row;
+  gap: ${theme.space.space4};
+  align-items: center;
+  width: 100%;
+  flex-grow: 1;
+  height: 40px;
+  border: none;
+  outline: none;
+  padding: ${theme.space.space4};
+  flex-grow: 1;
+  height: ${theme.space.space24};
+  ::-webkit-search-cancel-button {
+    display: none;
+  }
+`;
+
+export const UnstyledInput = styled(AriaInput)`
+  border: none;
+  outline: none;
+  padding: ${theme.space.space4};
+  flex-grow: 1;
+  height: ${theme.space.space24};
+  ::-webkit-search-cancel-button {
+    display: none;
+  }
+`;

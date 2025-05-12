@@ -1,47 +1,75 @@
-
-import React from 'react';
+import styled from '@emotion/styled';
 import {
   Slider as AriaSlider,
-  SliderOutput,
-  SliderThumb,
-  SliderTrack,
+  SliderOutput as AriaSliderOutput,
+  SliderThumb as AriaSliderThumb,
+  SliderTrack as AriaSliderTrack,
 } from 'react-aria-components';
+
+import { theme } from './theme';
+
 import { Label } from './Form';
 
-export const Slider: React.FC<React.ComponentProps<typeof AriaSlider>> = (props) => {
-  return (
-    <AriaSlider
-      {...props}
-      className={`grid grid-areas-[label_output/track_track] grid-cols-[1fr_auto] max-w-[300px] text-neutral-900 ${props.className || ''}`}
-    />
-  );
-};
+export const Slider = styled(AriaSlider)`
+  display: grid;
+  grid-template-areas:
+    'label output'
+    'track track';
+  grid-template-columns: 1fr auto;
+  max-width: 300px;
+  color: ${theme.colors.n900};
+`;
 
-export const SliderLabel: React.FC<React.ComponentProps<typeof Label>> = (props) => {
-  return <Label {...props} className={`grid-area-[label] ${props.className || ''}`} />;
-};
+export const SliderLabel = styled(Label)`
+  grid-area: label;
+`;
 
-export const SliderOutput: React.FC<React.ComponentProps<typeof SliderOutput>> = (props) => {
-  return <SliderOutput {...props} className={`grid-area-[output] ${props.className || ''}`} />;
-};
+export const SliderOutput = styled(AriaSliderOutput)`
+  grid-area: output;
+`;
 
-export const SliderThumb: React.FC<React.ComponentProps<typeof SliderThumb>> = (props) => {
-  return (
-    <SliderThumb
-      {...props}
-      className={`w-5 h-5 rounded-full bg-blue-500 border-2 border-white top-1/2
-      data-[hovered]:bg-blue-600
-      data-[dragging]:bg-blue-700
-      data-[focus-visible]:outline-2 data-[focus-visible]:outline-blue-400 ${props.className || ''}`}
-    />
-  );
-};
+export const SliderThumb = styled(AriaSliderThumb)`
+  width: ${theme.space.space20};
+  height: ${theme.space.space20};
+  border-radius: ${theme.radii.circle};
+  background: ${theme.colors.blue500};
+  border: ${theme.borderWidths.thick} solid ${theme.colors.white};
+  forced-color-adjust: none;
 
-export const SliderTrack: React.FC<React.ComponentProps<typeof SliderTrack>> = (props) => {
-  return (
-    <SliderTrack
-      {...props}
-      className={`grid-area-[track] relative h-[30px] w-full before:content-[''] before:block before:absolute before:bg-neutral-200 before:rounded-full before:h-[3px] before:w-full before:top-1/2 before:-translate-y-1/2 ${props.className || ''}`}
-    />
-  );
-};
+  &[data-hovered] {
+    background: ${theme.colors.blue600};
+  }
+
+  &[data-dragging] {
+    background: ${theme.colors.blue700};
+  }
+
+  &[data-focus-visible] {
+    outline: 2px solid ${theme.colors.blue400};
+  }
+  top: 50%;
+`;
+
+export const SliderTrack = styled(AriaSliderTrack)`
+  grid-area: track;
+  position: relative;
+
+  /* track line */
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    background: ${theme.colors.n70};
+    border-radius: ${theme.radii.circle};
+  }
+
+  height: 30px;
+  width: 100%;
+
+  &:before {
+    height: 3px;
+    width: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+`;

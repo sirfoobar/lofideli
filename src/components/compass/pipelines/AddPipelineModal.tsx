@@ -1,7 +1,41 @@
-
 import React, { useState } from 'react';
+import styled from '@emotion/styled';
 import { ModalWrapper } from '../Modal';
-import { Button, SecondaryButton } from '../Buttons';
+import { Input } from '../Inputs';
+import { PrimaryButton, SecondaryButton } from '../Buttons/Button';
+import { theme } from '../theme';
+
+const ModalContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.space.space16};
+  padding: ${theme.space.space24};
+`;
+
+const ModalTitle = styled.h2`
+  font-size: ${theme.fontSizes.fontsize20};
+  font-weight: ${theme.fontWeights.bold};
+  margin-bottom: ${theme.space.space8};
+`;
+
+const InputGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.space.space8};
+`;
+
+const Label = styled.label`
+  font-size: ${theme.fontSizes.fontsize14};
+  font-weight: ${theme.fontWeights.medium};
+  color: ${theme.colors.n700};
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: ${theme.space.space8};
+  margin-top: ${theme.space.space16};
+`;
 
 interface AddPipelineModalProps {
   isOpen: boolean;
@@ -24,43 +58,40 @@ export const AddPipelineModal: React.FC<AddPipelineModalProps> = ({ isOpen, onCl
 
   return (
     <ModalWrapper isOpen={isOpen} onClose={onClose}>
-      <div className="flex flex-col gap-4 p-6">
-        <h2 className="text-xl font-bold mb-2">Add New Pipeline</h2>
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-neutral-700">Pipeline Name</label>
-          <input
+      <ModalContent>
+        <ModalTitle>Add New Pipeline</ModalTitle>
+        <InputGroup>
+          <Label>Pipeline Name</Label>
+          <Input
             type="text"
             placeholder="Enter pipeline name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="border border-neutral-200 p-2 rounded-md"
           />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-neutral-700">Description</label>
-          <input
+        </InputGroup>
+        <InputGroup>
+          <Label>Description</Label>
+          <Input
             type="text"
             placeholder="Enter pipeline description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="border border-neutral-200 p-2 rounded-md"
           />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-neutral-700">Default Branch</label>
-          <input
+        </InputGroup>
+        <InputGroup>
+          <Label>Default Branch</Label>
+          <Input
             type="text"
             placeholder="Enter default branch"
             value={branch}
             onChange={(e) => setBranch(e.target.value)}
-            className="border border-neutral-200 p-2 rounded-md"
           />
-        </div>
-        <div className="flex justify-end gap-2 mt-4">
-          <SecondaryButton onPress={onClose}>Cancel</SecondaryButton>
-          <Button onPress={handleSave}>Save</Button>
-        </div>
-      </div>
+        </InputGroup>
+        <ButtonGroup>
+          <SecondaryButton onClick={onClose}>Cancel</SecondaryButton>
+          <PrimaryButton onClick={handleSave}>Save</PrimaryButton>
+        </ButtonGroup>
+      </ModalContent>
     </ModalWrapper>
   );
-};
+}; 

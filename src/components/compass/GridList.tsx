@@ -1,29 +1,56 @@
-
-import React from 'react';
+import styled from '@emotion/styled';
 import {
   GridList as AriaGridList,
-  GridListItem as AriaGridListItem
+  GridListItem as AriaGridListItem,
 } from 'react-aria-components';
 
-export const GridList: React.FC<React.ComponentProps<typeof AriaGridList>> = (props) => {
-  return (
-    <AriaGridList
-      {...props}
-      className={`grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 p-2 list-none m-0 w-full max-w-full box-border
-      data-[focus-visible]:outline-2 data-[focus-visible]:outline-blue-400 data-[focus-visible]:outline-offset-2 ${props.className || ''}`}
-    />
-  );
-};
+import { theme } from './theme';
 
-export const GridListItem: React.FC<React.ComponentProps<typeof AriaGridListItem>> = (props) => {
-  return (
-    <AriaGridListItem
-      {...props}
-      className={`flex flex-col gap-2 p-4 border border-neutral-200 rounded-md bg-white cursor-pointer transition-all
-      data-[hovered]:border-neutral-300 data-[hovered]:bg-neutral-100
-      data-[selected]:border-blue-500 data-[selected]:bg-blue-100
-      data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed
-      data-[focus-visible]:outline-2 data-[focus-visible]:outline-blue-400 data-[focus-visible]:outline-offset-2 ${props.className || ''}`}
-    />
-  );
-};
+export const GridList = styled(AriaGridList)`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: ${theme.space.space16};
+  padding: ${theme.space.space8};
+  list-style: none;
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  &[data-focus-visible] {
+    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
+    outline-offset: ${theme.space.space2};
+  }
+`;
+
+export const GridListItem = styled(AriaGridListItem)`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.space.space8};
+  padding: ${theme.space.space16};
+  border: ${theme.borderWidths.regular} solid ${theme.colors.n80};
+  border-radius: ${theme.radii.field};
+  background: ${theme.colors.white};
+  cursor: pointer;
+  transition: all 200ms;
+
+  &[data-hovered] {
+    border-color: ${theme.colors.n90};
+    background: ${theme.colors.n60};
+  }
+
+  &[data-selected] {
+    border-color: ${theme.colors.blue500};
+    background: ${theme.colors.blue100};
+  }
+
+  &[data-disabled] {
+    opacity: ${theme.opacity.semiOpaque};
+    cursor: not-allowed;
+  }
+
+  &[data-focus-visible] {
+    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
+    outline-offset: ${theme.space.space2};
+  }
+`;
