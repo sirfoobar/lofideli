@@ -6,7 +6,7 @@ import {
   TertiaryButton,
   IconButton,
   Button 
-} from '../Buttons';
+} from './Button';
 
 export { 
   BaseButton,

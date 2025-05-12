@@ -1,45 +1,29 @@
-import styled from '@emotion/styled';
+
+import React from 'react';
 import {
   Menu as AriaMenu,
   MenuItem as AriaMenuItem,
+  MenuTrigger
 } from 'react-aria-components';
 
-import { theme } from './theme';
-export { MenuTrigger } from 'react-aria-components';
+export const Menu: React.FC<React.ComponentProps<typeof AriaMenu>> = (props) => {
+  return (
+    <AriaMenu
+      {...props}
+      className={`max-h-inherit overflow-auto min-w-[150px] max-w-[560px] flex flex-col bg-white gap-0.5 outline-none border border-neutral-200 rounded-lg ${props.className || ''}`}
+    />
+  );
+};
 
-export const Menu = styled(AriaMenu)`
-  max-height: inherit;
-  overflow: auto;
-  min-width: 150px;
-  max-width: 560px;
-  display: flex;
-  flex-direction: column;
-  background-color: ${theme.colors.white};
-  gap: ${theme.space.space2};
-  outline: none;
-  border: ${theme.borderWidths.regular} solid ${theme.colors.n80};
-  border-radius: ${theme.radii.card};
+export const MenuItem: React.FC<React.ComponentProps<typeof AriaMenuItem>> = (props) => {
+  return (
+    <AriaMenuItem
+      {...props}
+      className={`p-3 px-4 text-ellipsis whitespace-nowrap overflow-hidden outline-none cursor-default text-decoration-none text-neutral-900
+      data-[hovered]:bg-neutral-100
+      data-[focus-visible]:bg-neutral-100 ${props.className || ''}`}
+    />
+  );
+};
 
-  a {
-    cursor: pointer;
-  }
-`;
-
-export const MenuItem = styled(AriaMenuItem)`
-  padding: ${theme.space.space12} ${theme.space.space16};
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  outline: none;
-  cursor: default;
-  text-decoration: none;
-  color: ${theme.colors.n900};
-
-  &[data-hovered] {
-    background-color: ${theme.colors.n60};
-  }
-
-  &[data-focus-visible] {
-    background-color: ${theme.colors.n60};
-  }
-`;
+export { MenuTrigger };

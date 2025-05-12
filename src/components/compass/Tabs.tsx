@@ -1,64 +1,22 @@
-import styled from '@emotion/styled';
+
+import React from 'react';
 import {
   Tabs as AriaTabs,
   TabList as AriaTabList,
   Tab as AriaTab,
+  TabPanel
 } from 'react-aria-components';
 
-import { theme } from '../theme';
+export const Tabs: React.FC<React.ComponentProps<typeof AriaTabs>> = (props) => {
+  return <AriaTabs {...props} className={`flex ${props.orientation === 'horizontal' ? 'flex-col' : 'flex-row'} ${props.className || ''}`} />;
+};
 
-export const Tabs = styled(AriaTabs)`
-  display: flex;
+export const TabList: React.FC<React.ComponentProps<typeof AriaTabList>> = (props) => {
+  return <AriaTabList {...props} className={`flex ${props.orientation === 'horizontal' ? 'border-b border-neutral-200' : ''} ${props.className || ''}`} />;
+};
 
-  &[data-orientation='horizontal'] {
-    flex-direction: column;
-  }
-`;
+export const Tab: React.FC<React.ComponentProps<typeof AriaTab>> = (props) => {
+  return <AriaTab {...props} className={`p-2 px-4 outline-none relative transition-all cursor-default border border-transparent rounded-t-md data-[selected]:border-neutral-200 data-[selected]:bg-neutral-100 data-[selected]:text-neutral-900 data-[selected]:font-medium data-[hovered]:bg-neutral-50 data-[focus-visible]:outline-2 data-[focus-visible]:outline-blue-400 data-[focus-visible]:outline-offset-2 ${props.className || ''}`} />;
+};
 
-export const TabList = styled(AriaTabList)`
-  display: flex;
-
-  &[data-orientation='horizontal'] {
-    border-bottom: ${theme.borderWidths.regular} solid ${theme.colors.n70};
-  }
-`;
-
-export const Tab = styled(AriaTab)`
-  padding: ${theme.space.space8} ${theme.space.space16};
-  cursor: default;
-  outline: none;
-  position: relative;
-  transition: all 200ms;
-  border: ${theme.borderWidths.regular} solid transparent;
-  border-top-left-radius: ${theme.radii.field};
-  border-top-right-radius: ${theme.radii.field};
-  forced-color-adjust: none;
-  color: ${theme.colors.n400};
-
-  &[data-hovered],
-  &[data-focused] {
-    background: ${theme.colors.n50};
-    color: ${theme.colors.n900};
-  }
-
-  &[data-selected] {
-    border-color: ${theme.colors.n70};
-    background: ${theme.colors.n60};
-    color: ${theme.colors.n900};
-    font-weight: ${theme.fontWeights.medium};
-  }
-
-  &[data-disabled] {
-    opacity: ${theme.opacity.semiOpaque};
-  }
-
-  &[data-focus-visible]:after {
-    content: '';
-    position: absolute;
-    inset: 4px;
-    border-radius: 4px;
-    border: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
-  }
-`;
-
-export { TabPanel } from 'react-aria-components';
+export { TabPanel };

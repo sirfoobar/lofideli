@@ -1,78 +1,43 @@
-import styled from '@emotion/styled';
+
 import React from 'react';
 import {
   Tooltip as AriaTooltip,
-  OverlayArrow as AriaOverlayArrow,
+  OverlayArrow,
+  TooltipProps,
+  TooltipTrigger,
 } from 'react-aria-components';
-import type { TooltipProps } from 'react-aria-components';
 
-import { theme } from './theme';
-
-export { TooltipTrigger } from 'react-aria-components';
-
-export const TooltipArrowIcon = () => (
+export const TooltipArrowIcon: React.FC = () => (
   <svg width={8} height={8} viewBox="0 0 8 8">
     <path d="M0 0 L4 4 L8 0" />
   </svg>
 );
 
-export const StyledTooltip = styled(AriaTooltip)`
-  box-shadow: 0 8px 20px rgba(0 0 0 / 0.1);
-  border-radius: ${theme.radii.card};
-  background: ${theme.colors.n600};
-  color: ${theme.colors.white};
-  forced-color-adjust: none;
-  outline: none;
-  padding: ${theme.space.space12};
-  max-width: 380px;
-  /* fixes FF gap */
-  transform: translate3d(0, 0, 0);
+export const StyledTooltip: React.FC<React.ComponentProps<typeof AriaTooltip>> = (props) => {
+  return (
+    <AriaTooltip
+      {...props}
+      className={`shadow-lg rounded-lg bg-neutral-600 text-white outline-none p-3 max-w-[380px] transform-gpu
+      data-[placement=top]:mb-2 data-[placement=top]:origin-[translateY(4px)]
+      data-[placement=bottom]:mt-3 data-[placement=bottom]:origin-[translateY(-4px)]
+      data-[placement=bottom]:react-aria-OverlayArrow:svg:rotate-180
+      data-[placement=right]:ml-2 data-[placement=right]:origin-[translateX(-4px)]
+      data-[placement=right]:react-aria-OverlayArrow:svg:rotate-90
+      data-[placement=left]:mr-2 data-[placement=left]:origin-[translateX(4px)]
+      data-[placement=left]:react-aria-OverlayArrow:svg:rotate-[-90deg] ${props.className || ''}`}
+    />
+  );
+};
 
-  &[data-placement='top'] {
-    margin-bottom: 8px;
-    --origin: translateY(4px);
-  }
-
-  &[data-placement='bottom'] {
-    margin-top: 12px;
-    --origin: translateY(-4px);
-    & .react-aria-OverlayArrow svg {
-      transform: rotate(180deg);
-    }
-  }
-
-  &[data-placement='right'] {
-    margin-left: 8px;
-    --origin: translateX(-4px);
-    & .react-aria-OverlayArrow svg {
-      transform: rotate(90deg);
-    }
-  }
-  &[data-placement='left'] {
-    margin-right: 8px;
-    --origin: translateX(4px);
-    & .react-aria-OverlayArrow svg {
-      transform: rotate(-90deg);
-    }
-  }
-
-  & .react-aria-OverlayArrow svg {
-    display: block;
-    height: ${theme.space.space8};
-  }
-`;
-
-interface MyTooltipProps extends Omit<TooltipProps, 'children'> {
-  children: React.ReactNode;
-}
-
-export const Tooltip = ({ children, ...props }: MyTooltipProps) => (
+export const Tooltip: React.FC<Omit<TooltipProps, 'children'> & { children: React.ReactNode }> = ({ children, ...props }) => (
   <StyledTooltip {...props}>
-    <AriaOverlayArrow>
-      <svg width={8} height={8} viewBox="0 0 8 8">
+    <OverlayArrow>
+      <svg width={8} height={8} viewBox="0 0 8 8" className="block h-2">
         <path d="M0 0 L4 4 L8 0" />
       </svg>
-    </AriaOverlayArrow>
+    </OverlayArrow>
     {children}
   </StyledTooltip>
 );
+
+export { TooltipTrigger };

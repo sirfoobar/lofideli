@@ -10,11 +10,29 @@ import {
   Cell as AriaCell,
 } from 'react-aria-components';
 
-import {
-  ArrowGroupDownIcon,
-  ArrowGroupUpIcon,
-  ArrowGroupUnsortedIcon,
-} from '../../icons';
+type SortDirection = 'ascending' | 'descending' | undefined;
+
+interface ArrowIconProps {
+  size?: number;
+}
+
+const ArrowGroupUpIcon: React.FC<ArrowIconProps> = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m7 15 5-5 5 5"/>
+  </svg>
+);
+
+const ArrowGroupDownIcon: React.FC<ArrowIconProps> = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m7 9 5 5 5-5"/>
+  </svg>
+);
+
+const ArrowGroupUnsortedIcon: React.FC<ArrowIconProps> = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m7 15 5-5 5 5 M7 9 l5 5 5-5"/>
+  </svg>
+);
 
 export const Table = React.forwardRef<HTMLTableElement, React.PropsWithChildren<{ className?: string }>>(
   ({ className = '', children, ...props }, ref) => (
@@ -44,27 +62,17 @@ export const TableHeader = React.forwardRef<HTMLTableSectionElement, React.Props
 
 TableHeader.displayName = 'TableHeader';
 
-export const Column = (props: ColumnProps) => (
+// Render children directly instead of using a function
+export const Column: React.FC<ColumnProps> = ({ children, allowsSorting, ...props }) => (
   <AriaColumn {...props}>
-    {({ allowsSorting, sortDirection }) => (
-      <div className="flex items-center gap-1 outline-none border-none p-4 text-start font-medium text-neutral-600">
-        <span>{props.children}</span>
-        {allowsSorting && sortDirection && (
-          <span aria-hidden="true">
-            {sortDirection === 'ascending' ? (
-              <ArrowGroupUpIcon size={16} />
-            ) : (
-              <ArrowGroupDownIcon size={16} />
-            )}
-          </span>
-        )}
-        {allowsSorting && !sortDirection && (
-          <span aria-hidden="true">
-            <ArrowGroupUnsortedIcon size={16} />
-          </span>
-        )}
-      </div>
-    )}
+    <div className="flex items-center gap-1 outline-none border-none p-4 text-start font-medium text-neutral-600">
+      <span>{children}</span>
+      {allowsSorting && (
+        <span aria-hidden="true">
+          <ArrowGroupUnsortedIcon size={16} />
+        </span>
+      )}
+    </div>
   </AriaColumn>
 );
 

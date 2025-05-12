@@ -1,97 +1,22 @@
-import styled from '@emotion/styled';
+
 import React from 'react';
 import {
-  Checkbox as AriaCheckbox,
+  Checkbox,
   CheckboxGroup as AriaCheckboxGroup,
-  CheckboxProps as AriaCheckboxProps,
+  CheckboxProps
 } from 'react-aria-components';
 
-import { CheckIcon, MinusIcon } from '../../icons';
-import { theme } from './theme';
+export const StyledCheckbox: React.FC<CheckboxProps> = (props) => {
+  return <Checkbox {...props} className={`flex items-center gap-3 text-base ${props.className || ''}`} />;
+};
 
-export const StyledCheckbox = styled(AriaCheckbox)`
-  display: flex;
-  align-items: center;
-  gap: ${theme.space.space12};
-  font-size: ${theme.fontSizes.fontsize16};
+export const CheckboxGroup: React.FC<React.ComponentProps<typeof AriaCheckboxGroup>> = (props) => {
+  return (
+    <AriaCheckboxGroup
+      {...props}
+      className={`flex flex-col gap-2 ${props.orientation === 'horizontal' ? 'flex-row items-center' : ''} ${props.className || ''}`}
+    />
+  );
+};
 
-  .checkbox {
-    width: ${theme.space.space20};
-    height: ${theme.space.space20};
-    border: ${theme.borderWidths.regular} solid ${theme.colors.n200};
-    border-radius: ${theme.radii.rounded};
-  }
-
-  &[data-pressed] .checkbox {
-    border-color: ${theme.colors.blue600};
-  }
-
-  &[data-focus-visible] .checkbox {
-    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
-    outline-offset: ${theme.space.space2};
-  }
-
-  &[data-selected],
-  &[data-indeterminate] {
-    .checkbox {
-      border-color: ${theme.colors.blue500};
-      background: ${theme.colors.blue500};
-    }
-
-    &[data-pressed] .checkbox {
-      border-color: ${theme.colors.blue600};
-      background: ${theme.colors.blue600};
-    }
-  }
-
-  &[data-invalid] {
-    .checkbox {
-      border-color: ${theme.colors.red500};
-    }
-
-    &[data-pressed] .checkbox {
-      border-color: ${theme.colors.red600};
-    }
-
-    &[data-selected],
-    &[data-indeterminate] {
-      .checkbox {
-        background: ${theme.colors.red500});
-      }
-
-      &[data-pressed] .checkbox {
-        background: ${theme.colors.red600};
-      }
-    }
-  }
-
-  &[data-disabled] {
-    opacity: ${theme.opacity.semiOpaque};
-    cursor: not-allowed;
-  }
-`;
-
-export const Checkbox = ({ children, ...rest }: AriaCheckboxProps) => (
-  <StyledCheckbox {...rest}>
-    {({ isSelected, isIndeterminate }) => (
-      <>
-        <div className="checkbox" aria-hidden="true">
-          {isSelected && <CheckIcon size={18} color="white" />}
-          {isIndeterminate && <MinusIcon size={18} color="white" />}
-        </div>
-        {children}
-      </>
-    )}
-  </StyledCheckbox>
-);
-
-export const CheckboxGroup = styled(AriaCheckboxGroup)`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.space.space8};
-
-  &[data-orientation='horizontal'] {
-    flex-direction: row;
-    align-items: center;
-  }
-`;
+export { Checkbox };
