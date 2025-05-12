@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import { CanvasComponent as ComponentType } from "@/types/whiteboard";
@@ -29,9 +28,10 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
     
     if (!isEditing) {
       setIsDragging(true);
+      // Account for zoom level when calculating drag offset
       setDragOffset({
-        x: e.clientX - component.x,
-        y: e.clientY - component.y
+        x: e.clientX - component.x * state.zoomLevel,
+        y: e.clientY - component.y * state.zoomLevel
       });
       dispatch({ type: "SET_DRAGGING", isDragging: true });
     }
@@ -53,9 +53,9 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isDragging) {
-      // Calculate the new position
-      const newX = e.clientX - dragOffset.x;
-      const newY = e.clientY - dragOffset.y;
+      // Calculate the new position, accounting for zoom level
+      const newX = (e.clientX - dragOffset.x) / state.zoomLevel;
+      const newY = (e.clientY - dragOffset.y) / state.zoomLevel;
       
       // Move the component
       dispatch({
@@ -65,8 +65,12 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
         y: newY
       });
     } else if (isResizing) {
-      const newWidth = Math.max(50, resizeStart.width + (e.clientX - resizeStart.x));
-      const newHeight = Math.max(30, resizeStart.height + (e.clientY - resizeStart.y));
+      // Apply zoom level to resize calculations as well for consistency
+      const deltaX = (e.clientX - resizeStart.x) / state.zoomLevel;
+      const deltaY = (e.clientY - resizeStart.y) / state.zoomLevel;
+      
+      const newWidth = Math.max(50, resizeStart.width + deltaX);
+      const newHeight = Math.max(30, resizeStart.height + deltaY);
       
       dispatch({
         type: "RESIZE_COMPONENT",
@@ -136,7 +140,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
       window.removeEventListener("mouseup", handleMouseUp as any);
       window.removeEventListener("keydown", handleKeyPress as any);
     };
-  }, [isDragging, isResizing, isSelected]);
+  }, [isDragging, isResizing, isSelected, state.zoomLevel]);
 
   // Check if component is in its assigned frame
   const isComponentInCorrectFrame = () => {
