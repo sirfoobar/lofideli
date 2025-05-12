@@ -1,5 +1,6 @@
 
 import React from "react";
+
 const ComponentLibrary: React.FC = () => {
   const components = [{
     type: "button",
@@ -50,19 +51,31 @@ const ComponentLibrary: React.FC = () => {
     name: "Table",
     icon: "▤"
   }];
+  
   const handleDragStart = (e: React.DragEvent, type: string) => {
     e.dataTransfer.setData("componentType", type);
     e.dataTransfer.effectAllowed = "copy";
   };
-  return <div className="flex flex-col gap-2">
+  
+  return (
+    <div className="flex flex-col gap-2 w-fit">
       <div className="grid grid-cols-1 gap-2">
-        {components.map(component => <div key={component.type} draggable onDragStart={e => handleDragStart(e, component.type)} className="flex items-center gap-1.5 p-1.5 bg-background hover:bg-accent rounded-md cursor-grab transition-colors px-0 py-0">
+        {components.map(component => (
+          <div 
+            key={component.type} 
+            draggable 
+            onDragStart={e => handleDragStart(e, component.type)} 
+            className="flex items-center gap-1.5 p-1.5 bg-background hover:bg-accent rounded-md cursor-grab transition-colors"
+          >
             <div className="flex items-center justify-center w-6 h-6 bg-muted rounded text-sm">
               {component.icon}
             </div>
             <span className="text-xs truncate">{component.name}</span>
-          </div>)}
+          </div>
+        ))}
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default ComponentLibrary;
