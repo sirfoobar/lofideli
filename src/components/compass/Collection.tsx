@@ -3,7 +3,7 @@ import React, { forwardRef } from 'react';
 import { Collection as AriaCollection, Section as AriaSection } from 'react-aria-components';
 import type { CollectionProps, SectionProps } from 'react-aria-components';
 
-export const Collection = forwardRef<HTMLDivElement, CollectionProps<object>>(
+export const Collection = forwardRef<HTMLDivElement, CollectionProps>(
   (props, ref) => (
     <AriaCollection
       {...props}
@@ -17,7 +17,7 @@ export const Collection = forwardRef<HTMLDivElement, CollectionProps<object>>(
 
 Collection.displayName = 'Collection';
 
-export const Section = forwardRef<HTMLDivElement, SectionProps<object>>(
+export const Section = forwardRef<HTMLDivElement, SectionProps>(
   (props, ref) => (
     <AriaSection
       {...props}
