@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import WhiteboardCanvas from "@/components/WhiteboardCanvas";
 import ComponentLibrary from "@/components/ComponentLibrary";
@@ -7,9 +8,8 @@ import FrameSizeControls from "@/components/FrameSizeControls";
 import ZoomControls from "@/components/ZoomControls";
 import TopBar from "@/components/TopBar";
 import AIDesignPanel from "@/components/AIDesignPanel";
+import AIDesignButton from "@/components/AIDesignButton";
 import { WhiteboardProvider, useWhiteboard } from "@/context/WhiteboardContext";
-import { Wand2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 // Component to manage selection and property panels
 const WhiteboardManager = () => {
@@ -45,20 +45,13 @@ const WhiteboardManager = () => {
                 <h2 className="font-small mb-4 text-xs">Components</h2>
                 <ComponentLibrary />
               </div>
-              
-              {/* AI Design Generator Button */}
-              <div className="mt-6 border-t border-border pt-4">
-                <Button variant="outline" className="w-full flex items-center justify-center gap-2 text-xs" onClick={() => setShowAIPanel(true)}>
-                  <Wand2 className="h-4 w-4" />
-                  AI Design Generator
-                </Button>
-              </div>
             </div>}
         </div>
 
         {/* Main canvas area */}
         <div className="flex-1 overflow-hidden relative">
           <WhiteboardCanvas onSelectComponent={setSelectedComponentId} selectedComponentId={selectedComponentId} showGrid={showGrid} />
+          <AIDesignButton onClick={() => setShowAIPanel(true)} />
           <ZoomControls />
         </div>
 

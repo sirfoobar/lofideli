@@ -1,3 +1,4 @@
+
 import React from "react";
 const ComponentLibrary: React.FC = () => {
   const components = [{
@@ -62,8 +63,6 @@ const ComponentLibrary: React.FC = () => {
             <span className="text-xs truncate">{component.name}</span>
           </div>)}
       </div>
-      
-      
     </div>;
 };
 export default ComponentLibrary;
