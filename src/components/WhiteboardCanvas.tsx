@@ -80,16 +80,8 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
       // Ctrl+V or Cmd+V pastes from clipboard
       if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
         if (state.clipboard) {
-          // Paste at mouse position if available
-          if (canvasRef.current) {
-            const canvasRect = canvasRef.current.getBoundingClientRect();
-            // Calculate position accounting for zoom and offset
-            const x = (e.clientX - canvasRect.left - offset.x) / state.zoomLevel;
-            const y = (e.clientY - canvasRect.top - offset.y) / state.zoomLevel;
-            pasteComponent(x, y);
-          } else {
-            pasteComponent(); // Paste with default offset
-          }
+          // Paste at a default position since we can't get mouse position from keyboard event
+          pasteComponent();
           e.preventDefault();
         }
       }

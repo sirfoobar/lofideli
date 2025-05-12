@@ -64,8 +64,13 @@ const WhiteboardManager = () => {
             selectedComponentId={selectedComponentId} 
             showGrid={showGrid} 
           />
+          
+          {/* Control elements - Note the z-index order */}
           <AIDesignButton onClick={() => setShowAIPanel(true)} />
           <ZoomControls />
+          
+          {/* AI Design Panel - Now with higher z-index to appear above buttons */}
+          <AIDesignPanel isOpen={showAIPanel} onClose={() => setShowAIPanel(false)} />
         </div>
 
         {/* Right sidebar - Properties - Only shown when a component or frame is selected */}
@@ -83,9 +88,6 @@ const WhiteboardManager = () => {
             />
           )}
         </div>
-        
-        {/* AI Design Panel */}
-        <AIDesignPanel isOpen={showAIPanel} onClose={() => setShowAIPanel(false)} />
       </div>
     </div>
   );
