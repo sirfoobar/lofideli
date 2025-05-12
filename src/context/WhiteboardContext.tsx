@@ -17,6 +17,7 @@ interface WhiteboardContextValue {
   loadFromJSON: (jsonData: string) => void;
   clearCanvas: () => void;
   selectFrame: (id: string | null) => void;
+  generateUIFromPrompt: (prompt: string) => Promise<void>;
 }
 
 const WhiteboardContext = createContext<WhiteboardContextValue | undefined>(undefined);
@@ -25,7 +26,7 @@ const WhiteboardContext = createContext<WhiteboardContextValue | undefined>(unde
 export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(whiteboardReducer, initialState);
   const { toast } = useToast();
-  const { saveToJSON, loadFromJSON, clearCanvas } = useWhiteboardActions(state, dispatch);
+  const { saveToJSON, loadFromJSON, clearCanvas, generateUIFromPrompt } = useWhiteboardActions(state, dispatch);
 
   // Load from localStorage on initial mount
   useEffect(() => {
@@ -55,7 +56,8 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       saveToJSON, 
       loadFromJSON, 
       clearCanvas,
-      selectFrame
+      selectFrame,
+      generateUIFromPrompt
     }}>
       {children}
     </WhiteboardContext.Provider>
