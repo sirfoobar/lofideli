@@ -1,32 +1,39 @@
+import styled from '@emotion/styled';
+import {
+  Collection as AriaCollection,
+  Section as AriaSection,
+} from 'react-aria-components';
 
-import React, { forwardRef } from 'react';
-import { Collection as AriaCollection, Section as AriaSection } from 'react-aria-components';
-import type { CollectionProps, SectionProps } from 'react-aria-components';
+import { theme } from './theme';
 
-export const Collection = forwardRef<HTMLDivElement, CollectionProps>(
-  (props, ref) => (
-    <AriaCollection
-      {...props}
-      ref={ref}
-      className={`flex flex-col gap-2 w-full max-w-full box-border list-none m-0 p-0 ${
-        props.className || ''
-      } focus-visible:outline-2 focus-visible:outline-blue-400 focus-visible:outline-offset-2`}
-    />
-  )
-);
+export const Collection = styled(AriaCollection)`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.space.space8};
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 
-Collection.displayName = 'Collection';
+  &[data-focus-visible] {
+    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
+    outline-offset: ${theme.space.space2};
+  }
+`;
 
-export const Section = forwardRef<HTMLDivElement, SectionProps>(
-  (props, ref) => (
-    <AriaSection
-      {...props}
-      ref={ref}
-      className={`flex flex-col gap-2 p-2 border border-gray-300 rounded-md bg-white ${
-        props.className || ''
-      } focus-visible:outline-2 focus-visible:outline-blue-400 focus-visible:outline-offset-2`}
-    />
-  )
-);
+export const Section = styled(AriaSection)`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.space.space8};
+  padding: ${theme.space.space8};
+  border: ${theme.borderWidths.regular} solid ${theme.colors.n80};
+  border-radius: ${theme.radii.field};
+  background: ${theme.colors.white};
 
-Section.displayName = 'Section';
+  &[data-focus-visible] {
+    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
+    outline-offset: ${theme.space.space2};
+  }
+`;

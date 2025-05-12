@@ -1,73 +1,58 @@
+import { ThemeValue, ResponsiveValue } from 'styled-system';
 
-// Basic theme definition to provide fallback values
+import mediaQueries from '../tokens/mediaQueries';
+
+import { borderWidths } from './borderWidths';
+import { colors } from './colors';
+import { fontFamilies } from './fontFamilies';
+import { fontSizes } from './fontSizes';
+import { fontWeights } from './fontWeights';
+import { letterSpacings } from './letterSpacings';
+import { lineHeights } from './lineHeights';
+import { opacities } from './opacities';
+import { radii } from './radii';
+import { shadows } from './shadows';
+import { spacing } from './spacing';
+import { zIndices } from './zIndices';
+
 export const theme = {
-  colors: {
-    blue400: '#60a5fa',
-    blue500: '#3b82f6',
-    blue600: '#2563eb',
-    blue700: '#1d4ed8',
-    n60: '#f1f5f9',
-    n70: '#e2e8f0',
-    n80: '#cbd5e1',
-    n90: '#94a3b8',
-    n100: '#64748b',
-    n200: '#475569',
-    n300: '#334155',
-    n400: '#1e293b',
-    n500: '#0f172a',
-    n600: '#0f172a',
-    n700: '#0f172a',
-    n800: '#0f172a',
-    n900: '#0f172a',
-    white: '#ffffff',
-    red500: '#ef4444',
-    red600: '#dc2626',
-    red700: '#b91c1c',
-  },
-  space: {
-    space2: '0.125rem',
-    space4: '0.25rem',
-    space8: '0.5rem',
-    space12: '0.75rem',
-    space16: '1rem',
-    space24: '1.5rem',
-    space32: '2rem',
-    space40: '2.5rem',
-  },
-  borderWidths: {
-    regular: '1px',
-    thick: '2px',
-  },
-  fontSizes: {
-    fontsize10: '0.625rem',
-    fontsize12: '0.75rem',
-    fontsize14: '0.875rem',
-    fontsize16: '1rem',
-    fontsize20: '1.25rem',
-    body: '1rem',
-  },
-  lineHeights: {
-    body: '1.5',
-    lineheight20: '1.25',
-    lineheight24: '1.5',
-    lineheight28: '1.75',
-  },
-  fontWeights: {
-    regular: 400,
-    medium: 500,
-    semiBold: 600,
-    bold: 700,
-  },
-  radii: {
-    field: '0.375rem',
-    card: '0.5rem',
-    circle: '9999px',
-    rounded: '0.25rem',
-  },
-  opacity: {
-    semiOpaque: '0.5',
-  },
-  shadows: {
-    card: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-  },
+  colors,
+  fontSizes,
+  fontWeights,
+  fonts: fontFamilies,
+  lineHeights,
+  opacity: opacities,
+  radii,
+  shadows,
+  zIndices,
+  space: spacing,
+  borderWidths,
+  letterSpacings,
+  mediaQueries,
+  breakpoints: [mediaQueries.small, mediaQueries.medium, mediaQueries.large],
 };
+
+export type Theme = typeof theme;
+
+/**
+ * Restrict responsive arrays to contain only Compass theme tokens
+ */
+export type CompassResponsiveValue<ThemeKey extends keyof typeof theme> =
+  ResponsiveValue<ThemeValue<ThemeKey, Theme>, Theme>;
+
+export * from './colors';
+export * from './fontSizes';
+export * from './fontWeights';
+export * from './fontFamilies';
+export * from './lineHeights';
+export * from './opacities';
+export * from './radii';
+export * from './shadows';
+export * from './zIndices';
+export * from './spacing';
+export * from './borderWidths';
+export * from './letterSpacings';
+
+export interface ThemeProps {
+  theme?: Theme;
+}

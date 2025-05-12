@@ -1,6 +1,5 @@
 
 import React from "react";
-import { BaseButton } from "@/components/compass/Buttons";
 
 const ComponentLibrary: React.FC = () => {
   const components = [{
@@ -59,23 +58,19 @@ const ComponentLibrary: React.FC = () => {
   };
   
   return (
-    <div className="flex flex-col gap-2 w-full">
-      <div className="p-2 border-none bg-transparent">
+    <div className="flex flex-col gap-2 w-fit">
+      <div className="grid grid-cols-1 gap-2">
         {components.map(component => (
           <div 
             key={component.type} 
             draggable 
             onDragStart={e => handleDragStart(e, component.type)} 
-            className="flex items-center gap-2 mb-2"
+            className="flex items-center gap-1.5 p-1.5 bg-background hover:bg-accent rounded-md cursor-grab transition-colors"
           >
-            <BaseButton 
-              className="flex items-center justify-start p-2 w-full rounded-md hover:bg-gray-200 cursor-grab transition-colors"
-            >
-              <div className="flex items-center justify-center w-6 h-6 bg-gray-200 rounded text-sm mr-2">
-                {component.icon}
-              </div>
-              <span className="text-sm">{component.name}</span>
-            </BaseButton>
+            <div className="flex items-center justify-center w-6 h-6 bg-muted rounded text-sm">
+              {component.icon}
+            </div>
+            <span className="text-xs truncate">{component.name}</span>
           </div>
         ))}
       </div>

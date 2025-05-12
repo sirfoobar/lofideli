@@ -1,40 +1,22 @@
-
-import React, { forwardRef } from 'react';
+import styled from '@emotion/styled';
 import { SearchField as AriaSearchField } from 'react-aria-components';
-import type { SearchFieldProps } from 'react-aria-components';
 
-export const SearchGroup = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  (props, ref) => (
-    <div
-      {...props}
-      ref={ref}
-      className={`rounded-full pl-4 w-[320px] ${props.className || ''}`}
-    />
-  )
-);
+import { theme } from '../theme';
 
-SearchGroup.displayName = 'SearchGroup';
+import { InputGroup } from './Forms/Inputs';
 
-export const SearchField = forwardRef<HTMLDivElement, SearchFieldProps>(
-  (props, ref) => (
-    <AriaSearchField
-      {...props}
-      ref={ref}
-      className={`flex flex-col gap-2 ${props.className || ''}`}
-    />
-  )
-);
+export const SearchGroup = styled(InputGroup)`
+  border-radius: ${theme.radii.circle};
+  padding-left: ${theme.space.space16};
+  width: 320px;
+`;
 
-SearchField.displayName = 'SearchField';
+export const SearchField = styled(AriaSearchField)`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.space.space8};
+`;
 
-export const InlineSearchField = forwardRef<HTMLDivElement, SearchFieldProps>(
-  (props, ref) => (
-    <AriaSearchField
-      {...props}
-      ref={ref}
-      className={`flex-grow ${props.className || ''}`}
-    />
-  )
-);
-
-InlineSearchField.displayName = 'InlineSearchField';
+export const InlineSearchField = styled(AriaSearchField)`
+  flex-grow: 1;
+`;

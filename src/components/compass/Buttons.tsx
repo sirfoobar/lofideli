@@ -1,106 +1,147 @@
+import styled from '@emotion/styled';
+import { Button as AriaButton, ButtonProps } from 'react-aria-components';
 
-import React, { forwardRef } from 'react';
-import { Button } from 'react-aria-components';
-import type { ButtonProps } from 'react-aria-components';
+import { theme } from './theme';
+
+export const BaseButton = styled(AriaButton)`
+  display: inline-flex;
+  width: fit-content;
+  padding: ${theme.space.space8} ${theme.space.space16};
+  justify-content: center;
+  align-items: center;
+  gap: ${theme.space.space8};
+  flex-shrink: 0;
+  flex-grow: 0;
+  border-radius: ${theme.radii.circle};
+  outline: none;
+  box-sizing: border-box;
+  height: ${theme.space.space40};
+  font-size: ${theme.fontSizes.fontsize14};
+  font-weight: ${theme.fontWeights.medium};
+
+  &[data-disabled] {
+    opacity: ${theme.opacity.semiOpaque};
+    cursor: not-allowed;
+  }
+
+  &[data-focus-visible] {
+    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
+    outline-offset: ${theme.space.space2};
+  }
+`;
+
+export const PrimaryButton = styled(BaseButton)`
+  background: ${theme.colors.blue500};
+  border: ${theme.borderWidths.regular} solid ${theme.colors.blue600};
+  color: ${theme.colors.white};
+
+  &[data-hovered] {
+    background: ${theme.colors.blue600};
+  }
+
+  &[data-pressed] {
+    background: ${theme.colors.blue700};
+    border: 1px solid ${theme.colors.blue700};
+  }
+`;
+
+export const SecondaryButton = styled(BaseButton)`
+  background: ${theme.colors.n70};
+  border: ${theme.borderWidths.regular} solid ${theme.colors.n70};
+  color: ${theme.colors.n900};
+
+  &[data-hovered] {
+    background: ${theme.colors.n80};
+    border: ${theme.borderWidths.regular} solid ${theme.colors.n80};
+  }
+
+  &[data-pressed] {
+    background: ${theme.colors.n90};
+    border: ${theme.borderWidths.regular} solid ${theme.colors.n90};
+  }
+`;
+
+export const FlatButton = styled(BaseButton)`
+  background: transparent;
+  border: ${theme.borderWidths.regular} solid transparent;
+  color: ${theme.colors.n900};
+
+  &[data-hovered] {
+    background: ${theme.colors.n60};
+    border: ${theme.borderWidths.regular} solid ${theme.colors.n60};
+  }
+
+  &[data-pressed] {
+    background: ${theme.colors.n70};
+    border: ${theme.borderWidths.regular} solid ${theme.colors.n70};
+  }
+`;
+
+export const DestructiveButton = styled(BaseButton)`
+  background: ${theme.colors.red500};
+  border: ${theme.borderWidths.regular} solid ${theme.colors.red600};
+  color: ${theme.colors.white};
+
+  &[data-hovered] {
+    background: ${theme.colors.red600};
+    border: ${theme.borderWidths.regular} solid ${theme.colors.red600};
+  }
+
+  &[data-pressed] {
+    background: ${theme.colors.red700};
+    border: ${theme.borderWidths.regular} solid ${theme.colors.red700};
+  }
+`;
 
 interface IconButtonProps extends ButtonProps {
   size?: 'small' | 'default';
 }
 
-const baseButtonClasses = 
-  "inline-flex w-fit px-4 py-2 justify-center items-center gap-2 flex-shrink-0 flex-grow-0 " + 
-  "rounded-full outline-none box-border h-10 text-sm font-medium " + 
-  "disabled:opacity-60 disabled:cursor-not-allowed " +
-  "focus-visible:outline-2 focus-visible:outline-blue-400 focus-visible:outline-offset-2";
+export const IconButton = styled(BaseButton)<IconButtonProps>(
+  ({ size }: IconButtonProps) => `
+  padding: ${theme.space.space8};
+  width: ${size === 'small' ? theme.space.space32 : theme.space.space40};
+  height: ${size === 'small' ? theme.space.space32 : theme.space.space40};
 
-export const BaseButton = forwardRef<HTMLButtonElement, ButtonProps>(
-  (props, ref) => (
-    <Button
-      {...props}
-      ref={ref}
-      className={`${baseButtonClasses} ${props.className || ''}`}
-    />
-  )
+  background: transparent;
+  border: ${theme.borderWidths.regular} solid transparent;
+  color: ${theme.colors.n900};
+
+  &[data-hovered] {
+    background: ${theme.colors.n60};
+    border: ${theme.borderWidths.regular} solid ${theme.colors.n60};
+  }
+
+  &[data-pressed] {
+    background: ${theme.colors.n70};
+    border: ${theme.borderWidths.regular} solid ${theme.colors.n70};
+  }
+`,
 );
 
-BaseButton.displayName = 'BaseButton';
+export const LinkButton = styled(AriaButton)`
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  outline: none;
+  color: ${theme.colors.blue500};
 
-export const PrimaryButton = forwardRef<HTMLButtonElement, ButtonProps>(
-  (props, ref) => (
-    <BaseButton
-      {...props}
-      ref={ref}
-      className={`bg-blue-500 border border-blue-600 text-white hover:bg-blue-600 
-        active:bg-blue-700 active:border-blue-700 ${props.className || ''}`}
-    />
-  )
-);
+  &[data-hovered] {
+    color: ${theme.colors.blue600};
+  }
 
-PrimaryButton.displayName = 'PrimaryButton';
+  &[data-pressed] {
+    color: ${theme.colors.blue700};
+  }
 
-export const SecondaryButton = forwardRef<HTMLButtonElement, ButtonProps>(
-  (props, ref) => (
-    <BaseButton
-      {...props}
-      ref={ref}
-      className={`bg-gray-300 border border-gray-300 text-gray-900 hover:bg-gray-400 
-        hover:border-gray-400 active:bg-gray-500 active:border-gray-500 ${props.className || ''}`}
-    />
-  )
-);
+  &[data-disabled] {
+    color: ${theme.colors.n900};
+  }
 
-SecondaryButton.displayName = 'SecondaryButton';
-
-export const FlatButton = forwardRef<HTMLButtonElement, ButtonProps>(
-  (props, ref) => (
-    <BaseButton
-      {...props}
-      ref={ref}
-      className={`bg-transparent border border-transparent text-gray-900 hover:bg-gray-200 
-        hover:border-gray-200 active:bg-gray-300 active:border-gray-300 ${props.className || ''}`}
-    />
-  )
-);
-
-FlatButton.displayName = 'FlatButton';
-
-export const DestructiveButton = forwardRef<HTMLButtonElement, ButtonProps>(
-  (props, ref) => (
-    <BaseButton
-      {...props}
-      ref={ref}
-      className={`bg-red-500 border border-red-600 text-white hover:bg-red-600 
-        hover:border-red-600 active:bg-red-700 active:border-red-700 ${props.className || ''}`}
-    />
-  )
-);
-
-DestructiveButton.displayName = 'DestructiveButton';
-
-export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ size = 'default', ...props }, ref) => (
-    <BaseButton
-      {...props}
-      ref={ref}
-      className={`p-2 ${size === 'small' ? 'w-8 h-8' : 'w-10 h-10'} bg-transparent border-transparent 
-        text-gray-900 hover:bg-gray-200 hover:border-gray-200 active:bg-gray-300 active:border-gray-300 
-        ${props.className || ''}`}
-    />
-  )
-);
-
-IconButton.displayName = 'IconButton';
-
-export const LinkButton = forwardRef<HTMLButtonElement, ButtonProps>(
-  (props, ref) => (
-    <Button
-      {...props}
-      ref={ref}
-      className={`text-decoration-none bg-none border-none p-0 outline-none text-blue-500 hover:text-blue-600 
-        active:text-blue-700 disabled:text-gray-900 focus-visible:outline-2 focus-visible:outline-blue-400 
-        focus-visible:outline-offset-2 focus-visible:rounded ${props.className || ''}`}
-    />
-  )
-);
-
-LinkButton.displayName = 'LinkButton';
+  &[data-focus-visible] {
+    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
+    outline-offset: ${theme.space.space2};
+    border-radius: ${theme.radii.rounded};
+  }
+`;

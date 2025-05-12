@@ -1,16 +1,6 @@
-
-import React, { forwardRef } from 'react';
+import styled from '@emotion/styled';
 import { TextField as AriaTextField } from 'react-aria-components';
-import type { TextFieldProps } from 'react-aria-components';
 
-export const TextField = forwardRef<HTMLDivElement, TextFieldProps>(
-  (props, ref) => (
-    <AriaTextField
-      {...props}
-      ref={ref}
-      className={`${props.className || ''}`}
-    />
-  )
-);
+import { theme } from './theme';
 
-TextField.displayName = 'TextField';
+export const TextField = styled(AriaTextField)`

@@ -1,18 +1,19 @@
-
-import React, { forwardRef } from 'react';
+import styled from '@emotion/styled';
 import { Popover as AriaPopover } from 'react-aria-components';
-import type { PopoverProps } from 'react-aria-components';
 
-export const Popover = forwardRef<HTMLDivElement, PopoverProps>(
-  (props, ref) => (
-    <AriaPopover
-      {...props}
-      ref={ref}
-      className={`${props.className || ''} 
-        ${props['data-trigger'] === 'ComboBox' ? 'mt-2 min-w-[240px] -ml-[13px] w-[calc(var(--trigger-width)+26px)]' : ''}
-        ${props['data-trigger'] === 'Select' ? 'min-w-[240px] w-[var(--trigger-width)]' : ''}`}
-    />
-  )
-);
+import { theme } from './theme';
 
-Popover.displayName = 'Popover';
+export const Popover = styled(AriaPopover)`
+  &[data-trigger='ComboBox'] {
+    margin-top: ${theme.space.space8};
+    min-width: 240px;
+    /* compensate for border and padding in trigger since var(--trigger-width) does not include them */
+    margin-left: -13px;
+    width: calc(var(--trigger-width) + 26px);
+  }
+
+  &[data-trigger='Select'] {
+    min-width: 240px;
+    width: var(--trigger-width);
+  }
+`;
