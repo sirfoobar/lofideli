@@ -9,12 +9,14 @@ import ZoomControls from "@/components/ZoomControls";
 import TopBar from "@/components/TopBar";
 import AIDesignPanel from "@/components/AIDesignPanel";
 import AIDesignButton from "@/components/AIDesignButton";
+import FlowControlsPanel from "@/components/FlowControlsPanel";
 import { WhiteboardProvider, useWhiteboard } from "@/context/WhiteboardContext";
 
 // Component to manage selection and property panels
 const WhiteboardManager = () => {
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
   const [showComponentLibrary, setShowComponentLibrary] = useState(true);
+  const [showFlowControls, setShowFlowControls] = useState(false);
   const [showGrid, setShowGrid] = useState(true);
   const [showAIPanel, setShowAIPanel] = useState(false);
   const {
@@ -24,9 +26,18 @@ const WhiteboardManager = () => {
 
   // Determine if any right panel is open - ensure boolean result
   const isRightPanelOpen = Boolean(showAIPanel || selectedComponentId || state.selectedFrameId);
+  
   const toggleComponentLibrary = () => {
     setShowComponentLibrary(!showComponentLibrary);
   };
+  
+  const toggleFlowControls = () => {
+    setShowFlowControls(!showFlowControls);
+    if (!showFlowControls) {
+      setShowComponentLibrary(false); // Close component library if opening flow controls
+    }
+  };
+  
   const toggleGrid = () => {
     setShowGrid(!showGrid);
   };
@@ -36,15 +47,18 @@ const WhiteboardManager = () => {
       {/* Top Bar with right panel status */}
       <TopBar 
         onToggleComponentLibrary={toggleComponentLibrary} 
+        onToggleFlowControls={toggleFlowControls}
         onToggleGrid={toggleGrid} 
         showGrid={showGrid} 
+        showComponentLibrary={showComponentLibrary}
+        showFlowControls={showFlowControls}
         rightPanelOpen={isRightPanelOpen} 
       />
       
       <div className="flex flex-1 overflow-hidden">
-        {/* Left sidebar - Component Library - now hugs content */}
-        <div className={`${showComponentLibrary ? 'w-auto max-w-48' : 'w-0'} border-r border-border bg-card overflow-y-auto transition-all duration-300 ease-in-out`}>
-          {showComponentLibrary && (
+        {/* Left sidebar - Component Library or Flow Controls */}
+        {showComponentLibrary && (
+          <div className="w-auto max-w-48 border-r border-border bg-card overflow-y-auto transition-all duration-300 ease-in-out">
             <div className="py-[8px] px-[8px]">                
               {/* Frames section - Now at the top */}
               <FrameSizeControls />
@@ -54,8 +68,11 @@ const WhiteboardManager = () => {
                 <ComponentLibrary />
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+        
+        {/* Flow Controls Panel */}
+        <FlowControlsPanel isOpen={showFlowControls} />
 
         {/* Main canvas area */}
         <div className="flex-1 overflow-hidden relative">

@@ -18,7 +18,7 @@ export interface ComponentsMap {
   Input: typeof Input;
   Label: typeof Label;
   TooltipWrapper: typeof TooltipWrapper;
-  Table: typeof Table; // Added Table component
+  Table: typeof Table;
 }
 
 // Create default components object
@@ -30,7 +30,7 @@ const defaultComponents: ComponentsMap = {
   Input,
   Label,
   TooltipWrapper,
-  Table // Added Table component
+  Table
 };
 
 // Create the context with default components

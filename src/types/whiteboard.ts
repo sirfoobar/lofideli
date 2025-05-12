@@ -14,7 +14,8 @@ export type ComponentType =
   | "card"
   | "image"
   | "divider"
-  | "table"; // Added table type
+  | "table"
+  | "flow"; // Added flow type for flow control elements
 
 export interface ComponentProperties {
   backgroundColor?: string;
@@ -32,6 +33,7 @@ export interface ComponentProperties {
   selected?: number;
   shadow?: "none" | "sm" | "md" | "lg";
   padding?: string | number;
+  flowType?: string; // Added for flow components to specify shape type
   [key: string]: any;
 }
 

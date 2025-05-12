@@ -2,7 +2,7 @@
 import React from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import { Button } from "@/components/ui/button";
-import { Grid2X2, Component, FileDown, Upload, Trash2 } from "lucide-react";
+import { Grid2X2, Component, FileDown, Upload, Trash2, GitBranch } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { TooltipWrapper } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
@@ -10,15 +10,21 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 interface TopBarProps {
   onToggleComponentLibrary: () => void;
+  onToggleFlowControls: () => void;
   onToggleGrid: () => void;
   showGrid: boolean;
+  showComponentLibrary: boolean;
+  showFlowControls: boolean;
   rightPanelOpen?: boolean; // Keep the prop but don't use it for animation
 }
 
 const TopBar: React.FC<TopBarProps> = ({
   onToggleComponentLibrary,
+  onToggleFlowControls,
   onToggleGrid,
   showGrid,
+  showComponentLibrary,
+  showFlowControls,
   rightPanelOpen = false
 }) => {
   const {
@@ -105,8 +111,24 @@ const TopBar: React.FC<TopBarProps> = ({
         
         <div className="flex gap-1">
           <TooltipWrapper content="Component Library">
-            <Button variant="ghost" size="icon" onClick={onToggleComponentLibrary} title="Toggle Component Library">
+            <Button 
+              variant={showComponentLibrary ? "secondary" : "ghost"} 
+              size="icon" 
+              onClick={onToggleComponentLibrary} 
+              title="Toggle Component Library"
+            >
               <Component size={18} />
+            </Button>
+          </TooltipWrapper>
+          
+          <TooltipWrapper content="Flow Controls">
+            <Button 
+              variant={showFlowControls ? "secondary" : "ghost"} 
+              size="icon" 
+              onClick={onToggleFlowControls} 
+              title="Toggle Flow Controls"
+            >
+              <GitBranch size={18} />
             </Button>
           </TooltipWrapper>
           
