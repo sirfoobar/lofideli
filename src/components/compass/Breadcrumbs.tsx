@@ -3,8 +3,12 @@ import React from 'react';
 import {
   Breadcrumbs as AriaBreadcrumbs,
   Breadcrumb as AriaBreadcrumb,
+  BreadcrumbsProps as AriaBreadcrumbsProps,
+  BreadcrumbProps as AriaBreadcrumbProps
 } from 'react-aria-components';
-import type { BreadcrumbsProps, BreadcrumbProps } from 'react-aria-components';
+
+export type BreadcrumbsProps = AriaBreadcrumbsProps<object> & { className?: string };
+export type BreadcrumbProps = AriaBreadcrumbProps & { className?: string };
 
 export const Breadcrumbs = React.forwardRef<HTMLOListElement, BreadcrumbsProps>(
   ({ className = '', children, ...props }, ref) => {
