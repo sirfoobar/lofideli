@@ -47,6 +47,7 @@
     "@react-aria/overlays": "^3.27.0",
     "@react-aria/switch": "^3.7.2",
     "@react-aria/textfield": "^3.17.2",
+    "@react-aria/tooltip": "^3.8.2",
     "@react-aria/utils": "^3.28.2",
     "@react-aria/visually-hidden": "^3.8.22",
     "@react-stately/toggle": "^3.8.3",
