@@ -323,7 +323,7 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
         ...state,
         selectedComponentId: action.id,
         // Clear selected frame when selecting a component
-        selectedFrameId: null
+        selectedFrameId: action.id === null ? state.selectedFrameId : null
       };
       break;
     }

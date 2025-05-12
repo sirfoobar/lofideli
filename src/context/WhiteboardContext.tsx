@@ -49,6 +49,10 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   // Helper function to select a frame
   const selectFrame = (id: string | null) => {
     dispatch({ type: "SELECT_FRAME", id });
+    // When selecting a frame, make sure to deselect any component
+    if (id !== null) {
+      dispatch({ type: "SELECT_COMPONENT", id: null });
+    }
   };
 
   // Copy selected component to clipboard

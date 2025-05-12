@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import CanvasComponent from "@/components/CanvasComponent";
@@ -95,8 +96,11 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
 
   // Handle clicks on empty canvas areas
   const handleCanvasClick = (e: React.MouseEvent) => {
+    // Only deselect if the target is exactly the canvas element (not child components)
     if (e.target === canvasRef.current) {
       onSelectComponent(null);
+      // Also dispatch action to clear selectedComponentId in the state
+      dispatch({ type: "SELECT_COMPONENT", id: null });
       selectFrame(null); // Deselect frame when clicking on empty canvas
       
       // Also dispatch SELECT_FRAME action to update state

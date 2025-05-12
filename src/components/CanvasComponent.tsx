@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+
+import React, { useState, useRef, useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import { CanvasComponent as ComponentType } from "@/types/whiteboard";
 
@@ -23,7 +24,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
 
   // Handle component dragging
   const handleMouseDown = (e: React.MouseEvent) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Prevent event from bubbling up to canvas
     onSelect();
     
     // Set this component as selected in the state
@@ -156,7 +157,9 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
     return () => {
       window.removeEventListener("mousemove", handleMouseMove as any);
       window.removeEventListener("mouseup", handleMouseUp as any);
-      window.removeEventListener("keydown", handleKeyPress as any);
+      if (isSelected) {
+        window.removeEventListener("keydown", handleKeyPress as any);
+      }
     };
   }, [isDragging, isResizing, isSelected, state.zoomLevel]);
 
