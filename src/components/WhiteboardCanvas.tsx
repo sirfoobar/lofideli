@@ -171,19 +171,41 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         const x = (e.clientX - canvasRect.left - offset.x) / state.zoomLevel;
         const y = (e.clientY - canvasRect.top - offset.y) / state.zoomLevel;
         
-        // Add new component
-        dispatch({
-          type: "ADD_COMPONENT",
-          component: {
-            type: componentType as any,
-            x,
-            y,
-            width: 120,
-            height: 40,
-            content: getDefaultContentForComponent(componentType as any),
-            properties: getDefaultPropertiesForComponent(componentType as any),
-          },
-        });
+        // For flow components, use the flowType from dataTransfer
+        if (componentType === "flow") {
+          const flowType = e.dataTransfer.getData("flowType");
+          
+          dispatch({
+            type: "ADD_COMPONENT",
+            component: {
+              type: componentType as any,
+              x,
+              y,
+              width: 80,
+              height: 80,
+              properties: {
+                flowType,
+                backgroundColor: "transparent",
+                borderColor: "#000000",
+                borderWidth: 2
+              }
+            },
+          });
+        } else {
+          // Add regular component
+          dispatch({
+            type: "ADD_COMPONENT",
+            component: {
+              type: componentType as any,
+              x,
+              y,
+              width: 120,
+              height: 40,
+              content: getDefaultContentForComponent(componentType as any),
+              properties: getDefaultPropertiesForComponent(componentType as any),
+            },
+          });
+        }
       }
     }
   };

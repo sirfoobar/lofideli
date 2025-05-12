@@ -1,5 +1,3 @@
-
-// File: src/types/whiteboard.ts
 import { ReactNode } from "react";
 
 export type ComponentType =
@@ -15,7 +13,7 @@ export type ComponentType =
   | "image"
   | "divider"
   | "table"
-  | "flow"; // Added flow type for flow control elements
+  | "flow"; 
 
 export interface ComponentProperties {
   backgroundColor?: string;
@@ -33,7 +31,7 @@ export interface ComponentProperties {
   selected?: number;
   shadow?: "none" | "sm" | "md" | "lg";
   padding?: string | number;
-  flowType?: string; // Added for flow components to specify shape type
+  flowType?: string; // For flow components to specify shape type
   [key: string]: any;
 }
 

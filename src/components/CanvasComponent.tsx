@@ -346,8 +346,96 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
           </div>
         );
         
+      case "flow":
+        return renderFlowComponent(component.properties.flowType);
+        
       default:
         return <div className="w-full h-full">Unknown component</div>;
+    }
+  };
+
+  // Helper function to render flow components based on type
+  const renderFlowComponent = (flowType: string | undefined) => {
+    if (!flowType) return <div>Invalid flow component</div>;
+    
+    // Set up common styles
+    const commonStyle: React.CSSProperties = {
+      stroke: component.properties.borderColor || "#000",
+      strokeWidth: component.properties.borderWidth || 2,
+      fill: component.properties.backgroundColor || "transparent"
+    };
+    
+    // Render based on flow type
+    switch (flowType) {
+      case "arrow-right":
+        return (
+          <div className="w-full h-full flex items-center justify-center">
+            <svg width="100%" height="100%" viewBox="0 0 24 24">
+              <line x1="3" y1="12" x2="21" y2="12" style={commonStyle} />
+              <polyline points="15,6 21,12 15,18" style={commonStyle} />
+            </svg>
+          </div>
+        );
+      
+      case "arrow-left":
+        return (
+          <div className="w-full h-full flex items-center justify-center">
+            <svg width="100%" height="100%" viewBox="0 0 24 24">
+              <line x1="21" y1="12" x2="3" y2="12" style={commonStyle} />
+              <polyline points="9,6 3,12 9,18" style={commonStyle} />
+            </svg>
+          </div>
+        );
+      
+      case "arrow-up":
+        return (
+          <div className="w-full h-full flex items-center justify-center">
+            <svg width="100%" height="100%" viewBox="0 0 24 24">
+              <line x1="12" y1="21" x2="12" y2="3" style={commonStyle} />
+              <polyline points="6,9 12,3 18,9" style={commonStyle} />
+            </svg>
+          </div>
+        );
+      
+      case "arrow-down":
+        return (
+          <div className="w-full h-full flex items-center justify-center">
+            <svg width="100%" height="100%" viewBox="0 0 24 24">
+              <line x1="12" y1="3" x2="12" y2="21" style={commonStyle} />
+              <polyline points="6,15 12,21 18,15" style={commonStyle} />
+            </svg>
+          </div>
+        );
+      
+      case "square":
+        return (
+          <div className="w-full h-full flex items-center justify-center">
+            <svg width="100%" height="100%" viewBox="0 0 24 24">
+              <rect x="4" y="4" width="16" height="16" style={commonStyle} />
+            </svg>
+          </div>
+        );
+      
+      case "diamond":
+        return (
+          <div className="w-full h-full flex items-center justify-center">
+            <svg width="100%" height="100%" viewBox="0 0 24 24">
+              <polygon points="12,2 22,12 12,22 2,12" style={commonStyle} />
+            </svg>
+          </div>
+        );
+      
+      case "triangle":
+        return (
+          <div className="w-full h-full flex items-center justify-center">
+            <svg width="100%" height="100%" viewBox="0 0 24 24">
+              <polygon points="12,3 22,21 2,21" style={commonStyle} />
+            </svg>
+          </div>
+        );
+      
+      default:
+        return <div>Unknown flow type</div>;
     }
   };
 

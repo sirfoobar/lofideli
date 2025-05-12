@@ -29,6 +29,23 @@ interface FlowControlsPanelProps {
 const FlowControlsPanel: React.FC<FlowControlsPanelProps> = ({ isOpen }) => {
   const { dispatch } = useWhiteboard();
 
+  // Flow controls array for easier mapping and management
+  const flowControls = [
+    { type: "arrow-right", name: "Right Arrow", icon: <ArrowRight className="h-6 w-6" /> },
+    { type: "arrow-left", name: "Left Arrow", icon: <ArrowLeft className="h-6 w-6" /> },
+    { type: "arrow-up", name: "Up Arrow", icon: <ArrowUp className="h-6 w-6" /> },
+    { type: "arrow-down", name: "Down Arrow", icon: <ArrowDown className="h-6 w-6" /> },
+    { type: "square", name: "Square", icon: <Square className="h-6 w-6" /> },
+    { type: "diamond", name: "Diamond", icon: <Diamond className="h-6 w-6" /> },
+    { type: "triangle", name: "Triangle", icon: <Triangle className="h-6 w-6" /> }
+  ];
+
+  const handleDragStart = (e: React.DragEvent, flowType: string) => {
+    e.dataTransfer.setData("componentType", "flow");
+    e.dataTransfer.setData("flowType", flowType);
+    e.dataTransfer.effectAllowed = "copy";
+  };
+
   const handleAddFlowComponent = (type: string) => {
     // Add component to canvas as a flow element
     dispatch({
@@ -57,70 +74,19 @@ const FlowControlsPanel: React.FC<FlowControlsPanelProps> = ({ isOpen }) => {
         <h2 className="font-small mb-4 text-xs">User Flow Elements</h2>
         
         <div className="grid grid-cols-2 gap-2">
-          {/* Arrows */}
-          <Button 
-            variant="outline" 
-            className="flex flex-col items-center justify-center p-2 h-16"
-            onClick={() => handleAddFlowComponent("arrow-right")}
-          >
-            <ArrowRight className="h-6 w-6" />
-            <span className="text-xs mt-1">Right</span>
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            className="flex flex-col items-center justify-center p-2 h-16"
-            onClick={() => handleAddFlowComponent("arrow-left")}
-          >
-            <ArrowLeft className="h-6 w-6" />
-            <span className="text-xs mt-1">Left</span>
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            className="flex flex-col items-center justify-center p-2 h-16"
-            onClick={() => handleAddFlowComponent("arrow-up")}
-          >
-            <ArrowUp className="h-6 w-6" />
-            <span className="text-xs mt-1">Up</span>
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            className="flex flex-col items-center justify-center p-2 h-16"
-            onClick={() => handleAddFlowComponent("arrow-down")}
-          >
-            <ArrowDown className="h-6 w-6" />
-            <span className="text-xs mt-1">Down</span>
-          </Button>
-          
-          {/* Shapes */}
-          <Button 
-            variant="outline" 
-            className="flex flex-col items-center justify-center p-2 h-16"
-            onClick={() => handleAddFlowComponent("square")}
-          >
-            <Square className="h-6 w-6" />
-            <span className="text-xs mt-1">Square</span>
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            className="flex flex-col items-center justify-center p-2 h-16"
-            onClick={() => handleAddFlowComponent("diamond")}
-          >
-            <Diamond className="h-6 w-6" />
-            <span className="text-xs mt-1">Diamond</span>
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            className="flex flex-col items-center justify-center p-2 h-16"
-            onClick={() => handleAddFlowComponent("triangle")}
-          >
-            <Triangle className="h-6 w-6" />
-            <span className="text-xs mt-1">Triangle</span>
-          </Button>
+          {flowControls.map(control => (
+            <Button 
+              key={control.type}
+              variant="outline" 
+              className="flex flex-col items-center justify-center p-2 h-16 cursor-grab"
+              draggable
+              onDragStart={(e) => handleDragStart(e, control.type)}
+              onClick={() => handleAddFlowComponent(control.type)}
+            >
+              {control.icon}
+              <span className="text-xs mt-1">{control.name}</span>
+            </Button>
+          ))}
         </div>
       </div>
     </div>
