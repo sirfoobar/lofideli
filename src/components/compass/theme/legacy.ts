@@ -1,0 +1,91 @@
+/**
+ * @deprecated Use compass theme for all new work instead.
+ */
+export const legacy = {
+  colors: {
+    black: '#000000',
+    white: '#ffffff',
+
+    blue100: '#D6E3FA',
+    blue200: '#A8C9FF',
+    blue300: '#73B0FF',
+    blue400: '#5291FF',
+    blue500: '#1A66F7',
+    blue600: '#2152E5',
+    blue700: '#003DB8',
+    blue800: '#002985',
+    blue900: '#001754',
+
+    green100: '#C4EDCF',
+    green200: '#94E6AB',
+    green300: '#5CC480',
+    green400: '#00A657',
+    green500: '#008542',
+    green600: '#006E38',
+    green700: '#005229',
+    green800: '#00381A',
+    green900: '#00210A',
+
+    purple100: '#EBDEFA',
+    purple200: '#D6BDF5',
+    purple300: '#C49CED',
+    purple400: '#A87DE0',
+    purple500: '#8A5CCF',
+
+    red100: '#FCDBD6',
+    red200: '#FFC7BF',
+    red300: '#ED9187',
+    red400: '#ED6159',
+    red500: '#CC4242',
+
+    yellow100: '#E8E8C4',
+    yellow200: '#D9D69C',
+    yellow300: '#B0AD61',
+    yellow400: '#919433',
+    yellow500: '#787A17',
+
+    orange100: '#ffdbbe',
+    orange200: '#ffb77d',
+    orange300: '#ff7c11',
+    orange400: '#e87110',
+    orange500: '#d1660e',
+
+    neutral30: '#fbfbfb',
+    neutral40: '#f7f7f7',
+    neutral50: '#f1f1f1',
+    neutral60: '#ededed',
+    neutral70: '#E3E3E3',
+    neutral80: '#d4d4d4',
+    neutral90: '#bfbfbf',
+    neutral100: '#aaaaaa',
+    neutral200: '#959595',
+    neutral300: '#7f7f7f',
+    neutral400: '#6a6a6a',
+    neutral500: '#555555',
+    neutral600: '#404040',
+    neutral700: '#343434',
+    neutral800: '#2b2b2b',
+    neutral900: '#161616',
+  },
+  fonts: {
+    mono: "'IBM Plex Mono', 'Roboto Mono', Monaco, 'Courier New', monospace",
+    sansSerif:
+      "'Inter', 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+  },
+  fontSizes: [11, 12, 13, 14, 16, 18, 20, 24, 28, 32, 40, 48],
+  fontWeights: {
+    thin: 100,
+    light: 300,
+    regular: 400,
+    medium: 500,
+    bold: 700,
+  },
+  letterSpacings: {
+    ls100: -1,
+    ls200: -0.5,
+    ls300: 0,
+    ls400: 0.5,
+    ls500: 1,
+  },
+  space: [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48],
+} as const;
