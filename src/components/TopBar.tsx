@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import { Button } from "@/components/ui/button";
@@ -6,12 +7,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { TooltipWrapper } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+
 interface TopBarProps {
   onToggleComponentLibrary: () => void;
   onToggleGrid: () => void;
   showGrid: boolean;
-  rightPanelOpen?: boolean; // Add new prop to track if any right panel is open
+  rightPanelOpen?: boolean; // Keep the prop but don't use it for animation
 }
+
 const TopBar: React.FC<TopBarProps> = ({
   onToggleComponentLibrary,
   onToggleGrid,
@@ -28,18 +31,21 @@ const TopBar: React.FC<TopBarProps> = ({
   const {
     toast
   } = useToast();
+  
   const toggleGridSnap = () => {
     dispatch({
       type: "TOGGLE_GRID_SNAP",
       enabled: !state.snapToGrid
     });
   };
+  
   const handleGridSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch({
       type: "SET_GRID_SIZE",
       size: parseInt(e.target.value, 10)
     });
   };
+  
   const handleExport = () => {
     const jsonData = saveToJSON();
 
@@ -61,6 +67,7 @@ const TopBar: React.FC<TopBarProps> = ({
       description: "Your canvas has been exported as a JSON file."
     });
   };
+  
   const handleImport = () => {
     // Create file input element
     const input = document.createElement("input");
@@ -85,11 +92,13 @@ const TopBar: React.FC<TopBarProps> = ({
     // Trigger file selection dialog
     input.click();
   };
+  
   const handleClear = () => {
     if (window.confirm("Are you sure you want to clear the canvas? This cannot be undone.")) {
       clearCanvas();
     }
   };
+  
   return <div className="h-8 border-b border-border bg-card flex items-center justify-between px-[8px] relative z-30">
       <div className="flex items-center">
         <h1 className="font-mono font-semibold mr-2 text-sm">lofideli</h1>
@@ -170,8 +179,8 @@ const TopBar: React.FC<TopBarProps> = ({
         </div>
       </div>
       
-      {/* Theme toggle and Clear Canvas button in top right - with animation when panel is open */}
-      <div className={`flex items-center gap-1 transition-transform duration-300 ${rightPanelOpen ? 'transform -translate-x-[70px]' : ''}`}>
+      {/* Theme toggle and Clear Canvas button in top right - removed transform animation */}
+      <div className="flex items-center gap-1">
         <TooltipWrapper content="Clear Canvas">
           <Button variant="ghost" size="icon" onClick={handleClear} className="text-destructive hover:text-destructive" title="Clear Canvas">
             <Trash2 size={18} />
@@ -184,4 +193,5 @@ const TopBar: React.FC<TopBarProps> = ({
       </div>
     </div>;
 };
+
 export default TopBar;
