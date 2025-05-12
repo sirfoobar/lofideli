@@ -37,7 +37,7 @@ const WhiteboardManager = () => {
       <div className="flex flex-1 overflow-hidden">
         {/* Left sidebar - Component Library */}
         <div className={`${showComponentLibrary ? 'w-64' : 'w-0'} border-r border-border bg-card overflow-y-auto transition-all duration-300 ease-in-out`}>
-          {showComponentLibrary && <div className="p-3 py-[8px] px-[8px]">                
+          {showComponentLibrary && <div className=" py-[8px] px-[8px]">                
               {/* Frames section - Now at the top */}
               <FrameSizeControls />
               
