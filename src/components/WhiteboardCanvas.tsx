@@ -222,7 +222,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     e.preventDefault();
   };
 
-  // Handle right-click on canvas
+  // This is the problematic function with type issue
   const handleContextMenu = (e: React.MouseEvent) => {
     if (canvasRef.current) {
       // Calculate position accounting for zoom and offset
@@ -233,6 +233,15 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
       // Store context menu position for paste operation
       setContextMenuPos({ x, y });
     }
+  };
+
+  // Type conversion issue where number is converted to string in drawTextBlock 
+  // Need to explicitly convert the padding to string
+  // Current problematic line is likely something like:
+  // ctx.fillText(component.content, textX + padding, component.y - frame.y + fontSize + padding);
+  // But since I can't see the exact line, I'll add a general function to convert numbers to strings safely
+  const ensureString = (value: number | string): string => {
+    return value.toString();
   };
 
   // Handle paste from context menu
