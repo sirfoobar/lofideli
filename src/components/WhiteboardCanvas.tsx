@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import CanvasComponent from "@/components/CanvasComponent";
@@ -12,6 +11,7 @@ import {
 import { FileImage, Bot, Copy, Clipboard, Scissors, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { getDefaultContentForComponent, getDefaultPropertiesForComponent } from "@/utils/whiteboardUtils";
+import { generateFrameReactCode } from '../utils/codeExportUtils';
 
 interface WhiteboardCanvasProps {
   onSelectComponent: (id: string | null) => void;
@@ -389,6 +389,30 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     }
   };
 
+  // Export frame as React code
+  const exportFrameAsReactCode = (frameId: string) => {
+    const frame = state.frames.find(f => f.id === frameId);
+    if (!frame) return;
+    
+    try {
+      // Generate the React component code
+      const reactCode = generateFrameReactCode(frame, state.components);
+      
+      // Copy to clipboard
+      const textArea = document.createElement('textarea');
+      textArea.value = reactCode;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      toast.success("React component code copied to clipboard!");
+    } catch (error) {
+      console.error("Error generating React code:", error);
+      toast.error("Failed to generate React component code");
+    }
+  };
+
   // Generate AI prompt from frame content
   const generateAIPrompt = (frameId: string) => {
     const frame = state.frames.find(f => f.id === frameId);
@@ -550,6 +574,10 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
                   <ContextMenuItem onClick={() => exportFrameAsImage(frame.id)} className="cursor-pointer">
                     <FileImage className="mr-2 h-4 w-4" />
                     <span>Export as Image</span>
+                  </ContextMenuItem>
+                  <ContextMenuItem onClick={() => exportFrameAsReactCode(frame.id)} className="cursor-pointer">
+                    <span role="img" aria-label="React" className="mr-2 h-4 w-4">⚛️</span>
+                    <span>Export as React</span>
                   </ContextMenuItem>
                   <ContextMenuSeparator />
                   <ContextMenuItem onClick={() => generateAIPrompt(frame.id)} className="cursor-pointer">
