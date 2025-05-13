@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { TooltipWrapper } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-
 interface TopBarProps {
   onToggleComponentLibrary: () => void;
   onToggleFlowControls: () => void;
@@ -17,7 +15,6 @@ interface TopBarProps {
   showFlowControls: boolean;
   rightPanelOpen?: boolean; // Keep the prop but don't use it for animation
 }
-
 const TopBar: React.FC<TopBarProps> = ({
   onToggleComponentLibrary,
   onToggleFlowControls,
@@ -37,21 +34,18 @@ const TopBar: React.FC<TopBarProps> = ({
   const {
     toast
   } = useToast();
-  
   const toggleGridSnap = () => {
     dispatch({
       type: "TOGGLE_GRID_SNAP",
       enabled: !state.snapToGrid
     });
   };
-  
   const handleGridSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch({
       type: "SET_GRID_SIZE",
       size: parseInt(e.target.value, 10)
     });
   };
-  
   const handleExport = () => {
     const jsonData = saveToJSON();
 
@@ -73,7 +67,6 @@ const TopBar: React.FC<TopBarProps> = ({
       description: "Your canvas has been exported as a JSON file."
     });
   };
-  
   const handleImport = () => {
     // Create file input element
     const input = document.createElement("input");
@@ -98,38 +91,24 @@ const TopBar: React.FC<TopBarProps> = ({
     // Trigger file selection dialog
     input.click();
   };
-  
   const handleClear = () => {
     if (window.confirm("Are you sure you want to clear the canvas? This cannot be undone.")) {
       clearCanvas();
     }
   };
-  
   return <div className="h-8 border-b border-border bg-card flex items-center justify-between px-[8px] relative z-30">
       <div className="flex items-center">
         <h1 className="font-mono font-semibold mr-2 text-sm">lofideli</h1>
         
         <div className="flex gap-1">
           <TooltipWrapper content="Component Library">
-            <Button 
-              variant={showComponentLibrary ? "secondary" : "ghost"} 
-              size="icon" 
-              onClick={onToggleComponentLibrary} 
-              title="Toggle Component Library"
-            >
+            <Button variant={showComponentLibrary ? "secondary" : "ghost"} size="icon" onClick={onToggleComponentLibrary} title="Toggle Component Library">
               <Component size={18} />
             </Button>
           </TooltipWrapper>
           
           <TooltipWrapper content="Flow Controls">
-            <Button 
-              variant={showFlowControls ? "secondary" : "ghost"} 
-              size="icon" 
-              onClick={onToggleFlowControls} 
-              title="Toggle Flow Controls"
-            >
-              <GitBranch size={18} />
-            </Button>
+            
           </TooltipWrapper>
           
           <Popover>
@@ -215,5 +194,4 @@ const TopBar: React.FC<TopBarProps> = ({
       </div>
     </div>;
 };
-
 export default TopBar;
