@@ -1184,3 +1184,10 @@ import {
 import {
   useSecurityAiotFramework,
   SecurityAiotFrameworkContext
+} from "@/context/AIoTProvider";
+
+const WhiteboardCanvas = () => {
+  // Component implementation would go here
+};
+
+export default WhiteboardCanvas;
