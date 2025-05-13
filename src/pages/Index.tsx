@@ -10,7 +10,10 @@ import TopBar from "@/components/TopBar";
 import AIDesignPanel from "@/components/AIDesignPanel";
 import AIDesignButton from "@/components/AIDesignButton";
 import FlowControlsPanel from "@/components/FlowControlsPanel";
+import UrlFramePanel from "@/components/UrlFramePanel";
 import { WhiteboardProvider, useWhiteboard } from "@/context/WhiteboardContext";
+import { Globe } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // Component to manage selection and property panels
 const WhiteboardManager = () => {
@@ -19,6 +22,7 @@ const WhiteboardManager = () => {
   const [showFlowControls, setShowFlowControls] = useState(false);
   const [showGrid, setShowGrid] = useState(true);
   const [showAIPanel, setShowAIPanel] = useState(false);
+  const [showUrlFrame, setShowUrlFrame] = useState(false);
   const {
     state,
     dispatch
@@ -83,11 +87,23 @@ const WhiteboardManager = () => {
           />
           
           {/* Control elements - Note the z-index order */}
-          <AIDesignButton onClick={() => setShowAIPanel(true)} />
+          <div className="absolute bottom-4 right-4 flex flex-col gap-2 z-20">
+            <AIDesignButton onClick={() => setShowAIPanel(true)} />
+            <Button 
+              className="rounded-full h-12 w-12 flex items-center justify-center" 
+              onClick={() => setShowUrlFrame(true)}
+              variant="default"
+            >
+              <Globe className="h-6 w-6" />
+            </Button>
+          </div>
           <ZoomControls />
           
           {/* AI Design Panel - Now with higher z-index to appear above buttons */}
           <AIDesignPanel isOpen={showAIPanel} onClose={() => setShowAIPanel(false)} />
+          
+          {/* URL Frame Panel */}
+          <UrlFramePanel isOpen={showUrlFrame} onClose={() => setShowUrlFrame(false)} />
         </div>
 
         {/* Right sidebar - Properties - Only shown when a component or frame is selected */}
