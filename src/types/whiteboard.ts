@@ -1,4 +1,3 @@
-
 import { ReactNode } from "react";
 
 export type ComponentType =
@@ -50,7 +49,7 @@ export type ComponentProperties = {
   options?: string[];
   selected?: number;
   shadow?: "sm" | "md" | "lg";
-  flowType?: string; // Add flowType property for flow components
+  flowType?: string; // Maintain this for compatibility
 };
 
 export interface CanvasComponent {
