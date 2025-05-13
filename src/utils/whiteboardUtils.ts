@@ -1,4 +1,3 @@
-
 import { CanvasComponent, FrameSize } from "../types/whiteboard";
 
 // Local storage key
@@ -20,55 +19,305 @@ export const isComponentInFrame = (component: CanvasComponent, frame: FrameSize)
 };
 
 // Function to get the default properties for a component type
-export const getDefaultPropertiesForComponent = (type: string): Record<string, any> => {
-  const baseProperties = {
-    backgroundColor: "transparent",
-    borderColor: "transparent",
-    borderWidth: 0,
-    borderRadius: 4,
-    textColor: "#000000",
-    textAlign: "left",
-    fontSize: 16,
-  };
-  
+export const getDefaultPropertiesForComponent = (type: string): ComponentProperties => {
   switch (type) {
     case "button":
       return {
-        ...baseProperties,
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
         textAlign: "center",
-        padding: "8px 16px",
+        padding: 8
       };
     case "input":
       return {
-        ...baseProperties,
-        placeholder: "Enter text...",
-        padding: "8px 12px",
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
+        textAlign: "left",
+        padding: 8,
+        placeholder: "Input field"
+      };
+    case "text":
+    case "paragraph":
+    case "heading":
+      return {
+        backgroundColor: "transparent",
+        textColor: "#000000",
+        fontSize: 14,
+        textAlign: "left",
+        padding: 4
       };
     case "checkbox":
       return {
-        ...baseProperties,
-        checked: false,
+        backgroundColor: "transparent",
+        textColor: "#000000",
+        fontSize: 14,
         label: "Checkbox",
+        checked: false
       };
     case "radio":
       return {
-        ...baseProperties,
+        backgroundColor: "transparent",
+        textColor: "#000000",
+        fontSize: 14,
         options: ["Option 1", "Option 2", "Option 3"],
-        selected: 0,
+        selected: 0
       };
     case "select":
       return {
-        ...baseProperties,
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 8,
         options: ["Option 1", "Option 2", "Option 3"],
-        selected: 0,
+        selected: 0
       };
     case "card":
       return {
-        ...baseProperties,
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        shadow: "sm",
+        padding: 16
+      };
+    case "image":
+      return {
+        backgroundColor: "#f3f4f6",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4
+      };
+    case "divider":
+      return {
+        borderColor: "#000000",
+        borderWidth: 1
+      };
+    case "table":
+      return {
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        textColor: "#000000",
+        fontSize: 12,
+        padding: 4
+      };
+    case "breadcrumbs":
+      return {
+        backgroundColor: "transparent",
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 4
+      };
+    case "calendar":
+      return {
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 12,
+        padding: 8
+      };
+    case "combobox":
+      return {
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 8,
+        options: ["Option 1", "Option 2", "Option 3"],
+        selected: 0
+      };
+    case "datepicker":
+      return {
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 8
+      };
+    case "dialog":
+      return {
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
         padding: 16,
+        shadow: "md"
+      };
+    case "gridlist":
+      return {
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 8
+      };
+    case "listbox":
+      return {
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 4,
+        options: ["Option 1", "Option 2", "Option 3"],
+        selected: 0
+      };
+    case "menu":
+      return {
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 4
+      };
+    case "meter":
+      return {
+        backgroundColor: "#f3f4f6",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 8
+      };
+    case "modal":
+      return {
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 16,
+        shadow: "md"
+      };
+    case "popover":
+      return {
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 8,
+        shadow: "sm"
+      };
+    case "progressbar":
+      return {
+        backgroundColor: "#f3f4f6",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 8
+      };
+    case "searchfield":
+      return {
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 8,
+        placeholder: "Search..."
+      };
+    case "slider":
+      return {
+        backgroundColor: "#f3f4f6",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 8
+      };
+    case "switch":
+      return {
+        backgroundColor: "#f3f4f6",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 9999,
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 4
+      };
+    case "tabs":
+      return {
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 8
+      };
+    case "taggroup":
+      return {
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 12,
+        padding: 4
+      };
+    case "togglebutton":
+      return {
+        backgroundColor: "#f3f4f6",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 8
+      };
+    case "tooltip":
+      return {
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 8,
+        shadow: "sm"
       };
     default:
-      return baseProperties;
+      return {
+        backgroundColor: "#ffffff",
+        borderColor: "#000000",
+        borderWidth: 1,
+        borderRadius: 4,
+        textColor: "#000000",
+        fontSize: 14,
+        padding: 8
+      };
   }
 };
 
@@ -85,6 +334,44 @@ export const getDefaultContentForComponent = (type: string): string => {
       return "Heading";
     case "paragraph":
       return "This is a paragraph of text. Double click to edit.";
+    case "breadcrumbs":
+      return "Home / Section / Current";
+    case "calendar":
+      return "Calendar";
+    case "combobox":
+      return "Select option...";
+    case "datepicker":
+      return "Select date...";
+    case "dialog":
+      return "Dialog Title";
+    case "gridlist":
+      return "Grid List";
+    case "listbox":
+      return "List Box";
+    case "menu":
+      return "Menu";
+    case "meter":
+      return "60%";
+    case "modal":
+      return "Modal Title";
+    case "popover":
+      return "Popover content";
+    case "progressbar":
+      return "75%";
+    case "searchfield":
+      return "Search...";
+    case "slider":
+      return "50%";
+    case "switch":
+      return "Toggle";
+    case "tabs":
+      return "Tab 1";
+    case "taggroup":
+      return "Tag 1";
+    case "togglebutton":
+      return "Toggle";
+    case "tooltip":
+      return "Hover for tooltip";
     default:
       return "";
   }
