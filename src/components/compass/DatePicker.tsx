@@ -1,7 +1,4 @@
 
-/* Sketchy mode styles */
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap');
-
 import styled from '@emotion/styled';
 import {
   Dialog as AriaDialog,
@@ -10,6 +7,9 @@ import {
 } from 'react-aria-components';
 
 import { theme } from './theme';
+
+/* Sketchy mode styles */
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap');
 
 export const DatePicker = styled(AriaDatePicker)`
   display: flex;

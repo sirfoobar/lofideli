@@ -12,6 +12,7 @@ import { FileImage, Bot, Copy, Clipboard, Scissors, Trash2 } from "lucide-react"
 import { toast } from "sonner";
 import { getDefaultContentForComponent, getDefaultPropertiesForComponent } from "@/utils/whiteboardUtils";
 import { generateFrameReactCode } from '../utils/codeExportUtils';
+import CodeSidebar from "@/components/CodeSidebar";
 
 interface WhiteboardCanvasProps {
   onSelectComponent: (id: string | null) => void;
@@ -32,6 +33,9 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
   const [frameStartPos, setFrameStartPos] = useState({ x: 0, y: 0 });
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
+  const [codeViewerOpen, setCodeViewerOpen] = useState(false);
+  const [codeContent, setCodeContent] = useState("");
+  const [codeTitle, setCodeTitle] = useState("Component Code");
 
   // Handle canvas size changes
   useEffect(() => {
@@ -389,7 +393,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     }
   };
 
-  // Export frame as React code
+  // Export frame as React code - updated to show sidebar
   const exportFrameAsReactCode = (frameId: string) => {
     const frame = state.frames.find(f => f.id === frameId);
     if (!frame) return;
@@ -398,15 +402,10 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
       // Generate the React component code
       const reactCode = generateFrameReactCode(frame, state.components);
       
-      // Copy to clipboard
-      const textArea = document.createElement('textarea');
-      textArea.value = reactCode;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      
-      toast.success("React component code copied to clipboard!");
+      // Set the code content and open the sidebar
+      setCodeContent(reactCode);
+      setCodeTitle(`${frame.name} Component`);
+      setCodeViewerOpen(true);
     } catch (error) {
       console.error("Error generating React code:", error);
       toast.error("Failed to generate React component code");
@@ -501,155 +500,166 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   };
 
   return (
-    <ContextMenu>
-      <ContextMenuTrigger asChild>
-        <div 
-          className="relative w-full h-full overflow-hidden bg-background dark:bg-gray-900 cursor-default"
-          onMouseDown={handleCanvasMouseDown}
-          onMouseMove={handleCanvasMouseMove}
-          onMouseUp={handleCanvasMouseUp}
-          onMouseLeave={handleCanvasMouseUp}
-          onContextMenu={handleContextMenu}
-        >
-          {/* Canvas grid */}
-          <div className="absolute inset-0 bg-canvas-background dark:bg-gray-900"
-            style={{
-              backgroundSize: `${state.gridSize * state.zoomLevel}px ${state.gridSize * state.zoomLevel}px`,
-              backgroundImage: showGrid ? "linear-gradient(to right, var(--canvas-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--canvas-grid) 1px, transparent 1px)" : "none"
-            }}
-          />
-          
-          {/* Canvas content */}
+    <>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
           <div 
-            ref={canvasRef}
-            className="absolute w-[4000px] h-[4000px] transform"
-            style={{ 
-              transform: `translate(${offset.x}px, ${offset.y}px) scale(${state.zoomLevel})`,
-              transformOrigin: "0 0",
-              cursor: isDragging ? "grabbing" : "default"
-            }}
-            onClick={handleCanvasClick}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
+            className="relative w-full h-full overflow-hidden bg-background dark:bg-gray-900 cursor-default"
+            onMouseDown={handleCanvasMouseDown}
+            onMouseMove={handleCanvasMouseMove}
+            onMouseUp={handleCanvasMouseUp}
+            onMouseLeave={handleCanvasMouseUp}
+            onContextMenu={handleContextMenu}
           >
-            {/* Render frames with context menu */}
-            {state.frames.map((frame) => (
-              <ContextMenu key={frame.id}>
-                <ContextMenuTrigger asChild>
-                  <div 
-                    className={`absolute border-2 ${
-                      frame.id === state.selectedFrameId 
-                        ? 'border-purple-500 ring-2 ring-purple-300' 
-                        : frame.id === state.activeFrameId 
-                          ? 'border-blue-400' 
-                          : 'border-gray-300'
-                    } bg-white bg-opacity-90 z-10 shadow-md hand-drawn-frame`}
-                    style={{
-                      width: frame.width,
-                      height: frame.height,
-                      left: frame.x,
-                      top: frame.y,
-                      cursor: state.draggedFrameId === frame.id ? 'grabbing' : 'grab',
-                    }}
-                    onClick={(e) => handleFrameClick(frame.id, e)}
-                    onMouseDown={(e) => handleFrameMouseDown(frame.id, e)}
-                  >
-                    <div className={`absolute top-0 left-0 ${
-                      frame.id === state.selectedFrameId 
-                        ? 'bg-purple-500' 
-                        : frame.id === state.activeFrameId 
-                          ? 'bg-blue-400' 
-                          : 'bg-gray-300'
-                    } text-white text-xs px-2 py-0.5 rounded-br`}>
-                      {frame.name} - {frame.width} × {frame.height}
-                      {frame.id === state.activeFrameId && <span className="ml-1">(Active)</span>}
+            {/* Canvas grid */}
+            <div className="absolute inset-0 bg-canvas-background dark:bg-gray-900"
+              style={{
+                backgroundSize: `${state.gridSize * state.zoomLevel}px ${state.gridSize * state.zoomLevel}px`,
+                backgroundImage: showGrid ? "linear-gradient(to right, var(--canvas-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--canvas-grid) 1px, transparent 1px)" : "none"
+              }}
+            />
+            
+            {/* Canvas content */}
+            <div 
+              ref={canvasRef}
+              className="absolute w-[4000px] h-[4000px] transform"
+              style={{ 
+                transform: `translate(${offset.x}px, ${offset.y}px) scale(${state.zoomLevel})`,
+                transformOrigin: "0 0",
+                cursor: isDragging ? "grabbing" : "default"
+              }}
+              onClick={handleCanvasClick}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+            >
+              {/* Render frames with context menu */}
+              {state.frames.map((frame) => (
+                <ContextMenu key={frame.id}>
+                  <ContextMenuTrigger asChild>
+                    <div 
+                      className={`absolute border-2 ${
+                        frame.id === state.selectedFrameId 
+                          ? 'border-purple-500 ring-2 ring-purple-300' 
+                          : frame.id === state.activeFrameId 
+                            ? 'border-blue-400' 
+                            : 'border-gray-300'
+                      } bg-white bg-opacity-90 z-10 shadow-md hand-drawn-frame`}
+                      style={{
+                        width: frame.width,
+                        height: frame.height,
+                        left: frame.x,
+                        top: frame.y,
+                        cursor: state.draggedFrameId === frame.id ? 'grabbing' : 'grab',
+                      }}
+                      onClick={(e) => handleFrameClick(frame.id, e)}
+                      onMouseDown={(e) => handleFrameMouseDown(frame.id, e)}
+                    >
+                      <div className={`absolute top-0 left-0 ${
+                        frame.id === state.selectedFrameId 
+                          ? 'bg-purple-500' 
+                          : frame.id === state.activeFrameId 
+                            ? 'bg-blue-400' 
+                            : 'bg-gray-300'
+                      } text-white text-xs px-2 py-0.5 rounded-br`}>
+                        {frame.name} - {frame.width} × {frame.height}
+                        {frame.id === state.activeFrameId && <span className="ml-1">(Active)</span>}
+                      </div>
+                      <div className="absolute bottom-0 right-0 text-xs text-gray-500 px-1">
+                        {getComponentsInFrame(frame.id).length > 0 && 
+                          `${getComponentsInFrame(frame.id).length} component${getComponentsInFrame(frame.id).length !== 1 ? 's' : ''}`}
+                      </div>
                     </div>
-                    <div className="absolute bottom-0 right-0 text-xs text-gray-500 px-1">
-                      {getComponentsInFrame(frame.id).length > 0 && 
-                        `${getComponentsInFrame(frame.id).length} component${getComponentsInFrame(frame.id).length !== 1 ? 's' : ''}`}
-                    </div>
-                  </div>
-                </ContextMenuTrigger>
-                <ContextMenuContent>
-                  <ContextMenuItem onClick={() => exportFrameAsImage(frame.id)} className="cursor-pointer">
-                    <FileImage className="mr-2 h-4 w-4" />
-                    <span>Export as Image</span>
-                  </ContextMenuItem>
-                  <ContextMenuItem onClick={() => exportFrameAsReactCode(frame.id)} className="cursor-pointer">
-                    <span role="img" aria-label="React" className="mr-2 h-4 w-4">⚛️</span>
-                    <span>Export as React</span>
-                  </ContextMenuItem>
-                  <ContextMenuSeparator />
-                  <ContextMenuItem onClick={() => generateAIPrompt(frame.id)} className="cursor-pointer">
-                    <Bot className="mr-2 h-4 w-4" />
-                    <span>Copy AI Prompt</span>
-                  </ContextMenuItem>
-                  <ContextMenuSeparator />
-                  <ContextMenuItem onClick={() => selectFrame(frame.id)} className="cursor-pointer">
-                    <span>Edit Properties</span>
-                  </ContextMenuItem>
-                  <ContextMenuItem onClick={() => dispatch({ type: "SET_ACTIVE_FRAME", id: frame.id })} className="cursor-pointer">
-                    <span>Set as Active Frame</span>
-                  </ContextMenuItem>
-                  <ContextMenuItem 
-                    onClick={() => {
-                      dispatch({ type: "DELETE_FRAME", id: frame.id });
-                      toast("Frame deleted");
-                    }} 
-                    className="cursor-pointer text-destructive"
-                  >
-                    <span>Delete Frame</span>
-                  </ContextMenuItem>
-                </ContextMenuContent>
-              </ContextMenu>
-            ))}
-
-            {/* Render components with context menus */}
-            {state.components.map((component) => (
-              <ContextMenu key={component.id}>
-                <ContextMenuTrigger asChild>
-                  <div className="relative">
-                    <CanvasComponent
-                      component={component}
-                      isSelected={component.id === selectedComponentId}
-                      onSelect={() => handleSelectComponent(component.id)}
-                    />
-                  </div>
-                </ContextMenuTrigger>
-                <ContextMenuContent>
-                  <ContextMenuItem onClick={() => {
-                    dispatch({ type: "SELECT_COMPONENT", id: component.id });
-                    copySelectedComponent();
-                  }} className="cursor-pointer">
-                    <Copy className="mr-2 h-4 w-4" />
-                    <span>Copy</span>
-                  </ContextMenuItem>
-                  {state.clipboard && (
-                    <ContextMenuItem onClick={handleContextMenuPaste} className="cursor-pointer">
-                      <Clipboard className="mr-2 h-4 w-4" />
-                      <span>Paste</span>
+                  </ContextMenuTrigger>
+                  <ContextMenuContent>
+                    <ContextMenuItem onClick={() => exportFrameAsImage(frame.id)} className="cursor-pointer">
+                      <FileImage className="mr-2 h-4 w-4" />
+                      <span>Export as Image</span>
                     </ContextMenuItem>
-                  )}
-                  <ContextMenuSeparator />
-                  <ContextMenuItem onClick={() => dispatch({ type: "DELETE_COMPONENT", id: component.id })} className="cursor-pointer text-destructive">
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    <span>Delete</span>
-                  </ContextMenuItem>
-                </ContextMenuContent>
-              </ContextMenu>
-            ))}
+                    <ContextMenuItem onClick={() => exportFrameAsReactCode(frame.id)} className="cursor-pointer">
+                      <span role="img" aria-label="React" className="mr-2 h-4 w-4">⚛️</span>
+                      <span>View as React Code</span>
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem onClick={() => generateAIPrompt(frame.id)} className="cursor-pointer">
+                      <Bot className="mr-2 h-4 w-4" />
+                      <span>Copy AI Prompt</span>
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem onClick={() => selectFrame(frame.id)} className="cursor-pointer">
+                      <span>Edit Properties</span>
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={() => dispatch({ type: "SET_ACTIVE_FRAME", id: frame.id })} className="cursor-pointer">
+                      <span>Set as Active Frame</span>
+                    </ContextMenuItem>
+                    <ContextMenuItem 
+                      onClick={() => {
+                        dispatch({ type: "DELETE_FRAME", id: frame.id });
+                        toast("Frame deleted");
+                      }} 
+                      className="cursor-pointer text-destructive"
+                    >
+                      <span>Delete Frame</span>
+                    </ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
+              ))}
+
+              {/* Render components with context menus */}
+              {state.components.map((component) => (
+                <ContextMenu key={component.id}>
+                  <ContextMenuTrigger asChild>
+                    <div className="relative">
+                      <CanvasComponent
+                        component={component}
+                        isSelected={component.id === selectedComponentId}
+                        onSelect={() => handleSelectComponent(component.id)}
+                      />
+                    </div>
+                  </ContextMenuTrigger>
+                  <ContextMenuContent>
+                    <ContextMenuItem onClick={() => {
+                      dispatch({ type: "SELECT_COMPONENT", id: component.id });
+                      copySelectedComponent();
+                    }} className="cursor-pointer">
+                      <Copy className="mr-2 h-4 w-4" />
+                      <span>Copy</span>
+                    </ContextMenuItem>
+                    {state.clipboard && (
+                      <ContextMenuItem onClick={handleContextMenuPaste} className="cursor-pointer">
+                        <Clipboard className="mr-2 h-4 w-4" />
+                        <span>Paste</span>
+                      </ContextMenuItem>
+                    )}
+                    <ContextMenuSeparator />
+                    <ContextMenuItem onClick={() => dispatch({ type: "DELETE_COMPONENT", id: component.id })} className="cursor-pointer text-destructive">
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      <span>Delete</span>
+                    </ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
+              ))}
+            </div>
           </div>
-        </div>
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        {state.clipboard && (
-          <ContextMenuItem onClick={handleContextMenuPaste} className="cursor-pointer">
-            <Clipboard className="mr-2 h-4 w-4" />
-            <span>Paste</span>
-          </ContextMenuItem>
-        )}
-      </ContextMenuContent>
-    </ContextMenu>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          {state.clipboard && (
+            <ContextMenuItem onClick={handleContextMenuPaste} className="cursor-pointer">
+              <Clipboard className="mr-2 h-4 w-4" />
+              <span>Paste</span>
+            </ContextMenuItem>
+          )}
+        </ContextMenuContent>
+      </ContextMenu>
+      
+      {/* Code Sidebar */}
+      {codeViewerOpen && (
+        <CodeSidebar 
+          code={codeContent} 
+          title={codeTitle}
+          onClose={() => setCodeViewerOpen(false)} 
+        />
+      )}
+    </>
   );
 };
 
