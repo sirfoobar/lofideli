@@ -188,9 +188,16 @@ const TopBar: React.FC<TopBarProps> = ({
           </Button>
         </TooltipWrapper>
         
-        <TooltipWrapper content="Toggle Theme">
-          <ThemeToggle />
-        </TooltipWrapper>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div>
+              <ThemeToggle />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Toggle theme</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
     </div>;
 };

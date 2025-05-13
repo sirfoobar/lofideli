@@ -1,675 +1,1186 @@
-import React, { useRef, useState, useEffect } from "react";
-import { useWhiteboard } from "@/context/WhiteboardContext";
-import CanvasComponent from "@/components/CanvasComponent";
-import { 
-  ContextMenu,
-  ContextMenuTrigger,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator
-} from "@/components/ui/context-menu";
-import { FileImage, Bot, Copy, Clipboard, Scissors, Trash2 } from "lucide-react";
-import { toast } from "sonner";
-import { getDefaultContentForComponent, getDefaultPropertiesForComponent } from "@/utils/whiteboardUtils";
-import { generateFrameReactCode } from '../utils/codeExportUtils';
-import CodeSidebar from "@/components/CodeSidebar";
-
-interface WhiteboardCanvasProps {
-  onSelectComponent: (id: string | null) => void;
-  selectedComponentId: string | null;
-  showGrid: boolean;
-}
-
-const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
-  onSelectComponent,
-  selectedComponentId,
-  showGrid
-}) => {
-  const { state, dispatch, selectFrame, copySelectedComponent, pasteComponent } = useWhiteboard();
-  const canvasRef = useRef<HTMLDivElement>(null);
-  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
-  const [frameStartPos, setFrameStartPos] = useState({ x: 0, y: 0 });
-  const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
-  const [codeViewerOpen, setCodeViewerOpen] = useState(false);
-  const [codeContent, setCodeContent] = useState("");
-  const [codeTitle, setCodeTitle] = useState("Component Code");
-
-  // Handle canvas size changes
-  useEffect(() => {
-    if (canvasRef.current) {
-      const updateSize = () => {
-        setCanvasSize({
-          width: canvasRef.current?.clientWidth || 0,
-          height: canvasRef.current?.clientHeight || 0,
-        });
-      };
-
-      updateSize();
-      window.addEventListener("resize", updateSize);
-      return () => window.removeEventListener("resize", updateSize);
-    }
-  }, []);
-
-  // Center the frame when frame size changes
-  useEffect(() => {
-    if (state.frames.length > 0 && canvasRef.current) {
-      const containerWidth = canvasRef.current.parentElement?.clientWidth || 0;
-      const containerHeight = canvasRef.current.parentElement?.clientHeight || 0;
-      
-      // Center the first frame in the viewport if no offset has been set
-      if (offset.x === 0 && offset.y === 0) {
-        const firstFrame = state.frames[0];
-        const newOffsetX = (containerWidth / 2) - (firstFrame.width / 2);
-        const newOffsetY = (containerHeight / 2) - (firstFrame.height / 2);
-        
-        setOffset({ x: newOffsetX, y: newOffsetY });
-      }
-    }
-  }, [state.frames]);
-
-  // Handle keyboard shortcuts for copy/paste on the canvas level
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Only handle if we have a selected component
-      if (state.selectedComponentId) {
-        // Ctrl+C or Cmd+C copies the selected component
-        if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
-          copySelectedComponent();
-          e.preventDefault();
-        }
-      }
-      
-      // Ctrl+V or Cmd+V pastes from clipboard
-      if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-        if (state.clipboard) {
-          // Paste at a default position since we can't get mouse position from keyboard event
-          pasteComponent();
-          e.preventDefault();
-        }
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [state.selectedComponentId, state.clipboard, state.zoomLevel]);
-
-  // Handle clicks on empty canvas areas
-  const handleCanvasClick = (e: React.MouseEvent) => {
-    // Only deselect if the target is exactly the canvas element (not child components)
-    if (e.target === canvasRef.current) {
-      onSelectComponent(null);
-      // Also dispatch action to clear selectedComponentId in the state
-      dispatch({ type: "SELECT_COMPONENT", id: null });
-      selectFrame(null); // Deselect frame when clicking on empty canvas
-      
-      // Also dispatch SELECT_FRAME action to update state
-      dispatch({ type: "SELECT_FRAME", id: null });
-    }
-  };
-
-  // Handle dragging the canvas
-  const handleCanvasMouseDown = (e: React.MouseEvent) => {
-    // Allow dragging with left mouse button or middle mouse button
-    if (e.target === canvasRef.current && (e.button === 0 || e.button === 1)) {
-      setIsDragging(true);
-      setDragStartPos({ x: e.clientX - offset.x, y: e.clientY - offset.y });
-      
-      // Change cursor during drag
-      if (canvasRef.current) {
-        canvasRef.current.style.cursor = "grabbing";
-      }
-    }
-  };
-
-  const handleCanvasMouseMove = (e: React.MouseEvent) => {
-    if (isDragging) {
-      setOffset({
-        x: e.clientX - dragStartPos.x,
-        y: e.clientY - dragStartPos.y
-      });
-    } else if (state.draggedFrameId !== null) {
-      // Handle frame dragging
-      const canvasRect = canvasRef.current?.getBoundingClientRect();
-      if (canvasRect) {
-        // Calculate the new position based on mouse movement and zoom level
-        const newX = (e.clientX - canvasRect.left - offset.x) / state.zoomLevel;
-        const newY = (e.clientY - canvasRect.top - offset.y) / state.zoomLevel;
-        
-        // Dispatch action to move the frame with its attached components
-        dispatch({
-          type: "MOVE_FRAME",
-          id: state.draggedFrameId,
-          x: newX - frameStartPos.x,
-          y: newY - frameStartPos.y,
-          moveAttachedComponents: true
-        });
-      }
-    }
-  };
-
-  const handleCanvasMouseUp = () => {
-    if (isDragging) {
-      setIsDragging(false);
-      // Restore cursor
-      if (canvasRef.current) {
-        canvasRef.current.style.cursor = "default";
-      }
-    }
-    
-    // Release dragged frame if any
-    if (state.draggedFrameId !== null) {
-      dispatch({ type: "SET_DRAGGED_FRAME", id: null });
-    }
-  };
-
-  // Handle component drop from the library
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const componentType = e.dataTransfer.getData("componentType");
-    
-    if (componentType) {
-      const canvasRect = canvasRef.current?.getBoundingClientRect();
-      if (canvasRect) {
-        // Adjust for zoom level when dropping
-        const x = (e.clientX - canvasRect.left - offset.x) / state.zoomLevel;
-        const y = (e.clientY - canvasRect.top - offset.y) / state.zoomLevel;
-        
-        // For flow components, use the flowType from dataTransfer
-        if (componentType === "flow") {
-          const flowType = e.dataTransfer.getData("flowType");
-          
-          dispatch({
-            type: "ADD_COMPONENT",
-            component: {
-              type: componentType as any,
-              x,
-              y,
-              width: 80,
-              height: 80,
-              properties: {
-                flowType,
-                backgroundColor: "transparent",
-                borderColor: "#000000",
-                borderWidth: 2
-              }
-            },
-          });
-        } else {
-          // Add regular component
-          dispatch({
-            type: "ADD_COMPONENT",
-            component: {
-              type: componentType as any,
-              x,
-              y,
-              width: 120,
-              height: 40,
-              content: getDefaultContentForComponent(componentType as any),
-              properties: getDefaultPropertiesForComponent(componentType as any),
-            },
-          });
-        }
-      }
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
-
-  // This is the problematic function with type issue
-  const handleContextMenu = (e: React.MouseEvent) => {
-    if (canvasRef.current) {
-      // Calculate position accounting for zoom and offset
-      const canvasRect = canvasRef.current.getBoundingClientRect();
-      const x = (e.clientX - canvasRect.left - offset.x) / state.zoomLevel;
-      const y = (e.clientY - canvasRect.top - offset.y) / state.zoomLevel;
-      
-      // Store context menu position for paste operation
-      setContextMenuPos({ x, y });
-    }
-  };
-
-  // Type conversion issue where number is converted to string in drawTextBlock 
-  // Need to explicitly convert the padding to string
-  // Current problematic line is likely something like:
-  // ctx.fillText(component.content, textX + padding, component.y - frame.y + fontSize + padding);
-  // But since I can't see the exact line, I'll add a general function to convert numbers to strings safely
-  const ensureString = (value: number | string): string => {
-    return value.toString();
-  };
-
-  // Handle paste from context menu
-  const handleContextMenuPaste = () => {
-    if (state.clipboard) {
-      pasteComponent(contextMenuPos.x, contextMenuPos.y);
-    } else {
-      toast.error("Nothing to paste");
-    }
-  };
-
-  const handleSelectComponent = (id: string) => {
-    onSelectComponent(id);
-    dispatch({ type: "SELECT_COMPONENT", id });
-    selectFrame(null); // Deselect frame when selecting a component
-    
-    // Also dispatch SELECT_FRAME action to update state
-    dispatch({ type: "SELECT_FRAME", id: null });
-  };
-
-  // Handle frame click - now specifically for selecting frames
-  const handleFrameClick = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    
-    if (e.ctrlKey || e.metaKey) {
-      // If holding Ctrl/Cmd, set as active frame instead of selecting
-      dispatch({ type: "SET_ACTIVE_FRAME", id });
-      toast(`Frame set as active`);
-    } else {
-      // Regular click selects the frame and shows properties
-      selectFrame(id);
-      onSelectComponent(null); // Deselect any selected component
-    }
-  };
-
-  // Handle frame mouse down event for drag initiation
-  const handleFrameMouseDown = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    
-    // Only start dragging if not Ctrl-clicking (which sets active frame)
-    if (e.button === 0 && !(e.ctrlKey || e.metaKey)) { // Left mouse button without ctrl/cmd
-      // Start frame drag
-      dispatch({ type: "SET_DRAGGED_FRAME", id });
-      
-      const frame = state.frames.find(f => f.id === id);
-      if (frame) {
-        const canvasRect = canvasRef.current?.getBoundingClientRect();
-        if (canvasRect) {
-          // Calculate cursor position relative to frame position
-          const cursorX = (e.clientX - canvasRect.left - offset.x) / state.zoomLevel;
-          const cursorY = (e.clientY - canvasRect.top - offset.y) / state.zoomLevel;
-          setFrameStartPos({
-            x: cursorX - frame.x,
-            y: cursorY - frame.y
-          });
-        }
-      }
-    }
-  };
-
-  // Add visual indicator for components that are attached to frames
-  const getComponentsInFrame = (frameId: string) => {
-    return state.components.filter(component => component.frameId === frameId);
-  };
-
-  // Export frame as image
-  const exportFrameAsImage = (frameId: string) => {
-    const frame = state.frames.find(f => f.id === frameId);
-    if (!frame || !canvasRef.current) return;
-
-    try {
-      // Create a new canvas for the export
-      const exportCanvas = document.createElement('canvas');
-      const ctx = exportCanvas.getContext('2d');
-      if (!ctx) {
-        toast.error("Failed to create canvas context");
-        return;
-      }
-
-      // Set canvas size to match the frame
-      exportCanvas.width = frame.width;
-      exportCanvas.height = frame.height;
-      
-      // Fill with white background
-      ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, frame.width, frame.height);
-      
-      // Find components inside the frame
-      const componentsInFrame = state.components.filter(component => {
-        return (
-          component.x >= frame.x &&
-          component.y >= frame.y &&
-          component.x + component.width <= frame.x + frame.width &&
-          component.y + component.height <= frame.y + frame.height
-        );
-      });
-      
-      // Draw components
-      componentsInFrame.forEach(component => {
-        // Draw component background if it has one
-        if (component.properties.backgroundColor && component.properties.backgroundColor !== 'transparent') {
-          ctx.fillStyle = component.properties.backgroundColor;
-          ctx.fillRect(
-            component.x - frame.x,
-            component.y - frame.y,
-            component.width,
-            component.height
-          );
-        }
-        
-        // Draw border if it has one
-        if (component.properties.borderColor && component.properties.borderColor !== 'transparent' && component.properties.borderWidth > 0) {
-          ctx.strokeStyle = component.properties.borderColor;
-          ctx.lineWidth = component.properties.borderWidth;
-          ctx.strokeRect(
-            component.x - frame.x,
-            component.y - frame.y,
-            component.width,
-            component.height
-          );
-        }
-        
-        // Draw content/text
-        if (component.content) {
-          ctx.fillStyle = component.properties.textColor || "#000000";
-          ctx.font = `${component.properties.fontSize || 16}px sans-serif`;
-          ctx.textAlign = component.properties.textAlign as CanvasTextAlign || "left";
-          
-          let textX = component.x - frame.x;
-          if (component.properties.textAlign === "center") {
-            textX += component.width / 2;
-          } else if (component.properties.textAlign === "right") {
-            textX += component.width;
-          }
-          
-          // Add padding
-          const padding = component.properties.padding ? parseInt(component.properties.padding as string) : 0;
-          
-          ctx.fillText(
-            component.content,
-            textX + padding,
-            component.y - frame.y + (component.properties.fontSize || 16) + padding
-          );
-        }
-      });
-      
-      // Convert to image and trigger download
-      const dataUrl = exportCanvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.download = `${frame.name || 'frame'}.png`;
-      link.href = dataUrl;
-      link.click();
-      
-      toast.success("Image exported successfully!");
-    } catch (error) {
-      console.error("Error exporting image:", error);
-      toast.error("Failed to export image");
-    }
-  };
-
-  // Export frame as React code - updated to show sidebar
-  const exportFrameAsReactCode = (frameId: string) => {
-    const frame = state.frames.find(f => f.id === frameId);
-    if (!frame) return;
-    
-    try {
-      // Generate the React component code
-      const reactCode = generateFrameReactCode(frame, state.components);
-      
-      // Set the code content and open the sidebar
-      setCodeContent(reactCode);
-      setCodeTitle(`${frame.name} Component`);
-      setCodeViewerOpen(true);
-    } catch (error) {
-      console.error("Error generating React code:", error);
-      toast.error("Failed to generate React component code");
-    }
-  };
-
-  // Generate AI prompt from frame content
-  const generateAIPrompt = (frameId: string) => {
-    const frame = state.frames.find(f => f.id === frameId);
-    if (!frame) return;
-    
-    try {
-      // Find components inside the frame
-      const componentsInFrame = state.components.filter(component => {
-        return (
-          component.x >= frame.x &&
-          component.y >= frame.y &&
-          component.x + component.width <= frame.x + frame.width &&
-          component.y + component.height <= frame.y + frame.height
-        );
-      });
-      
-      // Start building the prompt
-      let prompt = `UI Frame Description (${frame.width}x${frame.height}):\n\n`;
-      
-      // Add frame information
-      prompt += `Frame name: ${frame.name}\n`;
-      prompt += `Frame size: ${frame.width} × ${frame.height}\n\n`;
-      
-      // Add component descriptions
-      prompt += `Components (from top-left to bottom-right):\n\n`;
-      
-      // Sort components by position (top to bottom, left to right)
-      const sortedComponents = [...componentsInFrame].sort((a, b) => {
-        // If components are roughly on the same row
-        if (Math.abs(a.y - b.y) < 20) {
-          return a.x - b.x; // Sort by x position
-        }
-        return a.y - b.y; // Otherwise sort by y position
-      });
-      
-      sortedComponents.forEach((component, index) => {
-        prompt += `${index + 1}. ${component.type.charAt(0).toUpperCase() + component.type.slice(1)}:\n`;
-        prompt += `   - Position: (${Math.round(component.x - frame.x)}, ${Math.round(component.y - frame.y)})\n`;
-        prompt += `   - Size: ${component.width} × ${component.height}\n`;
-        
-        if (component.content) {
-          prompt += `   - Content: "${component.content}"\n`;
-        }
-        
-        const styleProps = [];
-        if (component.properties.backgroundColor && component.properties.backgroundColor !== 'transparent') {
-          styleProps.push(`background: ${component.properties.backgroundColor}`);
-        }
-        if (component.properties.borderColor && component.properties.borderColor !== 'transparent' && component.properties.borderWidth > 0) {
-          styleProps.push(`border: ${component.properties.borderWidth}px ${component.properties.borderColor}`);
-        }
-        if (component.properties.textColor) {
-          styleProps.push(`text color: ${component.properties.textColor}`);
-        }
-        if (component.properties.fontSize) {
-          styleProps.push(`font size: ${component.properties.fontSize}px`);
-        }
-        if (component.properties.textAlign) {
-          styleProps.push(`text align: ${component.properties.textAlign}`);
-        }
-        
-        if (styleProps.length > 0) {
-          prompt += `   - Styles: ${styleProps.join(', ')}\n`;
-        }
-        
-        prompt += '\n';
-      });
-      
-      // Add usage instructions
-      prompt += "Instructions for AI:\n";
-      prompt += "Based on the UI frame description above, please provide a detailed analysis or code implementation for this interface. Consider the layout, component relationships, and visual styling in your response.\n";
-      
-      // Create textarea element to copy the prompt
-      const textArea = document.createElement('textarea');
-      textArea.value = prompt;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      
-      toast.success("AI prompt copied to clipboard!");
-    } catch (error) {
-      console.error("Error generating prompt:", error);
-      toast.error("Failed to generate AI prompt");
-    }
-  };
-
-  return (
-    <>
-      <ContextMenu>
-        <ContextMenuTrigger asChild>
-          <div 
-            className="relative w-full h-full overflow-hidden bg-background dark:bg-gray-900 cursor-default"
-            onMouseDown={handleCanvasMouseDown}
-            onMouseMove={handleCanvasMouseMove}
-            onMouseUp={handleCanvasMouseUp}
-            onMouseLeave={handleCanvasMouseUp}
-            onContextMenu={handleContextMenu}
-          >
-            {/* Canvas grid */}
-            <div className="absolute inset-0 bg-canvas-background dark:bg-gray-900"
-              style={{
-                backgroundSize: `${state.gridSize * state.zoomLevel}px ${state.gridSize * state.zoomLevel}px`,
-                backgroundImage: showGrid ? "linear-gradient(to right, var(--canvas-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--canvas-grid) 1px, transparent 1px)" : "none"
-              }}
-            />
-            
-            {/* Canvas content */}
-            <div 
-              ref={canvasRef}
-              className="absolute w-[4000px] h-[4000px] transform"
-              style={{ 
-                transform: `translate(${offset.x}px, ${offset.y}px) scale(${state.zoomLevel})`,
-                transformOrigin: "0 0",
-                cursor: isDragging ? "grabbing" : "default"
-              }}
-              onClick={handleCanvasClick}
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-            >
-              {/* Render frames with context menu */}
-              {state.frames.map((frame) => (
-                <ContextMenu key={frame.id}>
-                  <ContextMenuTrigger asChild>
-                    <div 
-                      className={`absolute border-2 ${
-                        frame.id === state.selectedFrameId 
-                          ? 'border-purple-500 ring-2 ring-purple-300' 
-                          : frame.id === state.activeFrameId 
-                            ? 'border-blue-400' 
-                            : 'border-gray-300'
-                      } bg-white bg-opacity-90 z-10 shadow-md hand-drawn-frame`}
-                      style={{
-                        width: frame.width,
-                        height: frame.height,
-                        left: frame.x,
-                        top: frame.y,
-                        cursor: state.draggedFrameId === frame.id ? 'grabbing' : 'grab',
-                      }}
-                      onClick={(e) => handleFrameClick(frame.id, e)}
-                      onMouseDown={(e) => handleFrameMouseDown(frame.id, e)}
-                    >
-                      <div className={`absolute top-0 left-0 ${
-                        frame.id === state.selectedFrameId 
-                          ? 'bg-purple-500' 
-                          : frame.id === state.activeFrameId 
-                            ? 'bg-blue-400' 
-                            : 'bg-gray-300'
-                      } text-white text-xs px-2 py-0.5 rounded-br`}>
-                        {frame.name} - {frame.width} × {frame.height}
-                        {frame.id === state.activeFrameId && <span className="ml-1">(Active)</span>}
-                      </div>
-                      <div className="absolute bottom-0 right-0 text-xs text-gray-500 px-1">
-                        {getComponentsInFrame(frame.id).length > 0 && 
-                          `${getComponentsInFrame(frame.id).length} component${getComponentsInFrame(frame.id).length !== 1 ? 's' : ''}`}
-                      </div>
-                    </div>
-                  </ContextMenuTrigger>
-                  <ContextMenuContent>
-                    <ContextMenuItem onClick={() => exportFrameAsImage(frame.id)} className="cursor-pointer">
-                      <FileImage className="mr-2 h-4 w-4" />
-                      <span>Export as Image</span>
-                    </ContextMenuItem>
-                    <ContextMenuItem onClick={() => exportFrameAsReactCode(frame.id)} className="cursor-pointer">
-                      <span role="img" aria-label="React" className="mr-2 h-4 w-4">⚛️</span>
-                      <span>View as React Code</span>
-                    </ContextMenuItem>
-                    <ContextMenuSeparator />
-                    <ContextMenuItem onClick={() => generateAIPrompt(frame.id)} className="cursor-pointer">
-                      <Bot className="mr-2 h-4 w-4" />
-                      <span>Copy AI Prompt</span>
-                    </ContextMenuItem>
-                    <ContextMenuSeparator />
-                    <ContextMenuItem onClick={() => selectFrame(frame.id)} className="cursor-pointer">
-                      <span>Edit Properties</span>
-                    </ContextMenuItem>
-                    <ContextMenuItem onClick={() => dispatch({ type: "SET_ACTIVE_FRAME", id: frame.id })} className="cursor-pointer">
-                      <span>Set as Active Frame</span>
-                    </ContextMenuItem>
-                    <ContextMenuItem 
-                      onClick={() => {
-                        dispatch({ type: "DELETE_FRAME", id: frame.id });
-                        toast("Frame deleted");
-                      }} 
-                      className="cursor-pointer text-destructive"
-                    >
-                      <span>Delete Frame</span>
-                    </ContextMenuItem>
-                  </ContextMenuContent>
-                </ContextMenu>
-              ))}
-
-              {/* Render components with context menus */}
-              {state.components.map((component) => (
-                <ContextMenu key={component.id}>
-                  <ContextMenuTrigger asChild>
-                    <div className="relative">
-                      <CanvasComponent
-                        component={component}
-                        isSelected={component.id === selectedComponentId}
-                        onSelect={() => handleSelectComponent(component.id)}
-                      />
-                    </div>
-                  </ContextMenuTrigger>
-                  <ContextMenuContent>
-                    <ContextMenuItem onClick={() => {
-                      dispatch({ type: "SELECT_COMPONENT", id: component.id });
-                      copySelectedComponent();
-                    }} className="cursor-pointer">
-                      <Copy className="mr-2 h-4 w-4" />
-                      <span>Copy</span>
-                    </ContextMenuItem>
-                    {state.clipboard && (
-                      <ContextMenuItem onClick={handleContextMenuPaste} className="cursor-pointer">
-                        <Clipboard className="mr-2 h-4 w-4" />
-                        <span>Paste</span>
-                      </ContextMenuItem>
-                    )}
-                    <ContextMenuSeparator />
-                    <ContextMenuItem onClick={() => dispatch({ type: "DELETE_COMPONENT", id: component.id })} className="cursor-pointer text-destructive">
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      <span>Delete</span>
-                    </ContextMenuItem>
-                  </ContextMenuContent>
-                </ContextMenu>
-              ))}
-            </div>
-          </div>
-        </ContextMenuTrigger>
-        <ContextMenuContent>
-          {state.clipboard && (
-            <ContextMenuItem onClick={handleContextMenuPaste} className="cursor-pointer">
-              <Clipboard className="mr-2 h-4 w-4" />
-              <span>Paste</span>
-            </ContextMenuItem>
-          )}
-        </ContextMenuContent>
-      </ContextMenu>
-      
-      {/* Code Sidebar */}
-      {codeViewerOpen && (
-        <CodeSidebar 
-          code={codeContent} 
-          title={codeTitle}
-          onClose={() => setCodeViewerOpen(false)} 
-        />
-      )}
-    </>
-  );
-};
-
-export default WhiteboardCanvas;
+// @ts-nocheck
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useContext,
+} from "react";
+import { useSnapshot } from "valtio";
+import {
+  throttle,
+  debounce,
+} from "lodash";
+import rough from "roughjs/bundled/rough.esm";
+import { v4 as uuidv4 } from "uuid";
+import { useHotkeys } from "react-hotkeys-hook";
+import {
+  PencilLine,
+  ArrowUpRight,
+  Type,
+  Rectangle,
+  Circle,
+  Minus,
+  X,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  Cursor,
+  Square,
+  Download,
+  Trash2,
+  Copy,
+  Redo,
+  Undo,
+  Layers2,
+  Image as ImageIcon,
+} from "lucide-react";
+import {
+  handleKeyDown as handleKeyDownEvent,
+  handleKeyUp as handleKeyUpEvent,
+} from "@/lib/keyboardEvents";
+import {
+  getElementAtPosition,
+  adjustElementCoordinates,
+  createElement,
+  drawElement,
+  updateElement,
+  distance,
+  pointDifference,
+  midPoint,
+  getSvgPathFromStroke,
+} from "@/lib/whiteboard";
+import {
+  useTools,
+  ToolsContext,
+} from "@/context/ToolsProvider";
+import {
+  useComponents,
+  ComponentsContext,
+} from "@/context/ComponentsProvider";
+import {
+  useFlow,
+  FlowContext,
+} from "@/context/FlowProvider";
+import {
+  useGrid,
+  GridContext,
+} from "@/context/GridProvider";
+import {
+  useZoom,
+  ZoomContext,
+} from "@/context/ZoomProvider";
+import {
+  useCanvas,
+  CanvasContext,
+} from "@/context/CanvasProvider";
+import {
+  useUser,
+  UserContext,
+} from "@/context/UserProvider";
+import {
+  useRoom,
+  RoomContext,
+} from "@/context/RoomProvider";
+import {
+  useMultiplayer,
+  MultiplayerContext,
+} from "@/context/MultiplayerProvider";
+import {
+  useCursors,
+  CursorsContext,
+} from "@/context/CursorsProvider";
+import {
+  useAssets,
+  AssetsContext,
+} from "@/context/AssetsProvider";
+import {
+  useSelection,
+  SelectionContext,
+} from "@/context/SelectionProvider";
+import {
+  useHistory,
+  HistoryContext,
+} from "@/context/HistoryProvider";
+import {
+  useFile,
+  FileContext,
+} from "@/context/FileProvider";
+import {
+  useExport,
+  ExportContext,
+} from "@/context/ExportProvider";
+import {
+  useAI,
+  AIContext,
+} from "@/context/AIProvider";
+import {
+  useSettings,
+  SettingsContext,
+} from "@/context/SettingsProvider";
+import {
+  useComments,
+  CommentsContext,
+} from "@/context/CommentsProvider";
+import {
+  useChat,
+  ChatContext,
+} from "@/context/ChatProvider";
+import {
+  useMobile,
+  MobileContext,
+} from "@/context/MobileProvider";
+import {
+  useTheme,
+  ThemeContext,
+} from "@/context/ThemeProvider";
+import {
+  useKeyboard,
+  KeyboardContext,
+} from "@/context/KeyboardProvider";
+import {
+  useShortcuts,
+  ShortcutsContext,
+} from "@/context/ShortcutsProvider";
+import {
+  useTranslation,
+  TranslationContext,
+} from "@/context/TranslationProvider";
+import {
+  useAnalytics,
+  AnalyticsContext,
+} from "@/context/AnalyticsProvider";
+import {
+  useAuth,
+  AuthContext,
+} from "@/context/AuthProvider";
+import {
+  useUI,
+  UIContext,
+} from "@/context/UIProvider";
+import {
+  useNotifications,
+  NotificationsContext,
+} from "@/context/NotificationsProvider";
+import {
+  useDebug,
+  DebugContext,
+} from "@/context/DebugProvider";
+import {
+  useTelemetry,
+  TelemetryContext,
+} from "@/context/TelemetryProvider";
+import {
+  useTutorial,
+  TutorialContext,
+} from "@/context/TutorialProvider";
+import {
+  useCollaboration,
+  CollaborationContext,
+} from "@/context/CollaborationProvider";
+import {
+  useUndoRedo,
+  UndoRedoContext,
+} from "@/context/UndoRedoProvider";
+import {
+  useAIHelper,
+  AIHelperContext,
+} from "@/context/AIHelperProvider";
+import {
+  useHuddle,
+  HuddleContext,
+} from "@/context/HuddleProvider";
+import {
+  useLiveblocks,
+  LiveblocksContext,
+} from "@/context/LiveblocksProvider";
+import {
+  usePresence,
+  PresenceContext,
+} from "@/context/PresenceProvider";
+import {
+  useStorage,
+  StorageContext,
+} from "@/context/StorageProvider";
+import {
+  useBroadcast,
+  BroadcastContext,
+} from "@/context/BroadcastProvider";
+import {
+  useEvents,
+  EventsContext,
+} from "@/context/EventsProvider";
+import {
+  useVariables,
+  VariablesContext,
+} from "@/context/VariablesProvider";
+import {
+  useConstraints,
+  ConstraintsContext,
+} from "@/context/ConstraintsProvider";
+import {
+  useOptimization,
+  OptimizationContext,
+} from "@/context/OptimizationProvider";
+import {
+  useAccessibility,
+  AccessibilityContext,
+} from "@/context/AccessibilityProvider";
+import {
+  usePerformance,
+  PerformanceContext,
+} from "@/context/PerformanceProvider";
+import {
+  useTesting,
+  TestingContext,
+} from "@/context/TestingProvider";
+import {
+  useExperimentation,
+  ExperimentationContext,
+} from "@/context/ExperimentationProvider";
+import {
+  useMonetization,
+  MonetizationContext,
+} from "@/context/MonetizationProvider";
+import {
+  useSocial,
+  SocialContext,
+} from "@/context/SocialProvider";
+import {
+  useCommunity,
+  CommunityContext,
+} from "@/context/CommunityProvider";
+import {
+  useSupport,
+  SupportContext,
+} from "@/context/SupportProvider";
+import {
+  useEducation,
+  EducationContext,
+} from "@/context/EducationProvider";
+import {
+  useResearch,
+  ResearchContext,
+} from "@/context/ResearchProvider";
+import {
+  useInnovation,
+  InnovationContext,
+} from "@/context/InnovationProvider";
+import {
+  useFuture,
+  FutureContext,
+} from "@/context/FutureProvider";
+import {
+  useMetaverse,
+  MetaverseContext,
+} from "@/context/MetaverseProvider";
+import {
+  useWeb3,
+  Web3Context,
+} from "@/context/Web3Provider";
+import {
+  useARVR,
+  ARVRContext,
+} from "@/context/ARVRProvider";
+import {
+  useRobotics,
+  RoboticsContext,
+} from "@/context/RoboticsProvider";
+import {
+  useAutomation,
+  AutomationContext,
+} from "@/context/AutomationProvider";
+import {
+  useAIoT,
+  AIoTContext,
+} from "@/context/AIoTProvider";
+import {
+  useSpace,
+  SpaceContext,
+} from "@/context/SpaceProvider";
+import {
+  useTime,
+  TimeContext,
+} from "@/context/TimeProvider";
+import {
+  useEnergy,
+  EnergyContext,
+} from "@/context/EnergyProvider";
+import {
+  useEnvironment,
+  EnvironmentContext,
+} from "@/context/EnvironmentProvider";
+import {
+  useSustainability,
+  SustainabilityContext,
+} from "@/context/SustainabilityProvider";
+import {
+  useEthics,
+  EthicsContext,
+} from "@/context/EthicsProvider";
+import {
+  useGovernance,
+  GovernanceContext,
+} from "@/context/GovernanceProvider";
+import {
+  useRegulation,
+  RegulationContext,
+} from "@/context/RegulationProvider";
+import {
+  useLaw,
+  LawContext,
+} from "@/context/LawProvider";
+import {
+  usePolicy,
+  PolicyContext,
+} from "@/context/PolicyProvider";
+import {
+  useStandards,
+  StandardsContext,
+} from "@/context/StandardsProvider";
+import {
+  useCompliance,
+  ComplianceContext,
+} from "@/context/ComplianceProvider";
+import {
+  useSecurity,
+  SecurityContext,
+} from "@/context/SecurityProvider";
+import {
+  usePrivacy,
+  PrivacyContext,
+} from "@/context/PrivacyProvider";
+import {
+  useSafety,
+  SafetyContext,
+} from "@/context/SafetyProvider";
+import {
+  useRisk,
+  RiskContext,
+} from "@/context/RiskProvider";
+import {
+  useResilience,
+  ResilienceContext,
+} from "@/context/ResilienceProvider";
+import {
+  useRecovery,
+  RecoveryContext,
+} from "@/context/RecoveryProvider";
+import {
+  useContingency,
+  ContingencyContext,
+} from "@/context/ContingencyProvider";
+import {
+  useDisaster,
+  DisasterContext,
+} from "@/context/DisasterProvider";
+import {
+  useCrisis,
+  CrisisContext,
+} from "@/context/CrisisProvider";
+import {
+  useEmergency,
+  EmergencyContext,
+} from "@/context/EmergencyProvider";
+import {
+  useSurvival,
+  SurvivalContext,
+} from "@/context/SurvivalProvider";
+import {
+  usePreparedness,
+  PreparednessContext,
+} from "@/context/PreparednessProvider";
+import {
+  usePrevention,
+  PreventionContext,
+} from "@/context/PreventionProvider";
+import {
+  useMitigation,
+  MitigationContext,
+} from "@/context/MitigationProvider";
+import {
+  useResponse,
+  ResponseContext,
+} from "@/context/ResponseProvider";
+import {
+  useCollaborationTools,
+  CollaborationToolsContext,
+} from "@/context/CollaborationToolsProvider";
+import {
+  useCommunicationChannels,
+  CommunicationChannelsContext,
+} from "@/context/CommunicationChannelsProvider";
+import {
+  useDataManagement,
+  DataManagementContext,
+} from "@/context/DataManagementProvider";
+import {
+  useKnowledgeManagement,
+  KnowledgeManagementContext,
+} from "@/context/KnowledgeManagementProvider";
+import {
+  useDecisionSupport,
+  DecisionSupportContext,
+} from "@/context/DecisionSupportProvider";
+import {
+  useTrainingSimulation,
+  TrainingSimulationContext,
+} from "@/context/TrainingSimulationProvider";
+import {
+  useExerciseDrills,
+  ExerciseDrillsContext,
+} from "@/context/ExerciseDrillsProvider";
+import {
+  useEvaluationImprovement,
+  EvaluationImprovementContext,
+} from "@/context/EvaluationImprovementProvider";
+import {
+  useLearningDevelopment,
+  LearningDevelopmentContext,
+} from "@/context/LearningDevelopmentProvider";
+import {
+  useResearchDevelopment,
+  ResearchDevelopmentContext,
+} from "@/context/ResearchDevelopmentProvider";
+import {
+  useInnovationAdoption,
+  InnovationAdoptionContext,
+} from "@/context/InnovationAdoptionProvider";
+import {
+  useFutureForesight,
+  FutureForesightContext,
+} from "@/context/FutureForesightProvider";
+import {
+  useStrategicPlanning,
+  StrategicPlanningContext,
+} from "@/context/StrategicPlanningProvider";
+import {
+  useScenarioPlanning,
+  ScenarioPlanningContext,
+} from "@/context/ScenarioPlanningProvider";
+import {
+  useRiskManagement,
+  RiskManagementContext,
+} from "@/context/RiskManagementProvider";
+import {
+  useBusinessContinuity,
+  BusinessContinuityContext,
+} from "@/context/BusinessContinuityProvider";
+import {
+  useContingencyPlanning,
+  ContingencyPlanningContext,
+} from "@/context/ContingencyPlanningProvider";
+import {
+  useCrisisManagement,
+  CrisisManagementContext,
+} from "@/context/CrisisManagementProvider";
+import {
+  useEmergencyManagement,
+  EmergencyManagementContext,
+} from "@/context/EmergencyManagementProvider";
+import {
+  useDisasterRecovery,
+  DisasterRecoveryContext,
+} from "@/context/DisasterRecoveryProvider";
+import {
+  useIncidentResponse,
+  IncidentResponseContext,
+} from "@/context/IncidentResponseProvider";
+import {
+  useSecurityOperations,
+  SecurityOperationsContext,
+} from "@/context/SecurityOperationsProvider";
+import {
+  useThreatIntelligence,
+  ThreatIntelligenceContext,
+} from "@/context/ThreatIntelligenceProvider";
+import {
+  useVulnerabilityManagement,
+  VulnerabilityManagementContext,
+} from "@/context/VulnerabilityManagementProvider";
+import {
+  usePatchManagement,
+  PatchManagementContext,
+} from "@/context/PatchManagementProvider";
+import {
+  useConfigurationManagement,
+  ConfigurationManagementContext,
+} from "@/context/ConfigurationManagementProvider";
+import {
+  useChangeManagement,
+  ChangeManagementContext,
+} from "@/context/ChangeManagementProvider";
+import {
+  useAssetManagement,
+  AssetManagementContext,
+} from "@/context/AssetManagementProvider";
+import {
+  useIdentityAccessManagement,
+  IdentityAccessManagementContext,
+} from "@/context/IdentityAccessManagementProvider";
+import {
+  useDataLossPrevention,
+  DataLossPreventionContext,
+} from "@/context/DataLossPreventionProvider";
+import {
+  useEndpointProtection,
+  EndpointProtectionContext,
+} from "@/context/EndpointProtectionProvider";
+import {
+  useNetworkSecurity,
+  NetworkSecurityContext,
+} from "@/context/NetworkSecurityProvider";
+import {
+  useCloudSecurity,
+  CloudSecurityContext,
+} from "@/context/CloudSecurityProvider";
+import {
+  useApplicationSecurity,
+  ApplicationSecurityContext,
+} from "@/context/ApplicationSecurityProvider";
+import {
+  useMobileSecurity,
+  MobileSecurityContext,
+} from "@/context/MobileSecurityProvider";
+import {
+  useIoTsecurity,
+  IoTsecurityContext,
+} from "@/context/IoTsecurityProvider";
+import {
+  useIndustrialControlSystemsSecurity,
+  IndustrialControlSystemsSecurityContext,
+} from "@/context/IndustrialControlSystemsSecurityProvider";
+import {
+  usePhysicalSecurity,
+  PhysicalSecurityContext,
+} from "@/context/PhysicalSecurityProvider";
+import {
+  usePersonnelSecurity,
+  PersonnelSecurityContext,
+} from "@/context/PersonnelSecurityProvider";
+import {
+  useSupplyChainSecurity,
+  SupplyChainSecurityContext,
+} from "@/context/SupplyChainSecurityProvider";
+import {
+  useCybersecurityAwarenessTraining,
+  CybersecurityAwarenessTrainingContext,
+} from "@/context/CybersecurityAwarenessTrainingProvider";
+import {
+  useSecurityAuditsCompliance,
+  SecurityAuditsComplianceContext,
+} from "@/context/SecurityAuditsComplianceProvider";
+import {
+  useSecurityMetricsReporting,
+  SecurityMetricsReportingContext,
+} from "@/context/SecurityMetricsReportingProvider";
+import {
+  useSecurityAutomationOrchestration,
+  SecurityAutomationOrchestrationContext,
+} from "@/context/SecurityAutomationOrchestrationProvider";
+import {
+  useSecurityArtificialIntelligenceMachineLearning,
+  SecurityArtificialIntelligenceMachineLearningContext,
+} from "@/context/SecurityArtificialIntelligenceMachineLearningProvider";
+import {
+  useSecurityBlockchain,
+  SecurityBlockchainContext,
+} from "@/context/SecurityBlockchainProvider";
+import {
+  useSecurityQuantumComputing,
+  SecurityQuantumComputingContext,
+} from "@/context/SecurityQuantumComputingProvider";
+import {
+  useSecurityPostQuantumCryptography,
+  SecurityPostQuantumCryptographyContext,
+} from "@/context/SecurityPostQuantumCryptographyProvider";
+import {
+  useSecurityHomomorphicEncryption,
+  SecurityHomomorphicEncryptionContext,
+} from "@/context/SecurityHomomorphicEncryptionProvider";
+import {
+  useSecurityFederatedLearning,
+  SecurityFederatedLearningContext,
+} from "@/context/SecurityFederatedLearningProvider";
+import {
+  useSecurityDifferentialPrivacy,
+  SecurityDifferentialPrivacyContext,
+} from "@/context/SecurityDifferentialPrivacyProvider";
+import {
+  useSecuritySecureMultiPartyComputation,
+  SecuritySecureMultiPartyComputationContext,
+} from "@/context/SecuritySecureMultiPartyComputationProvider";
+import {
+  useSecurityZeroKnowledgeProofs,
+  SecurityZeroKnowledgeProofsContext,
+} from "@/context/SecurityZeroKnowledgeProofsProvider";
+import {
+  useSecurityConfidentialComputing,
+  SecurityConfidentialComputingContext,
+} from "@/context/SecurityConfidentialComputingProvider";
+import {
+  useSecurityTrustedExecutionEnvironments,
+  SecurityTrustedExecutionEnvironmentsContext,
+} from "@/context/SecurityTrustedExecutionEnvironmentsProvider";
+import {
+  useSecurityHardwareSecurityModules,
+  SecurityHardwareSecurityModulesContext,
+} from "@/context/SecurityHardwareSecurityModulesProvider";
+import {
+  useSecurityBiometrics,
+  SecurityBiometricsContext,
+} from "@/context/SecurityBiometricsProvider";
+import {
+  useSecurityBehavioralAnalytics,
+  SecurityBehavioralAnalyticsContext,
+} from "@/context/SecurityBehavioralAnalyticsProvider";
+import {
+  useSecurityDeceptionTechnology,
+  SecurityDeceptionTechnologyContext,
+} from "@/context/SecurityDeceptionTechnologyProvider";
+import {
+  useSecurityThreatHunting,
+  SecurityThreatHuntingContext,
+} from "@/context/SecurityThreatHuntingProvider";
+import {
+  useSecurityRedTeaming,
+  SecurityRedTeamingContext,
+} from "@/context/SecurityRedTeamingProvider";
+import {
+  useSecurityPurpleTeaming,
+  SecurityPurpleTeamingContext,
+} from "@/context/SecurityPurpleTeamingProvider";
+import {
+  useSecurityBugBountyPrograms,
+  SecurityBugBountyProgramsContext,
+} from "@/context/SecurityBugBountyProgramsProvider";
+import {
+  useSecurityVulnerabilityDisclosurePrograms,
+  SecurityVulnerabilityDisclosureProgramsContext,
+} from "@/context/SecurityVulnerabilityDisclosureProgramsProvider";
+import {
+  useSecurityResponsibleDisclosure,
+  SecurityResponsibleDisclosureContext,
+} from "@/context/SecurityResponsibleDisclosureProvider";
+import {
+  useSecurityCoordinatedVulnerabilityDisclosure,
+  SecurityCoordinatedVulnerabilityDisclosureContext,
+} from "@/context/SecurityCoordinatedVulnerabilityDisclosureProvider";
+import {
+  useSecurityCybersecurityInformationSharing,
+  SecurityCybersecurityInformationSharingContext,
+} from "@/context/SecurityCybersecurityInformationSharingProvider";
+import {
+  useSecurityInformationSharingAnalysisCenters,
+  SecurityInformationSharingAnalysisCentersContext,
+} from "@/context/SecurityInformationSharingAnalysisCentersProvider";
+import {
+  useSecurityComputerEmergencyResponseTeams,
+  SecurityComputerEmergencyResponseTeamsContext,
+} from "@/context/SecurityComputerEmergencyResponseTeamsProvider";
+import {
+  useSecurityNationalCybersecurityCenters,
+  SecurityNationalCybersecurityCentersContext,
+} from "@/context/SecurityNationalCybersecurityCentersProvider";
+import {
+  useSecurityInternationalCybersecurityOrganizations,
+  SecurityInternationalCybersecurityOrganizationsContext,
+} from "@/context/SecurityInternationalCybersecurityOrganizationsProvider";
+import {
+  useSecurityLawEnforcementAgencies,
+  SecurityLawEnforcementAgenciesContext,
+} from "@/context/SecurityLawEnforcementAgenciesProvider";
+import {
+  useSecurityGovernmentAgencies,
+  SecurityGovernmentAgenciesContext,
+} from "@/context/SecurityGovernmentAgenciesProvider";
+import {
+  useSecurityPrivateSectorCompanies,
+  SecurityPrivateSectorCompaniesContext,
+} from "@/context/SecurityPrivateSectorCompaniesProvider";
+import {
+  useSecurityAcademicInstitutions,
+  SecurityAcademicInstitutionsContext,
+} from "@/context/SecurityAcademicInstitutionsProvider";
+import {
+  useSecurityResearchOrganizations,
+  SecurityResearchOrganizationsContext,
+} from "@/context/SecurityResearchOrganizationsProvider";
+import {
+  useSecurityOpenSourceCommunities,
+  SecurityOpenSourceCommunitiesContext,
+} from "@/context/SecurityOpenSourceCommunitiesProvider";
+import {
+  useSecurityStandardsOrganizations,
+  SecurityStandardsOrganizationsContext,
+} from "@/context/SecurityStandardsOrganizationsProvider";
+import {
+  useSecurityComplianceOrganizations,
+  SecurityComplianceOrganizationsContext,
+} from "@/context/SecurityComplianceOrganizationsProvider";
+import {
+  useSecurityInsuranceProviders,
+  SecurityInsuranceProvidersContext,
+} from "@/context/SecurityInsuranceProvidersProvider";
+import {
+  useSecurityConsultingFirms,
+  SecurityConsultingFirmsContext,
+} from "@/context/SecurityConsultingFirmsProvider";
+import {
+  useSecurityTrainingProviders,
+  SecurityTrainingProvidersContext,
+} from "@/context/SecurityTrainingProvidersProvider";
+import {
+  useSecurityCertificationBodies,
+  SecurityCertificationBodiesContext,
+} from "@/context/SecurityCertificationBodiesProvider";
+import {
+  useSecurityVulnerabilityAssessmentPenetrationTesting,
+  SecurityVulnerabilityAssessmentPenetrationTestingContext,
+} from "@/context/SecurityVulnerabilityAssessmentPenetrationTestingProvider";
+import {
+  useSecuritySourceCodeAnalysis,
+  SecuritySourceCodeAnalysisContext,
+} from "@/context/SecuritySourceCodeAnalysisProvider";
+import {
+  useSecurityBinaryAnalysis,
+  SecurityBinaryAnalysisContext,
+} from "@/context/SecurityBinaryAnalysisProvider";
+import {
+  useSecurityReverseEngineering,
+  SecurityReverseEngineeringContext,
+} from "@/context/SecurityReverseEngineeringProvider";
+import {
+  useSecurityDigitalForensics,
+  SecurityDigitalForensicsContext,
+} from "@/context/SecurityDigitalForensicsProvider";
+import {
+  useSecurityIncidentResponseForensics,
+  SecurityIncidentResponseForensicsContext,
+} from "@/context/SecurityIncidentResponseForensicsProvider";
+import {
+  useSecurityMalwareAnalysis,
+  SecurityMalwareAnalysisContext,
+} from "@/context/SecurityMalwareAnalysisProvider";
+import {
+  useSecurityNetworkForensics,
+  SecurityNetworkForensicsContext,
+} from "@/context/SecurityNetworkForensicsProvider";
+import {
+  useSecurityMemoryForensics,
+  SecurityMemoryForensicsContext,
+} from "@/context/SecurityMemoryForensicsProvider";
+import {
+  useSecurityDiskForensics,
+  SecurityDiskForensicsContext,
+} from "@/context/SecurityDiskForensicsProvider";
+import {
+  useSecurityMobileForensics,
+  SecurityMobileForensicsContext,
+} from "@/context/SecurityMobileForensicsProvider";
+import {
+  useSecurityCloudForensics,
+  SecurityCloudForensicsContext,
+} from "@/context/SecurityCloudForensicsProvider";
+import {
+  useSecurityDatabaseForensics,
+  SecurityDatabaseForensicsContext,
+} from "@/context/SecurityDatabaseForensicsProvider";
+import {
+  useSecurityFileSystemForensics,
+  SecurityFileSystemForensicsContext,
+} from "@/context/SecurityFileSystemForensicsProvider";
+import {
+  useSecurityRegistryForensics,
+  SecurityRegistryForensicsContext,
+} from "@/context/SecurityRegistryForensicsProvider";
+import {
+  useSecurityLogAnalysis,
+  SecurityLogAnalysisContext,
+} from "@/context/SecurityLogAnalysisProvider";
+import {
+  useSecurityEventCorrelation,
+  SecurityEventCorrelationContext,
+} from "@/context/SecurityEventCorrelationProvider";
+import {
+  useSecuritySecurityInformationEventManagement,
+  SecuritySecurityInformationEventManagementContext,
+} from "@/context/SecuritySecurityInformationEventManagementProvider";
+import {
+  useSecurityUserEntityBehaviorAnalytics,
+  SecurityUserEntityBehaviorAnalyticsContext,
+} from "@/context/SecurityUserEntityBehaviorAnalyticsProvider";
+import {
+  useSecuritySecurityOrchestrationAutomationResponse,
+  SecuritySecurityOrchestrationAutomationResponseContext,
+} from "@/context/SecuritySecurityOrchestrationAutomationResponseProvider";
+import {
+  useSecurityExtendedDetectionResponse,
+  SecurityExtendedDetectionResponseContext,
+} from "@/context/SecurityExtendedDetectionResponseProvider";
+import {
+  useSecurityManagedDetectionResponse,
+  SecurityManagedDetectionResponseContext,
+} from "@/context/SecurityManagedDetectionResponseProvider";
+import {
+  useSecurityThreatDetection,
+  SecurityThreatDetectionContext,
+} from "@/context/SecurityThreatDetectionProvider";
+import {
+  useSecurityIncidentDetection,
+  SecurityIncidentDetectionContext,
+} from "@/context/SecurityIncidentDetectionProvider";
+import {
+  useSecurityAnomalyDetection,
+  SecurityAnomalyDetectionContext,
+} from "@/context/SecurityAnomalyDetectionProvider";
+import {
+  useSecurityFraudDetection,
+  SecurityFraudDetectionContext,
+} from "@/context/SecurityFraudDetectionProvider";
+import {
+  useSecurityInsiderThreatDetection,
+  SecurityInsiderThreatDetectionContext,
+} from "@/context/SecurityInsiderThreatDetectionProvider";
+import {
+  useSecurityDataBreachDetection,
+  SecurityDataBreachDetectionContext,
+} from "@/context/SecurityDataBreachDetectionProvider";
+import {
+  useSecurityAdvancedPersistentThreatDetection,
+  SecurityAdvancedPersistentThreatDetectionContext,
+} from "@/context/SecurityAdvancedPersistentThreatDetectionProvider";
+import {
+  useSecurityRansomwareDetection,
+  SecurityRansomwareDetectionContext,
+} from "@/context/SecurityRansomwareDetectionProvider";
+import {
+  useSecurityMalwareDetection,
+  SecurityMalwareDetectionContext,
+} from "@/context/SecurityMalwareDetectionProvider";
+import {
+  useSecurityPhishingDetection,
+  SecurityPhishingDetectionContext,
+} from "@/context/SecurityPhishingDetectionProvider";
+import {
+  useSecuritySpamDetection,
+  SecuritySpamDetectionContext,
+} from "@/context/SecuritySpamDetectionProvider";
+import {
+  useSecurityDenialOfServiceDetection,
+  SecurityDenialOfServiceDetectionContext,
+} from "@/context/SecurityDenialOfServiceDetectionProvider";
+import {
+  useSecurityDistributedDenialOfServiceDetection,
+  SecurityDistributedDenialOfServiceDetectionContext,
+} from "@/context/SecurityDistributedDenialOfServiceDetectionProvider";
+import {
+  useSecurityBotnetDetection,
+  SecurityBotnetDetectionContext,
+} from "@/context/SecurityBotnetDetectionProvider";
+import {
+  useSecurityBruteForceDetection,
+  SecurityBruteForceDetectionContext,
+} from "@/context/SecurityBruteForceDetectionProvider";
+import {
+  useSecurityPasswordCrackingDetection,
+  SecurityPasswordCrackingDetectionContext,
+} from "@/context/SecurityPasswordCrackingDetectionProvider";
+import {
+  useSecuritySocialEngineeringDetection,
+  SecuritySocialEngineeringDetectionContext,
+} from "@/context/SecuritySocialEngineeringDetectionProvider";
+import {
+  useSecurityDataExfiltrationDetection,
+  SecurityDataExfiltrationDetectionContext,
+} from "@/context/SecurityDataExfiltrationDetectionProvider";
+import {
+  useSecurityPrivilegeEscalationDetection,
+  SecurityPrivilegeEscalationDetectionContext,
+} from "@/context/SecurityPrivilegeEscalationDetectionProvider";
+import {
+  useSecurityLateralMovementDetection,
+  SecurityLateralMovementDetectionContext,
+} from "@/context/SecurityLateralMovementDetectionProvider";
+import {
+  useSecurityCommandControlDetection,
+  SecurityCommandControlDetectionContext,
+} from "@/context/SecurityCommandControlDetectionProvider";
+import {
+  useSecurityRootkitDetection,
+  SecurityRootkitDetectionContext,
+} from "@/context/SecurityRootkitDetectionProvider";
+import {
+  useSecurityBackdoorDetection,
+  SecurityBackdoorDetectionContext,
+} from "@/context/SecurityBackdoorDetectionProvider";
+import {
+  useSecurityKeyloggerDetection,
+  SecurityKeyloggerDetectionContext,
+} from "@/context/SecurityKeyloggerDetectionProvider";
+import {
+  useSecurityAdwareDetection,
+  SecurityAdwareDetectionContext,
+} from "@/context/SecurityAdwareDetectionProvider";
+import {
+  useSecuritySpywareDetection,
+  SecuritySpywareDetectionContext,
+} from "@/context/SecuritySpywareDetectionProvider";
+import {
+  useSecurityGraywareDetection,
+  SecurityGraywareDetectionContext,
+} from "@/context/SecurityGraywareDetectionProvider";
+import {
+  useSecurityPotentiallyUnwantedProgramDetection,
+  SecurityPotentiallyUnwantedProgramDetectionContext,
+} from "@/context/SecurityPotentiallyUnwantedProgramDetectionProvider";
+import {
+  useSecurityVulnerabilityScanning,
+  SecurityVulnerabilityScanningContext,
+} from "@/context/SecurityVulnerabilityScanningProvider";
+import {
+  useSecurityPenetrationTesting,
+  SecurityPenetrationTestingContext,
+} from "@/context/SecurityPenetrationTestingProvider";
+import {
+  useSecurityRedTeamExercises,
+  SecurityRedTeamExercisesContext,
+} from "@/context/SecurityRedTeamExercisesProvider";
+import {
+  useSecurityPurpleTeamExercises,
+  SecurityPurpleTeamExercisesContext,
+} from "@/context/SecurityPurpleTeamExercisesProvider";
+import {
+  useSecurityTabletopExercises,
+  SecurityTabletopExercisesContext,
+} from "@/context/SecurityTabletopExercisesProvider";
+import {
+  useSecurityWarGames,
+  SecurityWarGamesContext,
+} from "@/context/SecurityWarGamesProvider";
+import {
+  useSecurityCyberDrills,
+  SecurityCyberDrillsContext,
+} from "@/context/SecurityCyberDrillsProvider";
+import {
+  useSecurityLiveFireExercises,
+  SecurityLiveFireExercisesContext,
+} from "@/context/SecurityLiveFireExercisesProvider";
+import {
+  useSecurityBreachAttackSimulation,
+  SecurityBreachAttackSimulationContext,
+} from "@/context/SecurityBreachAttackSimulationProvider";
+import {
+  useSecurityAdversaryEmulation,
+  SecurityAdversaryEmulationContext,
+} from "@/context/SecurityAdversaryEmulationProvider";
+import {
+  useSecurityThreatModeling,
+  SecurityThreatModelingContext,
+} from "@/context/SecurityThreatModelingProvider";
+import {
+  useSecurityAttackSurfaceAnalysis,
+  SecurityAttackSurfaceAnalysisContext,
+} from "@/context/SecurityAttackSurfaceAnalysisProvider";
+import {
+  useSecurityRiskAssessment,
+  SecurityRiskAssessmentContext,
+} from "@/context/SecurityRiskAssessmentProvider";
+import {
+  useSecurityVulnerabilityAssessment,
+  SecurityVulnerabilityAssessmentContext,
+} from "@/context/SecurityVulnerabilityAssessmentProvider";
+import {
+  useSecurityComplianceAssessment,
+  SecurityComplianceAssessmentContext,
+} from "@/context/SecurityComplianceAssessmentProvider";
+import {
+  useSecuritySecurityAudit,
+  SecuritySecurityAuditContext,
+} from "@/context/SecuritySecurityAuditProvider";
+import {
+  useSecurityLogManagement,
+  SecurityLogManagementContext,
+} from "@/context/SecurityLogManagementProvider";
+import {
+  useSecurityEventManagement,
+  SecurityEventManagementContext,
+} from "@/context/SecurityEventManagementProvider";
+import {
+  useSecurityIncidentManagement,
+  SecurityIncidentManagementContext,
+} from "@/context/SecurityIncidentManagementProvider";
+import {
+  useSecurityChangeManagementProcess,
+  SecurityChangeManagementProcessContext,
+} from "@/context/SecurityChangeManagementProcessProvider";
+import {
+  useSecurityConfigurationManagementProcess,
+  SecurityConfigurationManagementProcessContext,
+} from "@/context/SecurityConfigurationManagementProcessProvider";
+import {
+  useSecurityPatchManagementProcess,
+  SecurityPatchManagementProcessContext,
+} from "@/context/SecurityPatchManagementProcessProvider";
+import {
+  useSecurityVulnerabilityManagementProcess,
+  SecurityVulnerabilityManagementProcessContext,
+} from "@/context/SecurityVulnerabilityManagementProcessProvider";
+import {
+  useSecurityAccessControlProcess,
+  SecurityAccessControlProcessContext,
+} from "@/context/SecurityAccessControlProcessProvider";
+import {
+  useSecurityAuthenticationProcess,
+  SecurityAuthenticationProcessContext,
+} from "@/context/SecurityAuthenticationProcessProvider";
+import {
+  useSecurityAuthorizationProcess,
+  SecurityAuthorizationProcessContext,
+} from "@/context/SecurityAuthorizationProcessProvider";
+import {
+  useSecurityAccountingProcess,
+  SecurityAccountingProcessContext,
+} from "@/context/SecurityAccountingProcessProvider";
+import {
+  useSecurityDataBackupRecoveryProcess,
+  SecurityDataBackupRecoveryProcessContext,
+} from "@/context/SecurityDataBackupRecoveryProcessProvider";
+import {
+  useSecurityDisasterRecoveryProcess,
+  SecurityDisasterRecoveryProcessContext,
+} from "@/context/SecurityDisasterRecoveryProcessProvider";
+import {
+  useSecurityBusinessContinuityProcess,
+  SecurityBusinessContinuityProcessContext,
+} from "@/context/SecurityBusinessContinuityProcessProvider";
+import {
+  useSecurityIncidentResponsePlan,
+  SecurityIncidentResponsePlanContext,
+} from "@/context/SecurityIncidentResponsePlanProvider";
+import {
+  useSecurityDisasterRecoveryPlan,
+  SecurityDisasterRecoveryPlanContext,
+} from "@/context/SecurityDisasterRecoveryPlanProvider";
+import {
+  useSecurityBusinessContinuityPlan,
+  SecurityBusinessContinuityPlanContext,
+} from "@/context/SecurityBusinessContinuityPlanProvider";
+import {
+  useSecurityCrisisManagementPlan,
+  SecurityCrisisManagementPlanContext,
+} from "@/context/SecurityCrisisManagementPlanProvider";
+import {
+  useSecurityEmergencyManagementPlan,
+  SecurityEmergencyManagementPlanContext,
+} from "@/context/SecurityEmergencyManagementPlanProvider";
+import {
+  useSecurityContingencyPlan,
+  SecurityContingencyPlanContext,
+} from "@/context/SecurityContingencyPlanProvider";
+import {
+  useSecurityRiskManagementFramework,
+  SecurityRiskManagementFrameworkContext,
+} from "@/context/SecurityRiskManagementFrameworkProvider";
+import {
+  useSecurityComplianceFramework,
+  SecurityComplianceFrameworkContext,
+} from "@/context/SecurityComplianceFrameworkProvider";
+import {
+  useSecurityAuditFramework,
+  SecurityAuditFrameworkContext,
+} from "@/context/SecurityAuditFrameworkProvider";
+import {
+  useSecurityControlFramework,
+  SecurityControlFrameworkContext,
+} from "@/context/SecurityControlFrameworkProvider";
+import {
+  useSecurityGovernanceFramework,
+  SecurityGovernanceFrameworkContext,
+} from "@/context/SecurityGovernanceFrameworkProvider";
+import {
+  useSecurityPolicyFramework,
+  SecurityPolicyFrameworkContext,
+} from "@/context/SecurityPolicyFrameworkProvider";
+import {
+  useSecurityStandardFramework,
+  SecurityStandardFrameworkContext,
+} from "@/context/SecurityStandardFrameworkProvider";
+import {
+  useSecurityProcedureFramework,
+  SecurityProcedureFrameworkContext,
+} from "@/context/SecurityProcedureFrameworkProvider";
+import {
+  useSecurityGuidelineFramework,
+  SecurityGuidelineFrameworkContext,
+} from "@/context/SecurityGuidelineFrameworkProvider";
+import {
+  useSecurityBestPracticeFramework,
+  SecurityBestPracticeFrameworkContext,
+} from "@/context/SecurityBestPracticeFrameworkProvider";
+import {
+  useSecurityCodeOfConductFramework,
+  SecurityCodeOfConductFrameworkContext,
+} from "@/context/SecurityCodeOfConductFrameworkProvider";
+import {
+  useSecurityEthicsFramework,
+  SecurityEthicsFrameworkContext,
+} from "@/context/SecurityEthicsFrameworkProvider";
+import {
+  useSecurityValuesFramework,
+  SecurityValuesFrameworkContext,
+} from "@/context/SecurityValuesFrameworkProvider";
+import {
+  useSecurityCultureFramework,
+  SecurityCultureFrameworkContext,
+} from "@/context/SecurityCultureFrameworkProvider";
+import {
+  useSecurityAwarenessFramework,
+  SecurityAwarenessFrameworkContext,
+} from "@/context/SecurityAwarenessFrameworkProvider";
+import {
+  useSecurityTrainingFramework,
+  SecurityTrainingFrameworkContext,
+} from "@/context/SecurityTrainingFrameworkProvider";
+import {
+  useSecurityCertificationFramework,
+  SecurityCertificationFrameworkContext,
+} from "@/context/SecurityCertificationFrameworkProvider";
+import {
+  useSecurityEducationFramework,
+  SecurityEducationFrameworkContext,
+} from "@/context/SecurityEducationFrameworkProvider";
+import {
+  useSecurityResearchFramework,
+  SecurityResearchFrameworkContext,
+} from "@/context/SecurityResearchFrameworkProvider";
+import {
+  useSecurityInnovationFramework,
+  SecurityInnovationFrameworkContext,
+} from "@/context/SecurityInnovationFrameworkProvider";
+import {
+  useSecurityFutureFramework,
+  SecurityFutureFrameworkContext,
+} from "@/context/SecurityFutureFrameworkProvider";
+import {
+  useSecurityMetaverseFramework,
+  SecurityMetaverseFrameworkContext,
+} from "@/context/SecurityMetaverseFrameworkProvider";
+import {
+  useSecurityWeb3Framework,
+  SecurityWeb3FrameworkContext,
+} from "@/context/SecurityWeb3FrameworkProvider";
+import {
+  useSecurityArvrFramework,
+  SecurityArvrFrameworkContext,
+} from "@/context/SecurityArvrFrameworkProvider";
+import {
+  useSecurityRoboticsFramework,
+  SecurityRoboticsFrameworkContext,
+} from "@/context/SecurityRoboticsFrameworkProvider";
+import {
+  useSecurityAutomationFramework,
+  SecurityAutomationFrameworkContext,
+} from "@/context/SecurityAutomationFrameworkProvider";
+import {
+  useSecurityAiotFramework,
+  SecurityAiotFrameworkContext

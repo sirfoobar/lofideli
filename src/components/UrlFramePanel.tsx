@@ -182,10 +182,11 @@ Please provide specific CSS changes I could apply.`;
         <div className="p-4 border-b flex items-center gap-2">
           <Input 
             value={url} 
-            onChange={(e) => setUrl(e.target.value)} 
+            onChange={(value) => setUrl(value)}
             placeholder="Enter URL to display (e.g., example.com)" 
             className="flex-1"
             onKeyDown={(e) => e.key === 'Enter' && handleLoadUrl()}
+            aria-label="URL input"
           />
           <Button onClick={handleLoadUrl}>Load URL</Button>
           <Button 
