@@ -50,8 +50,10 @@ interface TooltipTriggerProps {
 
 const TooltipTrigger = React.forwardRef<HTMLElement, TooltipTriggerProps>(
   ({ children, asChild = false }, forwardedRef) => {
-    // We're not using ref here because we delegate that to the actual element
-    return React.Children.only(children);
+    // Fix: Ensure we're only returning a valid React element
+    // Instead of using React.Children.only which throws if not exactly one child
+    const child = React.isValidElement(children) ? children : <span>{children}</span>;
+    return child;
   }
 );
 
@@ -134,18 +136,23 @@ function TooltipWrapper({
   sideOffset?: number;
 }) {
   const triggerRef = React.useRef<HTMLElement>(null);
-  const childElement = React.Children.only(children) as React.ReactElement;
+  
+  // Fix: Ensure we're handling children correctly
+  // We need to make sure we're passing a valid React element to TooltipTrigger
+  const childElement = React.isValidElement(children) 
+    ? children 
+    : <span>{children}</span>;
   
   // Properly merge refs if the child element already has one
   const mergedRef = (node: any) => {
     triggerRef.current = node;
     
-    const { ref } = childElement as any;
-    if (ref) {
-      if (typeof ref === 'function') {
-        ref(node);
-      } else {
-        ref.current = node;
+    const childRef = (childElement as any).ref;
+    if (childRef) {
+      if (typeof childRef === 'function') {
+        childRef(node);
+      } else if (childRef && 'current' in childRef) {
+        childRef.current = node;
       }
     }
   };
