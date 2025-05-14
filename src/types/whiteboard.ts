@@ -81,6 +81,10 @@ export interface WhiteboardState {
   // For compatibility with FramePropertyPanel
   selectedFrame?: FrameSize | null;
   selectedComponent?: CanvasComponent | null;
+  // Grid system properties
+  masterGridColumns?: number;
+  masterGridRows?: number;
+  masterGridGap?: number;
 }
 
 export type WhiteboardAction =

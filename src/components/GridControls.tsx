@@ -5,7 +5,6 @@ import { Checkbox } from "./ui/checkbox";
 import { Label } from "./ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Slider } from "./ui/slider";
-import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { LayoutGrid, Columns, RowsIcon } from "lucide-react";
 
