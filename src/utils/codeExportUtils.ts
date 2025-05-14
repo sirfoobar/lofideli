@@ -15,7 +15,8 @@ const componentTypeToReactComponent: Record<ComponentType, string> = {
   image: "Image",
   divider: "Divider",
   table: "Table",
-  flow: "FlowElement"
+  flow: "FlowElement",
+  shape: "Shape" // Added the missing shape type
 };
 
 // Generate props string from component properties

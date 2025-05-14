@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils';
 import ColorPicker from './ColorPicker';
 
 interface FramePropertyPanelProps {
-  isOpen: boolean;
+  isOpen?: boolean;
 }
 
 const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
@@ -32,7 +32,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
   
   const [activeTab, setActiveTab] = useState('style');
   
-  if (!isOpen) return null;
+  if (!isOpen && !selectedFrame && !selectedComponent) return null;
   
   if (!selectedFrame && !selectedComponent) {
     return (

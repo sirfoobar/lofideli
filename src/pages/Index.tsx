@@ -96,11 +96,7 @@ const WhiteboardManager = () => {
           
           {!selectedComponentId && state.selectedFrameId && (
             <FramePropertyPanel 
-              selectedFrameId={state.selectedFrameId} 
-              onClose={() => dispatch({
-                type: "SELECT_FRAME",
-                id: null
-              })} 
+              isOpen={Boolean(state.selectedFrameId)} 
             />
           )}
         </div>
