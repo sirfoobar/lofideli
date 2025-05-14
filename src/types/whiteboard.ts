@@ -1,4 +1,3 @@
-
 import { ReactNode } from "react";
 
 export type ComponentType =
@@ -46,6 +45,13 @@ export interface CanvasComponent {
   content?: string;
   properties: ComponentProperties;
   frameId?: string;
+  // New property for structure grid cell assignment
+  gridCell?: {
+    column: number;
+    row: number;
+    columnSpan: number;
+    rowSpan: number;
+  };
 }
 
 export interface FrameSize {
@@ -85,6 +91,11 @@ export interface WhiteboardState {
   masterGridColumns?: number;
   masterGridRows?: number;
   masterGridGap?: number;
+  // Structure grid properties
+  showStructureGrid?: boolean;
+  structureGridColumns?: number;
+  structureGridRows?: number;
+  snapToStructureGrid?: boolean;
 }
 
 export type WhiteboardAction =
@@ -116,7 +127,12 @@ export type WhiteboardAction =
   | { type: "SELECT_COMPONENT"; id: string | null }
   | { type: "LOAD_FROM_STORAGE"; state: Partial<WhiteboardState> }
   | { type: "SET_FRAME_GRID"; frameId: string; columns: number; rows: number; gap: number; enabled: boolean }
-  | { type: "SET_MASTER_GRID"; columns: number; rows: number; gap: number; };
+  | { type: "SET_MASTER_GRID"; columns: number; rows: number; gap: number }
+  // New structure grid actions
+  | { type: "TOGGLE_STRUCTURE_GRID"; enabled: boolean }
+  | { type: "SET_STRUCTURE_GRID"; columns: number; rows: number }
+  | { type: "TOGGLE_SNAP_TO_STRUCTURE_GRID"; enabled: boolean }
+  | { type: "ASSIGN_TO_GRID_CELL"; componentId: string; column: number; row: number; columnSpan: number; rowSpan: number };
 
 export interface CanvasProps {
   children?: ReactNode;

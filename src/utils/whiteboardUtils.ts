@@ -1,4 +1,3 @@
-
 import { CanvasComponent, FrameSize } from "../types/whiteboard";
 
 // Local storage key
@@ -17,6 +16,39 @@ export const isComponentInFrame = (component: CanvasComponent, frame: FrameSize)
     component.x + component.width <= frame.x + frame.width &&
     component.y + component.height <= frame.y + frame.height
   );
+};
+
+// Function to render the structure grid
+export const renderStructureGrid = (
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  columns: number,
+  rows: number,
+  zoomLevel: number
+) => {
+  const cellWidth = width / columns;
+  const cellHeight = height / rows;
+  
+  ctx.strokeStyle = "rgba(120, 140, 255, 0.3)"; // Light blue for structure grid
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  
+  // Draw vertical lines
+  for (let i = 1; i < columns; i++) {
+    const x = i * cellWidth;
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+  }
+  
+  // Draw horizontal lines
+  for (let i = 1; i < rows; i++) {
+    const y = i * cellHeight;
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
+  }
+  
+  ctx.stroke();
 };
 
 // Function to get the default properties for a component type
@@ -98,6 +130,10 @@ export const saveStateToLocalStorage = (state: any) => {
     snapToGrid: state.snapToGrid,
     gridSize: state.gridSize,
     zoomLevel: state.zoomLevel,
+    showStructureGrid: state.showStructureGrid,
+    structureGridColumns: state.structureGridColumns,
+    structureGridRows: state.structureGridRows,
+    snapToStructureGrid: state.snapToStructureGrid,
   };
   
   try {

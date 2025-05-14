@@ -1,4 +1,3 @@
-
 import { CanvasComponent, ComponentType, FrameSize } from "../types/whiteboard";
 
 // Map component types to their React equivalents
@@ -77,6 +76,15 @@ const calculateGridArea = (
   gridColumns: number, 
   gridRows: number
 ): { gridColumn: string, gridRow: string } => {
+  // Use component's gridCell if available
+  if (component.gridCell) {
+    return {
+      gridColumn: `${component.gridCell.column} / span ${component.gridCell.columnSpan}`,
+      gridRow: `${component.gridCell.row} / span ${component.gridCell.rowSpan}`
+    };
+  }
+
+  // Otherwise calculate based on position
   // Calculate the relative position within the frame
   const relX = component.x - frame.x;
   const relY = component.y - frame.y;
