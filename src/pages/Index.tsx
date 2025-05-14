@@ -90,7 +90,7 @@ const WhiteboardManager = () => {
         </div>
 
         {/* Right sidebar - Properties - Only shown when a component or frame is selected */}
-        <div className={`w-64 border-l border-border bg-card overflow-y-auto p-4 transition-all duration-300 ease-in-out transform ${selectedComponentId || state.selectedFrameId ? 'translate-x-0' : 'translate-x-full'} absolute right-0 top-0 bottom-0 z-10`}>
+        <div className={`w-64 border-l border-border bg-card overflow-y-auto transition-all duration-300 ease-in-out transform ${selectedComponentId || state.selectedFrameId ? 'translate-x-0' : 'translate-x-full'} absolute right-0 top-0 bottom-0 z-10`}>
           {/* Show either component or frame properties based on what's selected */}
           {selectedComponentId && <PropertyPanel selectedComponentId={selectedComponentId} />}
           

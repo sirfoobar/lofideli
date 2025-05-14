@@ -82,11 +82,11 @@ export interface WhiteboardState {
   masterGridRows: number;
   masterGridGap: number;
   // Structure grid properties
-  useStructureGrid?: boolean;
-  gridColumns?: number;
-  gridRows?: number;
-  gridGap?: number;
-  snapToStructure?: boolean;
+  useStructureGrid: boolean;
+  gridColumns: number;
+  gridRows: number;
+  gridGap: number;
+  snapToStructure: boolean;
 }
 
 export type WhiteboardAction =
