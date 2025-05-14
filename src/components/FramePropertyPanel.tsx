@@ -46,32 +46,32 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
   
   // Frame properties
   if (selectedFrame) {
-    const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleWidthChange = (value: string) => {
       dispatch({
         type: "UPDATE_FRAME",
         id: selectedFrame.id,
         updates: {
-          width: parseInt(e.target.value, 10) || selectedFrame.width
+          width: parseInt(value, 10) || selectedFrame.width
         }
       });
     };
     
-    const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleHeightChange = (value: string) => {
       dispatch({
         type: "UPDATE_FRAME",
         id: selectedFrame.id,
         updates: {
-          height: parseInt(e.target.value, 10) || selectedFrame.height
+          height: parseInt(value, 10) || selectedFrame.height
         }
       });
     };
     
-    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleNameChange = (value: string) => {
       dispatch({
         type: "UPDATE_FRAME",
         id: selectedFrame.id,
         updates: {
-          name: e.target.value
+          name: value
         }
       });
     };
@@ -265,12 +265,12 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
     
     // Text component properties
     if (selectedComponent.type === 'text') {
-      const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const handleTextChange = (value: string) => {
         dispatch({
           type: "UPDATE_COMPONENT",
           id: selectedComponent.id,
           properties: {
-            text: e.target.value
+            text: value
           }
         });
       };
@@ -473,22 +473,22 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
     
     // Image component properties
     if (selectedComponent.type === 'image') {
-      const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const handleImageUrlChange = (value: string) => {
         dispatch({
           type: "UPDATE_COMPONENT",
           id: selectedComponent.id,
           properties: {
-            url: e.target.value
+            url: value
           }
         });
       };
       
-      const handleAltTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const handleAltTextChange = (value: string) => {
         dispatch({
           type: "UPDATE_COMPONENT",
           id: selectedComponent.id,
           properties: {
-            alt: e.target.value
+            alt: value
           }
         });
       };
