@@ -1,59 +1,111 @@
 
 import { useState } from "react";
+import WhiteboardCanvas from "@/components/WhiteboardCanvas";
+import ComponentLibrary from "@/components/ComponentLibrary";
+import PropertyPanel from "@/components/PropertyPanel";
+import FramePropertyPanel from "@/components/FramePropertyPanel";
+import FrameSizeControls from "@/components/FrameSizeControls";
+import ZoomControls from "@/components/ZoomControls";
 import TopBar from "@/components/TopBar";
-import UrlFramePanel from "@/components/UrlFramePanel";
-import { WhiteboardProvider } from "@/context/WhiteboardContext";
-import { Globe } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import AIDesignPanel from "@/components/AIDesignPanel";
+import AIDesignButton from "@/components/AIDesignButton";
+import FlowControlsPanel from "@/components/FlowControlsPanel";
+import { WhiteboardProvider, useWhiteboard } from "@/context/WhiteboardContext";
 
-// Simplified component to focus on URL frame developer tools
-const DevToolsManager = () => {
-  const [showUrlFrame, setShowUrlFrame] = useState(false);
+// Component to manage selection and property panels
+const WhiteboardManager = () => {
+  const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
+  const [showComponentLibrary, setShowComponentLibrary] = useState(true);
+  const [showFlowControls, setShowFlowControls] = useState(false);
+  const [showGrid, setShowGrid] = useState(true);
+  const [showAIPanel, setShowAIPanel] = useState(false);
+  const {
+    state,
+    dispatch
+  } = useWhiteboard();
+
+  // Determine if any right panel is open - ensure boolean result
+  const isRightPanelOpen = Boolean(showAIPanel || selectedComponentId || state.selectedFrameId);
+  
+  const toggleComponentLibrary = () => {
+    setShowComponentLibrary(!showComponentLibrary);
+  };
+  
+  const toggleFlowControls = () => {
+    setShowFlowControls(!showFlowControls);
+    if (!showFlowControls) {
+      setShowComponentLibrary(false); // Close component library if opening flow controls
+    }
+  };
+  
+  const toggleGrid = () => {
+    setShowGrid(!showGrid);
+  };
   
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-background">
-      {/* Top Bar with minimal controls */}
+      {/* Top Bar with right panel status */}
       <TopBar 
-        onToggleComponentLibrary={() => {}} 
-        onToggleFlowControls={() => {}}
-        onToggleGrid={() => {}} 
-        showGrid={false} 
-        showComponentLibrary={false}
-        showFlowControls={false}
-        rightPanelOpen={false} 
+        onToggleComponentLibrary={toggleComponentLibrary} 
+        onToggleFlowControls={toggleFlowControls}
+        onToggleGrid={toggleGrid} 
+        showGrid={showGrid} 
+        showComponentLibrary={showComponentLibrary}
+        showFlowControls={showFlowControls}
+        rightPanelOpen={isRightPanelOpen} 
       />
       
       <div className="flex flex-1 overflow-hidden">
-        {/* Main content area */}
-        <div className="flex-1 overflow-hidden relative flex items-center justify-center">
-          <div className="text-center space-y-4">
-            <h1 className="text-2xl font-bold">Web Developer Tools</h1>
-            <p className="text-muted-foreground">Load a website URL to inspect and generate design improvement prompts</p>
-            <Button 
-              size="lg"
-              onClick={() => setShowUrlFrame(true)}
-              className="inline-flex items-center gap-2"
-            >
-              <Globe className="h-5 w-5" />
-              Open Developer Tools
-            </Button>
+        {/* Left sidebar - Component Library or Flow Controls */}
+        {showComponentLibrary && (
+          <div className="w-auto max-w-48 border-r border-border bg-card overflow-y-auto transition-all duration-300 ease-in-out">
+            <div className="py-[8px] px-[8px]">                
+              {/* Frames section - Now at the top */}
+              <FrameSizeControls />
+              
+              <div className="mt-2 border-t border-border pt-4">
+                <h2 className="font-small mb-4 text-xs">Components</h2>
+                <ComponentLibrary />
+              </div>
+            </div>
           </div>
+        )}
+        
+        {/* Flow Controls Panel */}
+        <FlowControlsPanel isOpen={showFlowControls} />
+
+        {/* Main canvas area */}
+        <div className="flex-1 overflow-hidden relative">
+          <WhiteboardCanvas 
+            onSelectComponent={setSelectedComponentId} 
+            selectedComponentId={selectedComponentId} 
+            showGrid={showGrid} 
+          />
           
-          {/* Control element */}
-          <div className="absolute bottom-4 right-4 flex flex-col gap-2 z-20">
-            <Button 
-              className="rounded-full h-12 w-12 flex items-center justify-center" 
-              onClick={() => setShowUrlFrame(true)}
-              variant="default"
-            >
-              <Globe className="h-6 w-6" />
-            </Button>
-          </div>
+          {/* Control elements - Note the z-index order */}
+          <AIDesignButton onClick={() => setShowAIPanel(true)} />
+          <ZoomControls />
+          
+          {/* AI Design Panel - Now with higher z-index to appear above buttons */}
+          <AIDesignPanel isOpen={showAIPanel} onClose={() => setShowAIPanel(false)} />
+        </div>
+
+        {/* Right sidebar - Properties - Only shown when a component or frame is selected */}
+        <div className={`w-64 border-l border-border bg-card overflow-y-auto p-4 transition-all duration-300 ease-in-out transform ${selectedComponentId || state.selectedFrameId ? 'translate-x-0' : 'translate-x-full'} absolute right-0 top-0 bottom-0 z-10`}>
+          {/* Show either component or frame properties based on what's selected */}
+          {selectedComponentId && <PropertyPanel selectedComponentId={selectedComponentId} />}
+          
+          {!selectedComponentId && state.selectedFrameId && (
+            <FramePropertyPanel 
+              selectedFrameId={state.selectedFrameId} 
+              onClose={() => dispatch({
+                type: "SELECT_FRAME",
+                id: null
+              })} 
+            />
+          )}
         </div>
       </div>
-      
-      {/* URL Frame Developer Tools Panel */}
-      <UrlFramePanel isOpen={showUrlFrame} onClose={() => setShowUrlFrame(false)} />
     </div>
   );
 };
@@ -61,7 +113,7 @@ const DevToolsManager = () => {
 const Index = () => {
   return (
     <WhiteboardProvider>
-      <DevToolsManager />
+      <WhiteboardManager />
     </WhiteboardProvider>
   );
 };

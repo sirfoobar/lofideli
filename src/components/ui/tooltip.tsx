@@ -51,7 +51,7 @@ interface TooltipTriggerProps {
 const TooltipTrigger = React.forwardRef<HTMLElement, TooltipTriggerProps>(
   ({ children, asChild = false }, forwardedRef) => {
     // We're not using ref here because we delegate that to the actual element
-    return children;
+    return React.Children.only(children);
   }
 );
 
@@ -134,32 +134,30 @@ function TooltipWrapper({
   sideOffset?: number;
 }) {
   const triggerRef = React.useRef<HTMLElement>(null);
+  const childElement = React.Children.only(children) as React.ReactElement;
   
-  // Fix: Handle the case where children is not a single React element
-  // Instead of using React.Children.only which requires exactly one child,
-  // we'll create a wrapper element if needed
-  const childElement = React.isValidElement(children) 
-    ? React.cloneElement(children, {
-        ref: (node: any) => {
-          triggerRef.current = node;
-          
-          // Forward the ref if the child already has one
-          const childRef = (children as any).ref;
-          if (childRef) {
-            if (typeof childRef === 'function') {
-              childRef(node);
-            } else {
-              childRef.current = node;
-            }
-          }
-        },
-      })
-    : <span ref={triggerRef}>{children}</span>;
+  // Properly merge refs if the child element already has one
+  const mergedRef = (node: any) => {
+    triggerRef.current = node;
+    
+    const { ref } = childElement as any;
+    if (ref) {
+      if (typeof ref === 'function') {
+        ref(node);
+      } else {
+        ref.current = node;
+      }
+    }
+  };
+  
+  const clonedChild = React.cloneElement(childElement, {
+    ref: mergedRef,
+  });
 
   return (
     <TooltipProvider delayDuration={delayDuration}>
       <Tooltip>
-        <TooltipTrigger>{childElement}</TooltipTrigger>
+        <TooltipTrigger>{clonedChild}</TooltipTrigger>
         <TooltipContent 
           trigger={triggerRef} 
           className={className} 

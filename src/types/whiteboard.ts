@@ -13,28 +13,9 @@ export type ComponentType =
   | "image"
   | "divider"
   | "table"
-  | "flow"
-  | "breadcrumbs"
-  | "calendar"
-  | "combobox"
-  | "datepicker"
-  | "dialog"
-  | "gridlist"
-  | "listbox"
-  | "menu"
-  | "meter"
-  | "modal"
-  | "popover"
-  | "progressbar"
-  | "searchfield"
-  | "slider"
-  | "switch"
-  | "tabs"
-  | "taggroup"
-  | "togglebutton"
-  | "tooltip";
+  | "flow"; 
 
-export type ComponentProperties = {
+export interface ComponentProperties {
   backgroundColor?: string;
   borderColor?: string;
   borderWidth?: number;
@@ -42,15 +23,17 @@ export type ComponentProperties = {
   textColor?: string;
   fontSize?: number;
   textAlign?: "left" | "center" | "right";
-  padding?: number;
   placeholder?: string;
+  type?: string;
   label?: string;
   checked?: boolean;
   options?: string[];
   selected?: number;
-  shadow?: "sm" | "md" | "lg";
-  flowType?: string; // Maintain this for compatibility
-};
+  shadow?: "none" | "sm" | "md" | "lg";
+  padding?: string | number;
+  flowType?: string; // For flow components to specify shape type
+  [key: string]: any;
+}
 
 export interface CanvasComponent {
   id: string;

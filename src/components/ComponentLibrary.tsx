@@ -1,3 +1,4 @@
+
 import React from "react";
 
 const ComponentLibrary: React.FC = () => {
@@ -49,82 +50,6 @@ const ComponentLibrary: React.FC = () => {
     type: "table",
     name: "Table",
     icon: "▤"
-  }, {
-    type: "breadcrumbs",
-    name: "Breadcrumbs",
-    icon: "⋮"
-  }, {
-    type: "calendar",
-    name: "Calendar",
-    icon: "📅"
-  }, {
-    type: "combobox",
-    name: "ComboBox",
-    icon: "⌨"
-  }, {
-    type: "datepicker",
-    name: "Date Picker",
-    icon: "📆"
-  }, {
-    type: "dialog",
-    name: "Dialog",
-    icon: "💬"
-  }, {
-    type: "gridlist",
-    name: "Grid List",
-    icon: "⊞"
-  }, {
-    type: "listbox",
-    name: "List Box",
-    icon: "☰"
-  }, {
-    type: "menu",
-    name: "Menu",
-    icon: "≡"
-  }, {
-    type: "meter",
-    name: "Meter",
-    icon: "📊"
-  }, {
-    type: "modal",
-    name: "Modal",
-    icon: "⊡"
-  }, {
-    type: "popover",
-    name: "Popover",
-    icon: "💭"
-  }, {
-    type: "progressbar",
-    name: "Progress Bar",
-    icon: "▰"
-  }, {
-    type: "searchfield",
-    name: "Search Field",
-    icon: "🔍"
-  }, {
-    type: "slider",
-    name: "Slider",
-    icon: "⏚"
-  }, {
-    type: "switch",
-    name: "Switch",
-    icon: "⇄"
-  }, {
-    type: "tabs",
-    name: "Tabs",
-    icon: "⊟"
-  }, {
-    type: "taggroup",
-    name: "Tag Group",
-    icon: "🏷"
-  }, {
-    type: "togglebutton",
-    name: "Toggle Button",
-    icon: "⏻"
-  }, {
-    type: "tooltip",
-    name: "Tooltip",
-    icon: "💡"
   }];
   
   const handleDragStart = (e: React.DragEvent, type: string) => {
