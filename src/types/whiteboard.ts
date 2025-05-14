@@ -13,7 +13,8 @@ export type ComponentType =
   | "image"
   | "divider"
   | "table"
-  | "flow"; 
+  | "flow"
+  | "shape"; 
 
 export interface ComponentProperties {
   backgroundColor?: string;
@@ -54,6 +55,10 @@ export interface FrameSize {
   height: number;
   x: number;
   y: number;
+  backgroundColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  borderRadius?: number;
 }
 
 export interface WhiteboardState {
@@ -67,8 +72,13 @@ export interface WhiteboardState {
   zoomLevel: number;
   draggedFrameId: string | null;
   selectedFrameId: string | null;
+  selectedFrame: FrameSize | null;
+  selectedComponent: CanvasComponent | null;
   clipboard: CanvasComponent | null;
   selectedComponentId: string | null;
+  masterGridColumns: number;
+  masterGridRows: number;
+  masterGridGap: number;
 }
 
 export type WhiteboardAction =

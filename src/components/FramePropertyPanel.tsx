@@ -45,32 +45,32 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
   
   // Frame properties
   if (selectedFrame) {
-    const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleWidthChange = (value: string) => {
       dispatch({
         type: "UPDATE_FRAME",
-        frameId: selectedFrame.id,
-        properties: {
-          width: e.target.value
+        id: selectedFrame.id,
+        updates: {
+          width: parseInt(value, 10) || selectedFrame.width
         }
       });
     };
     
-    const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleHeightChange = (value: string) => {
       dispatch({
         type: "UPDATE_FRAME",
-        frameId: selectedFrame.id,
-        properties: {
-          height: e.target.value
+        id: selectedFrame.id,
+        updates: {
+          height: parseInt(value, 10) || selectedFrame.height
         }
       });
     };
     
-    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleNameChange = (value: string) => {
       dispatch({
         type: "UPDATE_FRAME",
-        frameId: selectedFrame.id,
-        properties: {
-          name: e.target.value
+        id: selectedFrame.id,
+        updates: {
+          name: value
         }
       });
     };
@@ -78,8 +78,8 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
     const handleBackgroundColorChange = (color: string) => {
       dispatch({
         type: "UPDATE_FRAME",
-        frameId: selectedFrame.id,
-        properties: {
+        id: selectedFrame.id,
+        updates: {
           backgroundColor: color
         }
       });
@@ -88,8 +88,8 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
     const handleBorderColorChange = (color: string) => {
       dispatch({
         type: "UPDATE_FRAME",
-        frameId: selectedFrame.id,
-        properties: {
+        id: selectedFrame.id,
+        updates: {
           borderColor: color
         }
       });
@@ -98,8 +98,8 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
     const handleBorderWidthChange = (value: number[]) => {
       dispatch({
         type: "UPDATE_FRAME",
-        frameId: selectedFrame.id,
-        properties: {
+        id: selectedFrame.id,
+        updates: {
           borderWidth: value[0]
         }
       });
@@ -108,8 +108,8 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
     const handleBorderRadiusChange = (value: number[]) => {
       dispatch({
         type: "UPDATE_FRAME",
-        frameId: selectedFrame.id,
-        properties: {
+        id: selectedFrame.id,
+        updates: {
           borderRadius: value[0]
         }
       });
@@ -118,7 +118,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
     const handleDeleteFrame = () => {
       dispatch({
         type: "DELETE_FRAME",
-        frameId: selectedFrame.id
+        id: selectedFrame.id
       });
     };
     
@@ -154,7 +154,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
                 <Input 
                   id="frame-width" 
                   type="number" 
-                  value={selectedFrame.width} 
+                  value={selectedFrame.width.toString()} 
                   onChange={handleWidthChange}
                   className="h-8"
                 />
@@ -164,7 +164,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
                 <Input 
                   id="frame-height" 
                   type="number" 
-                  value={selectedFrame.height} 
+                  value={selectedFrame.height.toString()} 
                   onChange={handleHeightChange}
                   className="h-8"
                 />
@@ -258,18 +258,18 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
     const handleDeleteComponent = () => {
       dispatch({
         type: "DELETE_COMPONENT",
-        componentId: selectedComponent.id
+        id: selectedComponent.id
       });
     };
     
     // Text component properties
     if (selectedComponent.type === 'text') {
-      const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const handleTextChange = (value: string) => {
         dispatch({
           type: "UPDATE_COMPONENT",
-          componentId: selectedComponent.id,
+          id: selectedComponent.id,
           properties: {
-            text: e.target.value
+            text: value
           }
         });
       };
@@ -277,7 +277,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
       const handleFontSizeChange = (value: number[]) => {
         dispatch({
           type: "UPDATE_COMPONENT",
-          componentId: selectedComponent.id,
+          id: selectedComponent.id,
           properties: {
             fontSize: value[0]
           }
@@ -287,7 +287,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
       const handleFontColorChange = (color: string) => {
         dispatch({
           type: "UPDATE_COMPONENT",
-          componentId: selectedComponent.id,
+          id: selectedComponent.id,
           properties: {
             color: color
           }
@@ -297,7 +297,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
       const handleFontWeightChange = () => {
         dispatch({
           type: "UPDATE_COMPONENT",
-          componentId: selectedComponent.id,
+          id: selectedComponent.id,
           properties: {
             fontWeight: selectedComponent.properties?.fontWeight === 'bold' ? 'normal' : 'bold'
           }
@@ -307,7 +307,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
       const handleFontStyleChange = () => {
         dispatch({
           type: "UPDATE_COMPONENT",
-          componentId: selectedComponent.id,
+          id: selectedComponent.id,
           properties: {
             fontStyle: selectedComponent.properties?.fontStyle === 'italic' ? 'normal' : 'italic'
           }
@@ -317,7 +317,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
       const handleTextDecorationChange = () => {
         dispatch({
           type: "UPDATE_COMPONENT",
-          componentId: selectedComponent.id,
+          id: selectedComponent.id,
           properties: {
             textDecoration: selectedComponent.properties?.textDecoration === 'underline' ? 'none' : 'underline'
           }
@@ -327,7 +327,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
       const handleTextAlignChange = (align: 'left' | 'center' | 'right') => {
         dispatch({
           type: "UPDATE_COMPONENT",
-          componentId: selectedComponent.id,
+          id: selectedComponent.id,
           properties: {
             textAlign: align
           }
@@ -472,22 +472,22 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
     
     // Image component properties
     if (selectedComponent.type === 'image') {
-      const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const handleImageUrlChange = (value: string) => {
         dispatch({
           type: "UPDATE_COMPONENT",
-          componentId: selectedComponent.id,
+          id: selectedComponent.id,
           properties: {
-            src: e.target.value
+            url: value
           }
         });
       };
       
-      const handleAltTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const handleAltTextChange = (value: string) => {
         dispatch({
           type: "UPDATE_COMPONENT",
-          componentId: selectedComponent.id,
+          id: selectedComponent.id,
           properties: {
-            alt: e.target.value
+            alt: value
           }
         });
       };
@@ -495,7 +495,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
       const handleBorderRadiusChange = (value: number[]) => {
         dispatch({
           type: "UPDATE_COMPONENT",
-          componentId: selectedComponent.id,
+          id: selectedComponent.id,
           properties: {
             borderRadius: value[0]
           }
@@ -525,7 +525,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
                 <Label htmlFor="image-url">Image URL</Label>
                 <Input 
                   id="image-url" 
-                  value={selectedComponent.properties?.src || ''} 
+                  value={selectedComponent.properties?.url || ''} 
                   onChange={handleImageUrlChange}
                   className="h-8"
                   placeholder="https://example.com/image.jpg"
@@ -569,7 +569,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
       const handleShapeColorChange = (color: string) => {
         dispatch({
           type: "UPDATE_COMPONENT",
-          componentId: selectedComponent.id,
+          id: selectedComponent.id,
           properties: {
             backgroundColor: color
           }
@@ -579,7 +579,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
       const handleBorderColorChange = (color: string) => {
         dispatch({
           type: "UPDATE_COMPONENT",
-          componentId: selectedComponent.id,
+          id: selectedComponent.id,
           properties: {
             borderColor: color
           }
@@ -589,7 +589,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
       const handleBorderWidthChange = (value: number[]) => {
         dispatch({
           type: "UPDATE_COMPONENT",
-          componentId: selectedComponent.id,
+          id: selectedComponent.id,
           properties: {
             borderWidth: value[0]
           }

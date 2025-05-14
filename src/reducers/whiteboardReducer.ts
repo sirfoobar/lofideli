@@ -13,9 +13,14 @@ export const initialState: WhiteboardState = {
   activeFrameId: null,
   zoomLevel: 0.8,
   draggedFrameId: null,
-  selectedFrameId: null, // Initialize selectedFrameId as null
-  clipboard: null,  // Initialize clipboard as null
-  selectedComponentId: null, // Track the selected component ID
+  selectedFrameId: null,
+  selectedFrame: null,
+  selectedComponent: null,
+  clipboard: null,
+  selectedComponentId: null,
+  masterGridColumns: 12,
+  masterGridRows: 12,
+  masterGridGap: 20
 };
 
 // Helper function to check if two frames overlap
