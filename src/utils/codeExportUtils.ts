@@ -1,4 +1,3 @@
-
 import { CanvasComponent, ComponentType, FrameSize } from "../types/whiteboard";
 
 // Map component types to their React equivalents
@@ -15,7 +14,8 @@ const componentTypeToReactComponent: Record<ComponentType, string> = {
   image: "Image",
   divider: "Divider",
   table: "Table",
-  flow: "FlowElement"
+  flow: "FlowElement",
+  shape: "Shape"
 };
 
 // Generate props string from component properties

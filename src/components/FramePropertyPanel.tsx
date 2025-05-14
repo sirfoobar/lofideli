@@ -23,9 +23,11 @@ import ColorPicker from './ColorPicker';
 
 interface FramePropertyPanelProps {
   isOpen: boolean;
+  selectedFrameId?: string;
+  onClose?: () => void;
 }
 
-const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
+const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen, selectedFrameId, onClose }) => {
   const { state, dispatch } = useWhiteboard();
   const { selectedFrame, selectedComponent } = state;
   
@@ -143,7 +145,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
               <Input 
                 id="frame-name" 
                 value={selectedFrame.name || ''} 
-                onChange={handleNameChange}
+                onChange={(value) => handleNameChange(value)}
                 className="h-8"
               />
             </div>
@@ -155,7 +157,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
                   id="frame-width" 
                   type="number" 
                   value={selectedFrame.width.toString()} 
-                  onChange={handleWidthChange}
+                  onChange={(value) => handleWidthChange(value)}
                   className="h-8"
                 />
               </div>
@@ -165,7 +167,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
                   id="frame-height" 
                   type="number" 
                   value={selectedFrame.height.toString()} 
-                  onChange={handleHeightChange}
+                  onChange={(value) => handleHeightChange(value)}
                   className="h-8"
                 />
               </div>
@@ -358,7 +360,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
                 <Input 
                   id="text-content" 
                   value={selectedComponent.properties?.text || ''} 
-                  onChange={handleTextChange}
+                  onChange={(value) => handleTextChange(value)}
                   className="h-8"
                 />
               </div>
@@ -526,7 +528,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
                 <Input 
                   id="image-url" 
                   value={selectedComponent.properties?.url || ''} 
-                  onChange={handleImageUrlChange}
+                  onChange={(value) => handleImageUrlChange(value)}
                   className="h-8"
                   placeholder="https://example.com/image.jpg"
                 />
@@ -537,7 +539,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
                 <Input 
                   id="alt-text" 
                   value={selectedComponent.properties?.alt || ''} 
-                  onChange={handleAltTextChange}
+                  onChange={(value) => handleAltTextChange(value)}
                   className="h-8"
                   placeholder="Image description"
                 />
