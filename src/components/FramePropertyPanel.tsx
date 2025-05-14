@@ -1,154 +1,682 @@
-
-import React from "react";
-import { useWhiteboard } from "@/context/WhiteboardContext";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import React, { useState } from 'react';
+import { useWhiteboard } from '@/context/WhiteboardContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Slider } from '@/components/ui/slider';
+import { Separator } from '@/components/ui/separator';
+import { 
+  AlignCenter, 
+  AlignLeft, 
+  AlignRight, 
+  Bold, 
+  Italic, 
+  Underline,
+  Type,
+  Image,
+  Square,
+  Trash2
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import ColorPicker from './ColorPicker';
 
 interface FramePropertyPanelProps {
-  selectedFrameId: string | null;
-  onClose: () => void;
+  isOpen: boolean;
 }
 
-const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({
-  selectedFrameId,
-  onClose
-}) => {
-  const {
-    state,
-    dispatch
-  } = useWhiteboard();
+const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
+  const { state, dispatch } = useWhiteboard();
+  const { selectedFrame, selectedComponent } = state;
   
-  const selectedFrame = state.frames.find(frame => frame.id === selectedFrameId);
+  const [activeTab, setActiveTab] = useState('style');
   
-  if (!selectedFrame) {
-    return <div className="text-sm text-muted-foreground">
-        Select a frame to edit its properties
-      </div>;
+  if (!isOpen) return null;
+  
+  if (!selectedFrame && !selectedComponent) {
+    return (
+      <div className="w-64 border-l border-border bg-card p-4 overflow-y-auto">
+        <div className="text-center text-muted-foreground p-4">
+          Select a frame or component to edit its properties
+        </div>
+      </div>
+    );
   }
   
-  const handleFrameNameChange = (value: string) => {
-    dispatch({
-      type: "UPDATE_FRAME",
-      id: selectedFrameId!,
-      updates: {
-        name: value
-      }
-    });
-  };
-  
-  const handleFrameSizeChange = (dimension: "width" | "height", value: number) => {
-    dispatch({
-      type: "UPDATE_FRAME",
-      id: selectedFrameId!,
-      updates: {
-        [dimension]: value
-      }
-    });
-  };
-  
-  const handleDeleteFrame = () => {
-    dispatch({
-      type: "DELETE_FRAME",
-      id: selectedFrameId!
-    });
-    onClose();
-    toast("Frame deleted");
-  };
-
-  // Count components in this frame
-  const componentsInFrame = state.components.filter(component => component.frameId === selectedFrameId).length;
-  
-  return <div className="flex flex-col gap-4 mt-6">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-small">Frame Properties</span>
-        <button className="text-xs text-white bg-destructive px-2 py-1 rounded" onClick={handleDeleteFrame}>
-          Delete Frame
-        </button>
+  // Frame properties
+  if (selectedFrame) {
+    const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      dispatch({
+        type: "UPDATE_FRAME",
+        frameId: selectedFrame.id,
+        properties: {
+          width: e.target.value
+        }
+      });
+    };
+    
+    const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      dispatch({
+        type: "UPDATE_FRAME",
+        frameId: selectedFrame.id,
+        properties: {
+          height: e.target.value
+        }
+      });
+    };
+    
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      dispatch({
+        type: "UPDATE_FRAME",
+        frameId: selectedFrame.id,
+        properties: {
+          name: e.target.value
+        }
+      });
+    };
+    
+    const handleBackgroundColorChange = (color: string) => {
+      dispatch({
+        type: "UPDATE_FRAME",
+        frameId: selectedFrame.id,
+        properties: {
+          backgroundColor: color
+        }
+      });
+    };
+    
+    const handleBorderColorChange = (color: string) => {
+      dispatch({
+        type: "UPDATE_FRAME",
+        frameId: selectedFrame.id,
+        properties: {
+          borderColor: color
+        }
+      });
+    };
+    
+    const handleBorderWidthChange = (value: number[]) => {
+      dispatch({
+        type: "UPDATE_FRAME",
+        frameId: selectedFrame.id,
+        properties: {
+          borderWidth: value[0]
+        }
+      });
+    };
+    
+    const handleBorderRadiusChange = (value: number[]) => {
+      dispatch({
+        type: "UPDATE_FRAME",
+        frameId: selectedFrame.id,
+        properties: {
+          borderRadius: value[0]
+        }
+      });
+    };
+    
+    const handleDeleteFrame = () => {
+      dispatch({
+        type: "DELETE_FRAME",
+        frameId: selectedFrame.id
+      });
+    };
+    
+    return (
+      <div className="w-64 border-l border-border bg-card overflow-y-auto h-full">
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-medium">Frame Properties</h2>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 text-destructive"
+              onClick={handleDeleteFrame}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="frame-name">Name</Label>
+              <Input 
+                id="frame-name" 
+                value={selectedFrame.name || ''} 
+                onChange={handleNameChange}
+                className="h-8"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-2">
+                <Label htmlFor="frame-width">Width</Label>
+                <Input 
+                  id="frame-width" 
+                  type="number" 
+                  value={selectedFrame.width} 
+                  onChange={handleWidthChange}
+                  className="h-8"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="frame-height">Height</Label>
+                <Input 
+                  id="frame-height" 
+                  type="number" 
+                  value={selectedFrame.height} 
+                  onChange={handleHeightChange}
+                  className="h-8"
+                />
+              </div>
+            </div>
+            
+            <Separator />
+            
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="w-full">
+                <TabsTrigger value="style" className="flex-1">Style</TabsTrigger>
+                <TabsTrigger value="export" className="flex-1">Export</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="style" className="space-y-4 pt-2">
+                <div className="space-y-2">
+                  <Label>Background Color</Label>
+                  <ColorPicker 
+                    color={selectedFrame.backgroundColor || '#ffffff'} 
+                    onChange={handleBackgroundColorChange}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Border Color</Label>
+                  <ColorPicker 
+                    color={selectedFrame.borderColor || '#000000'} 
+                    onChange={handleBorderColorChange}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label>Border Width</Label>
+                    <span className="text-xs text-muted-foreground">
+                      {selectedFrame.borderWidth || 0}px
+                    </span>
+                  </div>
+                  <Slider
+                    value={[selectedFrame.borderWidth || 0]}
+                    min={0}
+                    max={10}
+                    step={1}
+                    onValueChange={handleBorderWidthChange}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label>Border Radius</Label>
+                    <span className="text-xs text-muted-foreground">
+                      {selectedFrame.borderRadius || 0}px
+                    </span>
+                  </div>
+                  <Slider
+                    value={[selectedFrame.borderRadius || 0]}
+                    min={0}
+                    max={20}
+                    step={1}
+                    onValueChange={handleBorderRadiusChange}
+                  />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="export" className="space-y-4 pt-2">
+                <div className="space-y-2">
+                  <Label>Export Options</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button variant="outline" className="w-full">
+                      PNG
+                    </Button>
+                    <Button variant="outline" className="w-full">
+                      SVG
+                    </Button>
+                  </div>
+                </div>
+                
+                <Button className="w-full">
+                  Export Frame
+                </Button>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
       </div>
+    );
+  }
+  
+  // Component properties
+  if (selectedComponent) {
+    const handleDeleteComponent = () => {
+      dispatch({
+        type: "DELETE_COMPONENT",
+        componentId: selectedComponent.id
+      });
+    };
+    
+    // Text component properties
+    if (selectedComponent.type === 'text') {
+      const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        dispatch({
+          type: "UPDATE_COMPONENT",
+          componentId: selectedComponent.id,
+          properties: {
+            text: e.target.value
+          }
+        });
+      };
       
-      <div className="space-y-4">
-        {/* Frame name */}
-        <div className="space-y-1">
-          <Label className="text-xs">Frame Name</Label>
-          <Input 
-            type="text" 
-            value={selectedFrame.name} 
-            onChange={e => handleFrameNameChange(e.target.value)} 
-            className="h-8" 
-          />
+      const handleFontSizeChange = (value: number[]) => {
+        dispatch({
+          type: "UPDATE_COMPONENT",
+          componentId: selectedComponent.id,
+          properties: {
+            fontSize: value[0]
+          }
+        });
+      };
+      
+      const handleFontColorChange = (color: string) => {
+        dispatch({
+          type: "UPDATE_COMPONENT",
+          componentId: selectedComponent.id,
+          properties: {
+            color: color
+          }
+        });
+      };
+      
+      const handleFontWeightChange = () => {
+        dispatch({
+          type: "UPDATE_COMPONENT",
+          componentId: selectedComponent.id,
+          properties: {
+            fontWeight: selectedComponent.properties?.fontWeight === 'bold' ? 'normal' : 'bold'
+          }
+        });
+      };
+      
+      const handleFontStyleChange = () => {
+        dispatch({
+          type: "UPDATE_COMPONENT",
+          componentId: selectedComponent.id,
+          properties: {
+            fontStyle: selectedComponent.properties?.fontStyle === 'italic' ? 'normal' : 'italic'
+          }
+        });
+      };
+      
+      const handleTextDecorationChange = () => {
+        dispatch({
+          type: "UPDATE_COMPONENT",
+          componentId: selectedComponent.id,
+          properties: {
+            textDecoration: selectedComponent.properties?.textDecoration === 'underline' ? 'none' : 'underline'
+          }
+        });
+      };
+      
+      const handleTextAlignChange = (align: 'left' | 'center' | 'right') => {
+        dispatch({
+          type: "UPDATE_COMPONENT",
+          componentId: selectedComponent.id,
+          properties: {
+            textAlign: align
+          }
+        });
+      };
+      
+      return (
+        <div className="w-64 border-l border-border bg-card overflow-y-auto h-full">
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Type className="h-4 w-4" />
+                <h2 className="font-medium">Text</h2>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 text-destructive"
+                onClick={handleDeleteComponent}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="text-content">Text</Label>
+                <Input 
+                  id="text-content" 
+                  value={selectedComponent.properties?.text || ''} 
+                  onChange={handleTextChange}
+                  className="h-8"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label>Font Size</Label>
+                  <span className="text-xs text-muted-foreground">
+                    {selectedComponent.properties?.fontSize || 16}px
+                  </span>
+                </div>
+                <Slider
+                  value={[selectedComponent.properties?.fontSize || 16]}
+                  min={8}
+                  max={72}
+                  step={1}
+                  onValueChange={handleFontSizeChange}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Font Color</Label>
+                <ColorPicker 
+                  color={selectedComponent.properties?.color || '#000000'} 
+                  onChange={handleFontColorChange}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Text Style</Label>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className={cn(
+                      "h-8 w-8",
+                      selectedComponent.properties?.fontWeight === 'bold' && "bg-accent text-accent-foreground"
+                    )}
+                    onClick={handleFontWeightChange}
+                  >
+                    <Bold className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className={cn(
+                      "h-8 w-8",
+                      selectedComponent.properties?.fontStyle === 'italic' && "bg-accent text-accent-foreground"
+                    )}
+                    onClick={handleFontStyleChange}
+                  >
+                    <Italic className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className={cn(
+                      "h-8 w-8",
+                      selectedComponent.properties?.textDecoration === 'underline' && "bg-accent text-accent-foreground"
+                    )}
+                    onClick={handleTextDecorationChange}
+                  >
+                    <Underline className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Text Alignment</Label>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className={cn(
+                      "h-8 w-8 flex-1",
+                      selectedComponent.properties?.textAlign === 'left' && "bg-accent text-accent-foreground"
+                    )}
+                    onClick={() => handleTextAlignChange('left')}
+                  >
+                    <AlignLeft className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className={cn(
+                      "h-8 w-8 flex-1",
+                      selectedComponent.properties?.textAlign === 'center' && "bg-accent text-accent-foreground"
+                    )}
+                    onClick={() => handleTextAlignChange('center')}
+                  >
+                    <AlignCenter className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className={cn(
+                      "h-8 w-8 flex-1",
+                      selectedComponent.properties?.textAlign === 'right' && "bg-accent text-accent-foreground"
+                    )}
+                    onClick={() => handleTextAlignChange('right')}
+                  >
+                    <AlignRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-
-        {/* Position */}
-        <div className="grid grid-cols-2 gap-2">
-          <div className="space-y-1">
-            <Label className="text-xs">X Position</Label>
-            <Input 
-              type="number" 
-              value={Math.round(selectedFrame.x)} 
-              onChange={e => dispatch({
-                type: "UPDATE_FRAME",
-                id: selectedFrameId!,
-                updates: {
-                  x: Number(e.target.value)
-                }
-              })} 
-              className="h-8" 
-            />
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs">Y Position</Label>
-            <Input 
-              type="number" 
-              value={Math.round(selectedFrame.y)} 
-              onChange={e => dispatch({
-                type: "UPDATE_FRAME",
-                id: selectedFrameId!,
-                updates: {
-                  y: Number(e.target.value)
-                }
-              })} 
-              className="h-8" 
-            />
+      );
+    }
+    
+    // Image component properties
+    if (selectedComponent.type === 'image') {
+      const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        dispatch({
+          type: "UPDATE_COMPONENT",
+          componentId: selectedComponent.id,
+          properties: {
+            src: e.target.value
+          }
+        });
+      };
+      
+      const handleAltTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        dispatch({
+          type: "UPDATE_COMPONENT",
+          componentId: selectedComponent.id,
+          properties: {
+            alt: e.target.value
+          }
+        });
+      };
+      
+      const handleBorderRadiusChange = (value: number[]) => {
+        dispatch({
+          type: "UPDATE_COMPONENT",
+          componentId: selectedComponent.id,
+          properties: {
+            borderRadius: value[0]
+          }
+        });
+      };
+      
+      return (
+        <div className="w-64 border-l border-border bg-card overflow-y-auto h-full">
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Image className="h-4 w-4" />
+                <h2 className="font-medium">Image</h2>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 text-destructive"
+                onClick={handleDeleteComponent}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="image-url">Image URL</Label>
+                <Input 
+                  id="image-url" 
+                  value={selectedComponent.properties?.src || ''} 
+                  onChange={handleImageUrlChange}
+                  className="h-8"
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="alt-text">Alt Text</Label>
+                <Input 
+                  id="alt-text" 
+                  value={selectedComponent.properties?.alt || ''} 
+                  onChange={handleAltTextChange}
+                  className="h-8"
+                  placeholder="Image description"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label>Border Radius</Label>
+                  <span className="text-xs text-muted-foreground">
+                    {selectedComponent.properties?.borderRadius || 0}px
+                  </span>
+                </div>
+                <Slider
+                  value={[selectedComponent.properties?.borderRadius || 0]}
+                  min={0}
+                  max={50}
+                  step={1}
+                  onValueChange={handleBorderRadiusChange}
+                />
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* Size */}
-        <div className="grid grid-cols-2 gap-2">
-          <div className="space-y-1">
-            <Label className="text-xs">Width</Label>
-            <Input 
-              type="number" 
-              value={Math.round(selectedFrame.width)} 
-              onChange={e => handleFrameSizeChange("width", Number(e.target.value))} 
-              className="h-8" 
-            />
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs">Height</Label>
-            <Input 
-              type="number" 
-              value={Math.round(selectedFrame.height)} 
-              onChange={e => handleFrameSizeChange("height", Number(e.target.value))} 
-              className="h-8" 
-            />
+      );
+    }
+    
+    // Shape component properties
+    if (selectedComponent.type === 'shape') {
+      const handleShapeColorChange = (color: string) => {
+        dispatch({
+          type: "UPDATE_COMPONENT",
+          componentId: selectedComponent.id,
+          properties: {
+            backgroundColor: color
+          }
+        });
+      };
+      
+      const handleBorderColorChange = (color: string) => {
+        dispatch({
+          type: "UPDATE_COMPONENT",
+          componentId: selectedComponent.id,
+          properties: {
+            borderColor: color
+          }
+        });
+      };
+      
+      const handleBorderWidthChange = (value: number[]) => {
+        dispatch({
+          type: "UPDATE_COMPONENT",
+          componentId: selectedComponent.id,
+          properties: {
+            borderWidth: value[0]
+          }
+        });
+      };
+      
+      return (
+        <div className="w-64 border-l border-border bg-card overflow-y-auto h-full">
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Square className="h-4 w-4" />
+                <h2 className="font-medium">Shape</h2>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 text-destructive"
+                onClick={handleDeleteComponent}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Fill Color</Label>
+                <ColorPicker 
+                  color={selectedComponent.properties?.backgroundColor || '#ffffff'} 
+                  onChange={handleShapeColorChange}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Border Color</Label>
+                <ColorPicker 
+                  color={selectedComponent.properties?.borderColor || '#000000'} 
+                  onChange={handleBorderColorChange}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label>Border Width</Label>
+                  <span className="text-xs text-muted-foreground">
+                    {selectedComponent.properties?.borderWidth || 0}px
+                  </span>
+                </div>
+                <Slider
+                  value={[selectedComponent.properties?.borderWidth || 0]}
+                  min={0}
+                  max={10}
+                  step={1}
+                  onValueChange={handleBorderWidthChange}
+                />
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* Components count */}
-        <div className="text-xs text-muted-foreground">
-          Contains {componentsInFrame} component{componentsInFrame !== 1 ? 's' : ''}
-        </div>
-
-        {/* Note about active frame status */}
-        {state.activeFrameId === selectedFrameId && (
-          <div className="text-xs text-blue-500 font-medium">
-            This is the active frame
+      );
+    }
+    
+    // Default component properties
+    return (
+      <div className="w-64 border-l border-border bg-card overflow-y-auto h-full">
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-medium">Component Properties</h2>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 text-destructive"
+              onClick={handleDeleteComponent}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
-        )}
+          
+          <div className="text-muted-foreground">
+            Properties for {selectedComponent.type} component
+          </div>
+        </div>
       </div>
-    </div>;
+    );
+  }
+  
+  return null;
 };
 
 export default FramePropertyPanel;
