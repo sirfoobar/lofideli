@@ -77,8 +77,8 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
       };
       
       // Automatically assign the component to a frame if it's within one
-      // Prioritize the active frame if it exists
       let frameId: string | undefined = undefined;
+      let activeFrameUpdated = state.activeFrameId;
       
       // First check if it's in the active frame
       if (state.activeFrameId) {
@@ -93,6 +93,8 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
         for (const frame of state.frames) {
           if (isComponentInFrame(newComponent, frame)) {
             frameId = frame.id;
+            // Automatically set this frame as active when component is dropped on it
+            activeFrameUpdated = frame.id;
             break;
           }
         }
@@ -108,7 +110,9 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
           },
         ],
         // Set the newly added component as selected
-        selectedComponentId: newComponent.id
+        selectedComponentId: newComponent.id,
+        // Update active frame if component was dropped on a different frame
+        activeFrameId: activeFrameUpdated
       };
       break;
     }
@@ -120,6 +124,15 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
       const updatedY = state.snapToGrid 
         ? snapToGrid(action.y, state.gridSize) 
         : action.y;
+      
+      // Find the component being moved
+      const movingComponent = state.components.find(c => c.id === action.id);
+      if (!movingComponent) {
+        return state;
+      }
+      
+      // Track if we need to update the active frame
+      let activeFrameUpdated = state.activeFrameId;
       
       const updatedComponents = state.components.map(component => {
         if (component.id === action.id) {
@@ -145,6 +158,10 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
             for (const frame of state.frames) {
               if (isComponentInFrame(updatedComponent, frame)) {
                 newFrameId = frame.id;
+                // Set this frame as active when component is moved to it
+                if (component.frameId !== frame.id) {
+                  activeFrameUpdated = frame.id;
+                }
                 break;
               }
             }
@@ -162,6 +179,7 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
       newState = {
         ...state,
         components: updatedComponents,
+        activeFrameId: activeFrameUpdated
       };
       break;
     }
@@ -287,6 +305,7 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
       
       // Check if it should be assigned to a frame
       let frameId: string | undefined = undefined;
+      let activeFrameUpdated = state.activeFrameId;
       
       // Check frames as with ADD_COMPONENT
       if (state.activeFrameId) {
@@ -300,6 +319,8 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
         for (const frame of state.frames) {
           if (isComponentInFrame(pastedComponent, frame)) {
             frameId = frame.id;
+            // Set this frame as active when component is pasted into it
+            activeFrameUpdated = frame.id;
             break;
           }
         }
@@ -313,7 +334,8 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
       newState = {
         ...state,
         components: [...state.components, newPastedComponent],
-        selectedComponentId: newPastedComponent.id // Select the pasted component
+        selectedComponentId: newPastedComponent.id, // Select the pasted component
+        activeFrameId: activeFrameUpdated
       };
       break;
     }
@@ -502,6 +524,8 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
             ? { ...component, frameId: action.frameId }
             : component
         ),
+        // Set the assigned frame as active
+        activeFrameId: action.frameId
       };
       break;
     }
