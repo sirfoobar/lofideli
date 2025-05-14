@@ -73,22 +73,34 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   // Handle keyboard shortcuts for copy/paste on the canvas level
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Only handle if we have a selected component
-      if (state.selectedComponentId) {
-        // Ctrl+C or Cmd+C copies the selected component
-        if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
-          copySelectedComponent();
+      // Ignore if we're in an input field
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Handle delete key for both components and frames
+      if (e.key === "Delete" || e.key === "Backspace") {
+        if (state.selectedComponentId) {
+          dispatch({ type: "DELETE_COMPONENT", id: state.selectedComponentId });
+          onSelectComponent(null); // Clear selection after delete
+          e.preventDefault();
+        } else if (state.selectedFrameId) {
+          dispatch({ type: "DELETE_FRAME", id: state.selectedFrameId });
+          selectFrame(null); // Clear frame selection
+          toast("Frame deleted");
           e.preventDefault();
         }
       }
       
-      // Ctrl+V or Cmd+V pastes from clipboard
-      if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-        if (state.clipboard) {
-          // Paste at a default position since we can't get mouse position from keyboard event
-          pasteComponent();
-          e.preventDefault();
-        }
+      // Handle copy/paste
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c' && state.selectedComponentId) {
+        copySelectedComponent();
+        e.preventDefault();
+      }
+      
+      if ((e.ctrlKey || e.metaKey) && e.key === 'v' && state.clipboard) {
+        pasteComponent();
+        e.preventDefault();
       }
     };
     
@@ -96,7 +108,17 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [state.selectedComponentId, state.clipboard, state.zoomLevel]);
+  }, [
+    state.selectedComponentId, 
+    state.selectedFrameId, 
+    state.clipboard, 
+    state.zoomLevel,
+    dispatch,
+    onSelectComponent,
+    selectFrame,
+    copySelectedComponent,
+    pasteComponent
+  ]);
 
   // Handle clicks on empty canvas areas
   const handleCanvasClick = (e: React.MouseEvent) => {

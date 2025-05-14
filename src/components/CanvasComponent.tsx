@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import { CanvasComponent as ComponentType } from "@/types/whiteboard";
@@ -121,47 +120,15 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
     }
   };
 
-  // Handle key press events for copy, paste, delete
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (!isSelected) return;
-    
-    // Delete key deletes the component
-    if (e.key === "Delete") {
-      e.preventDefault();
-      dispatch({
-        type: "DELETE_COMPONENT",
-        id: component.id
-      });
-    }
-    
-    // Ctrl+C or Cmd+C copies the component
-    if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
-      e.preventDefault();
-      copySelectedComponent();
-    }
-    
-    // Ctrl+V or Cmd+V pastes the component
-    if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-      e.preventDefault();
-      pasteComponent();
-    }
-  };
-
   React.useEffect(() => {
     window.addEventListener("mousemove", handleMouseMove as any);
     window.addEventListener("mouseup", handleMouseUp as any);
-    if (isSelected) {
-      window.addEventListener("keydown", handleKeyPress as any);
-    }
     
     return () => {
       window.removeEventListener("mousemove", handleMouseMove as any);
       window.removeEventListener("mouseup", handleMouseUp as any);
-      if (isSelected) {
-        window.removeEventListener("keydown", handleKeyPress as any);
-      }
     };
-  }, [isDragging, isResizing, isSelected, state.zoomLevel]);
+  }, [isDragging, isResizing, state.zoomLevel]);
 
   // Check if component is in its assigned frame
   const isComponentInCorrectFrame = () => {
