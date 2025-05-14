@@ -30,6 +30,17 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const { toast } = useToast();
   const { saveToJSON, loadFromJSON, clearCanvas, generateUIFromPrompt } = useWhiteboardActions(state, dispatch);
 
+  // Update selectedFrame whenever selectedFrameId changes
+  useEffect(() => {
+    if (state.selectedFrameId) {
+      const frame = state.frames.find(f => f.id === state.selectedFrameId);
+      if (frame) {
+        // This will be handled by the reducer
+        dispatch({ type: "SELECT_FRAME", id: state.selectedFrameId });
+      }
+    }
+  }, [state.selectedFrameId, state.frames]);
+
   // Load from localStorage on initial mount
   useEffect(() => {
     try {

@@ -23,18 +23,22 @@ import { cn } from '@/lib/utils';
 import ColorPicker from './ColorPicker';
 
 interface FramePropertyPanelProps {
-  isOpen: boolean;
-  selectedFrameId?: string;
-  onClose?: () => void;
+  isOpen?: boolean;
 }
 
-const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen, selectedFrameId, onClose }) => {
+const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
   const { state, dispatch } = useWhiteboard();
-  const { selectedFrame, selectedComponent } = state;
+  const { selectedFrameId, frames, selectedComponentId } = state;
+  
+  // Find the selected frame from the frames array using selectedFrameId
+  const selectedFrame = frames.find(f => f.id === selectedFrameId);
+  
+  // Find the selected component from the components array using selectedComponentId
+  const selectedComponent = state.components.find(c => c.id === selectedComponentId);
   
   const [activeTab, setActiveTab] = useState('style');
   
-  if (!isOpen) return null;
+  if (!isOpen && !selectedFrame && !selectedComponent) return null;
   
   if (!selectedFrame && !selectedComponent) {
     return (
@@ -48,32 +52,32 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen, selecte
   
   // Frame properties
   if (selectedFrame) {
-    const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleWidthChange = (value: string) => {
       dispatch({
         type: "UPDATE_FRAME",
         id: selectedFrame.id,
         updates: {
-          width: parseInt(e.target.value, 10) || selectedFrame.width
+          width: parseInt(value, 10) || selectedFrame.width
         }
       });
     };
     
-    const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleHeightChange = (value: string) => {
       dispatch({
         type: "UPDATE_FRAME",
         id: selectedFrame.id,
         updates: {
-          height: parseInt(e.target.value, 10) || selectedFrame.height
+          height: parseInt(value, 10) || selectedFrame.height
         }
       });
     };
     
-    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleNameChange = (value: string) => {
       dispatch({
         type: "UPDATE_FRAME",
         id: selectedFrame.id,
         updates: {
-          name: e.target.value
+          name: value
         }
       });
     };
@@ -146,7 +150,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen, selecte
               <Input 
                 id="frame-name" 
                 value={selectedFrame.name || ''} 
-                onChange={(value) => handleNameChange(value)}
+                onChange={handleNameChange}
                 className="h-8"
               />
             </div>
@@ -158,7 +162,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen, selecte
                   id="frame-width" 
                   type="number" 
                   value={selectedFrame.width.toString()} 
-                  onChange={(value) => handleWidthChange(value)}
+                  onChange={handleWidthChange}
                   className="h-8"
                 />
               </div>
@@ -168,7 +172,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen, selecte
                   id="frame-height" 
                   type="number" 
                   value={selectedFrame.height.toString()} 
-                  onChange={(value) => handleHeightChange(value)}
+                  onChange={handleHeightChange}
                   className="h-8"
                 />
               </div>
@@ -267,12 +271,12 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen, selecte
     
     // Text component properties
     if (selectedComponent.type === 'text') {
-      const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const handleTextChange = (value: string) => {
         dispatch({
           type: "UPDATE_COMPONENT",
           id: selectedComponent.id,
           properties: {
-            text: e.target.value
+            text: value
           }
         });
       };
@@ -361,7 +365,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen, selecte
                 <Input 
                   id="text-content" 
                   value={selectedComponent.properties?.text || ''} 
-                  onChange={(value) => handleTextChange(value)}
+                  onChange={handleTextChange}
                   className="h-8"
                 />
               </div>
@@ -475,22 +479,22 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen, selecte
     
     // Image component properties
     if (selectedComponent.type === 'image') {
-      const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const handleImageUrlChange = (value: string) => {
         dispatch({
           type: "UPDATE_COMPONENT",
           id: selectedComponent.id,
           properties: {
-            url: e.target.value
+            url: value
           }
         });
       };
       
-      const handleAltTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const handleAltTextChange = (value: string) => {
         dispatch({
           type: "UPDATE_COMPONENT",
           id: selectedComponent.id,
           properties: {
-            alt: e.target.value
+            alt: value
           }
         });
       };
@@ -529,7 +533,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen, selecte
                 <Input 
                   id="image-url" 
                   value={selectedComponent.properties?.url || ''} 
-                  onChange={(value) => handleImageUrlChange(value)}
+                  onChange={handleImageUrlChange}
                   className="h-8"
                   placeholder="https://example.com/image.jpg"
                 />
@@ -540,7 +544,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen, selecte
                 <Input 
                   id="alt-text" 
                   value={selectedComponent.properties?.alt || ''} 
-                  onChange={(value) => handleAltTextChange(value)}
+                  onChange={handleAltTextChange}
                   className="h-8"
                   placeholder="Image description"
                 />

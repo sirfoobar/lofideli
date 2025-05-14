@@ -1,3 +1,4 @@
+
 import { ReactNode } from "react";
 
 export type ComponentType =
@@ -76,9 +77,16 @@ export interface WhiteboardState {
   selectedComponent: CanvasComponent | null;
   clipboard: CanvasComponent | null;
   selectedComponentId: string | null;
+  // Add new grid properties
   masterGridColumns: number;
   masterGridRows: number;
   masterGridGap: number;
+  // Structure grid properties
+  useStructureGrid: boolean;
+  gridColumns: number;
+  gridRows: number;
+  gridGap: number;
+  snapToStructure: boolean;
 }
 
 export type WhiteboardAction =
@@ -108,7 +116,13 @@ export type WhiteboardAction =
   | { type: "SET_CLIPBOARD"; component: CanvasComponent }
   | { type: "PASTE_COMPONENT"; x: number; y: number }
   | { type: "SELECT_COMPONENT"; id: string | null }
-  | { type: "LOAD_FROM_STORAGE"; state: Partial<WhiteboardState> };
+  | { type: "LOAD_FROM_STORAGE"; state: Partial<WhiteboardState> }
+  // Add new action types for structure grid
+  | { type: "TOGGLE_STRUCTURE_GRID"; enabled: boolean }
+  | { type: "SET_GRID_COLUMNS"; columns: number }
+  | { type: "SET_GRID_ROWS"; rows: number }
+  | { type: "SET_GRID_GAP"; gap: number }
+  | { type: "TOGGLE_STRUCTURE_SNAP"; enabled: boolean };
 
 export interface CanvasProps {
   children?: ReactNode;
