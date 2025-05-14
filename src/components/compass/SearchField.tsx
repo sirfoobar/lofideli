@@ -1,22 +1,24 @@
-import styled from '@emotion/styled';
-import { SearchField as AriaSearchField } from 'react-aria-components';
 
-import { theme } from '../theme';
+import React from 'react';
 
-import { InputGroup } from './Forms/Inputs';
+export const SearchGroup: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, ...props }) => {
+  return (
+    <div className="flex rounded-full pl-4 w-80" {...props}>
+      {children}
+    </div>
+  );
+};
 
-export const SearchGroup = styled(InputGroup)`
-  border-radius: ${theme.radii.circle};
-  padding-left: ${theme.space.space16};
-  width: 320px;
-`;
+export const SearchField: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props) => {
+  return (
+    <div className="flex flex-col gap-2">
+      <input type="search" {...props} className={`border rounded px-3 py-2 ${props.className || ''}`} />
+    </div>
+  );
+};
 
-export const SearchField = styled(AriaSearchField)`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.space.space8};
-`;
-
-export const InlineSearchField = styled(AriaSearchField)`
-  flex-grow: 1;
-`;
+export const InlineSearchField: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props) => {
+  return (
+    <input type="search" {...props} className={`flex-grow border rounded px-3 py-2 ${props.className || ''}`} />
+  );
+};

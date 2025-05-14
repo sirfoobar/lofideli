@@ -1,56 +1,25 @@
-import styled from '@emotion/styled';
-import {
-  GridList as AriaGridList,
-  GridListItem as AriaGridListItem,
-} from 'react-aria-components';
 
-import { theme } from './theme';
+import React from 'react';
 
-export const GridList = styled(AriaGridList)`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: ${theme.space.space16};
-  padding: ${theme.space.space8};
-  list-style: none;
-  margin: 0;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+export const GridList: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, ...props }) => {
+  return (
+    <div 
+      className="grid grid-cols-repeat-auto-fill-minmax-200px-1fr gap-4 p-2 list-none m-0 w-full max-w-full box-border outline-blue-400 outline-offset-2 focus-visible:outline-4"
+      style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+};
 
-  &[data-focus-visible] {
-    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
-    outline-offset: ${theme.space.space2};
-  }
-`;
-
-export const GridListItem = styled(AriaGridListItem)`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.space.space8};
-  padding: ${theme.space.space16};
-  border: ${theme.borderWidths.regular} solid ${theme.colors.n80};
-  border-radius: ${theme.radii.field};
-  background: ${theme.colors.white};
-  cursor: pointer;
-  transition: all 200ms;
-
-  &[data-hovered] {
-    border-color: ${theme.colors.n90};
-    background: ${theme.colors.n60};
-  }
-
-  &[data-selected] {
-    border-color: ${theme.colors.blue500};
-    background: ${theme.colors.blue100};
-  }
-
-  &[data-disabled] {
-    opacity: ${theme.opacity.semiOpaque};
-    cursor: not-allowed;
-  }
-
-  &[data-focus-visible] {
-    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
-    outline-offset: ${theme.space.space2};
-  }
-`;
+export const GridListItem: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, ...props }) => {
+  return (
+    <div 
+      className="flex flex-col gap-2 p-4 border border-gray-300 rounded bg-white cursor-pointer transition-all duration-200 hover:border-gray-400 hover:bg-gray-100 selected:border-blue-500 selected:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed outline-blue-400 outline-offset-2 focus-visible:outline-4"
+      {...props}
+    >
+      {children}
+    </div>
+  );
+};

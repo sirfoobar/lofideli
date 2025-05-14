@@ -1,21 +1,11 @@
 
 import React from 'react';
-import {
-  Calendar,
-  CalendarButton,
-  CalendarGrid,
-  CalendarCell,
-  CalendarWeekHeader
-} from '@react-aria/calendar';
 
-import { useCalendarState } from '@react-stately/calendar';
-
-const DatePicker = () => {
-  // Fix the syntax error by removing any problematic code and providing proper implementation
+const DatePicker: React.FC = () => {
   return (
-    <div>
-      <h2>Date Picker</h2>
-      <p>This component needs proper implementation</p>
+    <div className="p-4 border rounded shadow">
+      <h2 className="text-lg font-medium mb-4">Date Picker</h2>
+      <p className="text-sm text-gray-500">This component needs proper implementation</p>
     </div>
   );
 };

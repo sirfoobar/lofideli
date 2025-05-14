@@ -1,56 +1,43 @@
-import styled from '@emotion/styled';
-import {
-  Button as AriaButton,
-  Select as AriaSelect,
-  SelectValue as AriaSelectValue,
-} from 'react-aria-components';
 
-import { theme } from './theme';
+import React from 'react';
 
-export const SelectValue = styled(AriaSelectValue)`
-  min-width: 0;
-`;
+export const SelectValue: React.FC<React.HTMLAttributes<HTMLSpanElement>> = ({ 
+  children,
+  ...props
+}) => {
+  return (
+    <span className="min-w-0" {...props}>
+      {children}
+    </span>
+  );
+};
 
-export const Select = styled(AriaSelect)`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.space.space8};
+export const Select: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>> = ({
+  children,
+  ...props
+}) => {
+  return (
+    <div className="flex flex-col gap-2">
+      <select 
+        className={`appearance-none border border-gray-300 rounded px-4 py-2 bg-white min-w-[200px] max-w-[560px] outline-none ${props.className || ''}`} 
+        {...props}
+      >
+        {children}
+      </select>
+    </div>
+  );
+};
 
-  &[data-invalid] > button {
-    border-color: ${theme.colors.red500};
-  }
-`;
-
-export const SelectButton = styled(AriaButton)`
-  display: flex;
-  flex-direction: row;
-  gap: ${theme.space.space4};
-  background: ${theme.colors.white};
-  justify-content: space-between;
-  align-items: center;
-  box-sizing: border-box;
-  height: 40px;
-  border: ${theme.borderWidths.regular} solid ${theme.colors.n80};
-  padding: ${theme.space.space12} ${theme.space.space16} ${theme.space.space12}
-    ${theme.space.space12};
-  min-width: 200px;
-  max-width: 560px;
-  border-radius: ${theme.radii.field};
-  outline: none;
-  color: ${theme.colors.n900};
-
-  &[data-disabled] {
-    opacity: ${theme.opacity.semiOpaque};
-    cursor: not-allowed;
-  }
-
-  &[data-hovered] {
-    background: ${theme.colors.n60};
-    border: ${theme.borderWidths.regular} solid ${theme.colors.n90};
-  }
-
-  &[data-focus-visible] {
-    outline: ${theme.borderWidths.thick} solid ${theme.colors.blue400};
-    outline-offset: ${theme.space.space2};
-  }
-`;
+export const SelectButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({
+  children,
+  ...props
+}) => {
+  return (
+    <button 
+      className="flex flex-row gap-1 bg-white justify-between items-center box-border h-10 border border-gray-300 py-3 px-4 min-w-[200px] max-w-[560px] rounded outline-none text-gray-900 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2"
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};

@@ -1,11 +1,10 @@
 
-import styled from '@emotion/styled';
-import { TextField as AriaTextField } from 'react-aria-components';
+import React from 'react';
 
-import { theme } from './theme';
-
-export const TextField = styled(AriaTextField)`
-  display: flex;
-  flex-direction: column;
-  gap: ${theme.space.space8};
-`;
+export const TextField: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props) => {
+  return (
+    <div className="flex flex-col gap-2">
+      <input {...props} className={`border rounded px-3 py-2 ${props.className || ''}`} />
+    </div>
+  );
+};

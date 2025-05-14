@@ -72,30 +72,45 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({
         {/* Frame name */}
         <div className="space-y-1">
           <Label className="text-xs">Frame Name</Label>
-          <Input type="text" value={selectedFrame.name} onChange={e => handleFrameNameChange(e.target.value)} className="h-8" />
+          <Input 
+            type="text" 
+            value={selectedFrame.name} 
+            onChange={e => handleFrameNameChange(e.target.value)} 
+            className="h-8" 
+          />
         </div>
 
         {/* Position */}
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
             <Label className="text-xs">X Position</Label>
-            <Input type="number" value={Math.round(selectedFrame.x)} onChange={e => dispatch({
-            type: "UPDATE_FRAME",
-            id: selectedFrameId!,
-            updates: {
-              x: Number(e.target.value)
-            }
-          })} className="h-8" />
+            <Input 
+              type="number" 
+              value={Math.round(selectedFrame.x)} 
+              onChange={e => dispatch({
+                type: "UPDATE_FRAME",
+                id: selectedFrameId!,
+                updates: {
+                  x: Number(e.target.value)
+                }
+              })} 
+              className="h-8" 
+            />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">Y Position</Label>
-            <Input type="number" value={Math.round(selectedFrame.y)} onChange={e => dispatch({
-            type: "UPDATE_FRAME",
-            id: selectedFrameId!,
-            updates: {
-              y: Number(e.target.value)
-            }
-          })} className="h-8" />
+            <Input 
+              type="number" 
+              value={Math.round(selectedFrame.y)} 
+              onChange={e => dispatch({
+                type: "UPDATE_FRAME",
+                id: selectedFrameId!,
+                updates: {
+                  y: Number(e.target.value)
+                }
+              })} 
+              className="h-8" 
+            />
           </div>
         </div>
 
@@ -103,11 +118,21 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
             <Label className="text-xs">Width</Label>
-            <Input type="number" value={Math.round(selectedFrame.width)} onChange={e => handleFrameSizeChange("width", Number(e.target.value))} className="h-8" />
+            <Input 
+              type="number" 
+              value={Math.round(selectedFrame.width)} 
+              onChange={e => handleFrameSizeChange("width", Number(e.target.value))} 
+              className="h-8" 
+            />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">Height</Label>
-            <Input type="number" value={Math.round(selectedFrame.height)} onChange={e => handleFrameSizeChange("height", Number(e.target.value))} className="h-8" />
+            <Input 
+              type="number" 
+              value={Math.round(selectedFrame.height)} 
+              onChange={e => handleFrameSizeChange("height", Number(e.target.value))} 
+              className="h-8" 
+            />
           </div>
         </div>
 
