@@ -1,3 +1,4 @@
+
 import { CanvasComponent, ComponentType, FrameSize } from "../types/whiteboard";
 
 // Map component types to their React equivalents
@@ -207,8 +208,8 @@ export const generateFrameReactCode = (frame: FrameSize, components: CanvasCompo
   const importStatements = Array.from(uniqueComponentTypes).length > 0 ? 
     `import { ${Array.from(uniqueComponentTypes).join(', ')} } from "./components";\n\n` : '';
   
-  // Check if we should use grid
-  const useGrid = frame.useInternalGrid && frame.gridColumns && frame.gridRows;
+  // Check if we should use grid - fixed this line by converting the number to a boolean
+  const useGrid = Boolean(frame.useInternalGrid) && frame.gridColumns && frame.gridRows;
   
   // Generate grid template if needed
   const gridStyles = useGrid ? `
