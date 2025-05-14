@@ -16,6 +16,10 @@ export const initialState: WhiteboardState = {
   selectedFrameId: null, // Initialize selectedFrameId as null
   clipboard: null,  // Initialize clipboard as null
   selectedComponentId: null, // Track the selected component ID
+  // Grid system defaults
+  masterGridColumns: 12,
+  masterGridRows: 6,
+  masterGridGap: 10,
 };
 
 // Helper function to check if two frames overlap
@@ -355,6 +359,10 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
       const newFrame = {
         ...action.frame,
         id: newFrameId,
+        useInternalGrid: false,
+        gridColumns: state.masterGridColumns,
+        gridRows: state.masterGridRows,
+        gridGap: state.masterGridGap
       };
       
       // Check if the new frame overlaps with existing frames
@@ -536,6 +544,45 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
         selectedFrameId: action.id,
         // Clear selected component when selecting a frame
         selectedComponentId: null
+      };
+      break;
+    }
+
+    case "SET_FRAME_GRID": {
+      newState = {
+        ...state,
+        frames: state.frames.map(frame => 
+          frame.id === action.frameId 
+            ? {
+                ...frame,
+                useInternalGrid: action.enabled,
+                gridColumns: action.columns,
+                gridRows: action.rows,
+                gridGap: action.gap
+              }
+            : frame
+        )
+      };
+      break;
+    }
+    
+    case "SET_MASTER_GRID": {
+      newState = {
+        ...state,
+        masterGridColumns: action.columns,
+        masterGridRows: action.rows,
+        masterGridGap: action.gap,
+        // Apply to frames that use master grid settings
+        frames: state.frames.map(frame => 
+          !frame.useInternalGrid 
+            ? {
+                ...frame,
+                gridColumns: action.columns,
+                gridRows: action.rows,
+                gridGap: action.gap
+              }
+            : frame
+        )
       };
       break;
     }

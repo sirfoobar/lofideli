@@ -1,3 +1,4 @@
+
 import { ReactNode } from "react";
 
 export type ComponentType =
@@ -54,6 +55,14 @@ export interface FrameSize {
   height: number;
   x: number;
   y: number;
+  backgroundColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  borderRadius?: number;
+  useInternalGrid?: boolean;
+  gridColumns?: number;
+  gridRows?: number;
+  gridGap?: number;
 }
 
 export interface WhiteboardState {
@@ -69,6 +78,9 @@ export interface WhiteboardState {
   selectedFrameId: string | null;
   clipboard: CanvasComponent | null;
   selectedComponentId: string | null;
+  // For compatibility with FramePropertyPanel
+  selectedFrame?: FrameSize | null;
+  selectedComponent?: CanvasComponent | null;
 }
 
 export type WhiteboardAction =
@@ -98,7 +110,9 @@ export type WhiteboardAction =
   | { type: "SET_CLIPBOARD"; component: CanvasComponent }
   | { type: "PASTE_COMPONENT"; x: number; y: number }
   | { type: "SELECT_COMPONENT"; id: string | null }
-  | { type: "LOAD_FROM_STORAGE"; state: Partial<WhiteboardState> };
+  | { type: "LOAD_FROM_STORAGE"; state: Partial<WhiteboardState> }
+  | { type: "SET_FRAME_GRID"; frameId: string; columns: number; rows: number; gap: number; enabled: boolean }
+  | { type: "SET_MASTER_GRID"; columns: number; rows: number; gap: number; };
 
 export interface CanvasProps {
   children?: ReactNode;

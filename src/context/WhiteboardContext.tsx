@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { WhiteboardState, WhiteboardAction } from "../types/whiteboard";
+import { WhiteboardState, WhiteboardAction, FrameSize, CanvasComponent } from "../types/whiteboard";
 import { whiteboardReducer, initialState } from "../reducers/whiteboardReducer";
 import { loadStateFromLocalStorage } from "../utils/whiteboardUtils";
 import { useWhiteboardActions } from "../hooks/useWhiteboardActions";
@@ -26,9 +26,20 @@ const WhiteboardContext = createContext<WhiteboardContextValue | undefined>(unde
 
 // Provider component
 export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(whiteboardReducer, initialState);
+  const [baseState, dispatch] = useReducer(whiteboardReducer, initialState);
   const { toast } = useToast();
-  const { saveToJSON, loadFromJSON, clearCanvas, generateUIFromPrompt } = useWhiteboardActions(state, dispatch);
+  const { saveToJSON, loadFromJSON, clearCanvas, generateUIFromPrompt } = useWhiteboardActions(baseState, dispatch);
+
+  // Add derived state properties
+  const state: WhiteboardState = {
+    ...baseState,
+    selectedFrame: baseState.selectedFrameId 
+      ? baseState.frames.find(f => f.id === baseState.selectedFrameId) || null 
+      : null,
+    selectedComponent: baseState.selectedComponentId 
+      ? baseState.components.find(c => c.id === baseState.selectedComponentId) || null 
+      : null
+  };
 
   // Load from localStorage on initial mount
   useEffect(() => {

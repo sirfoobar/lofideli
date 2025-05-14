@@ -70,13 +70,72 @@ const generatePropsString = (component: CanvasComponent): string => {
   return propsArray.join(' ');
 };
 
+// Calculate the grid area for a component
+const calculateGridArea = (
+  component: CanvasComponent, 
+  frame: FrameSize, 
+  gridColumns: number, 
+  gridRows: number
+): { gridColumn: string, gridRow: string } => {
+  // Calculate the relative position within the frame
+  const relX = component.x - frame.x;
+  const relY = component.y - frame.y;
+  
+  // Calculate the column and row spans
+  const colWidth = frame.width / gridColumns;
+  const rowHeight = frame.height / gridRows;
+  
+  // Calculate start and end grid lines
+  const colStart = Math.floor(relX / colWidth) + 1;
+  const colEnd = Math.ceil((relX + component.width) / colWidth) + 1;
+  const rowStart = Math.floor(relY / rowHeight) + 1;
+  const rowEnd = Math.ceil((relY + component.height) / rowHeight) + 1;
+  
+  // Ensure the component spans at least one cell
+  const colSpan = Math.max(1, colEnd - colStart);
+  const rowSpan = Math.max(1, rowEnd - rowStart);
+  
+  return {
+    gridColumn: `${colStart} / span ${colSpan}`,
+    gridRow: `${rowStart} / span ${rowSpan}`
+  };
+};
+
 // Generate position styles for a component
-const generatePositionStyles = (component: CanvasComponent, framePosition: { x: number, y: number }): string => {
+const generatePositionStyles = (
+  component: CanvasComponent, 
+  frame: FrameSize, 
+  useGrid: boolean = false
+): string => {
+  if (useGrid && frame.gridColumns && frame.gridRows) {
+    const { gridColumn, gridRow } = calculateGridArea(
+      component, 
+      frame, 
+      frame.gridColumns, 
+      frame.gridRows
+    );
+    
+    return `
+  style={{
+    gridColumn: "${gridColumn}",
+    gridRow: "${gridRow}",
+    ${component.properties.backgroundColor ? `backgroundColor: "${component.properties.backgroundColor}",` : ''}
+    ${component.properties.textColor ? `color: "${component.properties.textColor}",` : ''}
+    ${component.properties.borderColor ? `borderColor: "${component.properties.borderColor}",` : ''}
+    ${component.properties.borderWidth ? `borderWidth: ${component.properties.borderWidth}px,` : ''}
+    ${component.properties.borderRadius ? `borderRadius: ${component.properties.borderRadius}px,` : ''}
+    ${component.properties.shadow ? `boxShadow: "${component.properties.shadow === 'sm' ? '0 1px 2px rgba(0,0,0,0.05)' : 
+      component.properties.shadow === 'md' ? '0 4px 6px rgba(0,0,0,0.1)' : 
+      component.properties.shadow === 'lg' ? '0 10px 15px rgba(0,0,0,0.1)' : 'none'}",` : ''}
+    ${component.properties.textAlign ? `textAlign: "${component.properties.textAlign}",` : ''}
+  }}`;
+  }
+  
   return `
   style={{
     position: "absolute",
-    left: ${Math.round(component.x - framePosition.x)}px,
-    top: ${Math.round(component.y - framePosition.y)}px,
+    left: ${Math.round(component.x - frame.x)}px,
+    top: ${Math.round(component.y - frame.y)}px,
     width: ${component.width}px,
     height: ${component.height}px,
     ${component.properties.backgroundColor ? `backgroundColor: "${component.properties.backgroundColor}",` : ''}
@@ -92,10 +151,14 @@ const generatePositionStyles = (component: CanvasComponent, framePosition: { x: 
 };
 
 // Generate React component for a specific component
-const generateComponentCode = (component: CanvasComponent, framePosition: { x: number, y: number }): string => {
+const generateComponentCode = (
+  component: CanvasComponent, 
+  frame: FrameSize, 
+  useGrid: boolean = false
+): string => {
   const reactComponentName = componentTypeToReactComponent[component.type] || "div";
   
-  let code = `<${reactComponentName} ${generatePositionStyles(component, framePosition)}`;
+  let code = `<${reactComponentName} ${generatePositionStyles(component, frame, useGrid)}`;
   
   // Add component content
   if (component.content) {
@@ -136,6 +199,16 @@ export const generateFrameReactCode = (frame: FrameSize, components: CanvasCompo
   const importStatements = Array.from(uniqueComponentTypes).length > 0 ? 
     `import { ${Array.from(uniqueComponentTypes).join(', ')} } from "./components";\n\n` : '';
   
+  // Check if we should use grid
+  const useGrid = frame.useInternalGrid && frame.gridColumns && frame.gridRows;
+  
+  // Generate grid template if needed
+  const gridStyles = useGrid ? `
+    display: "grid",
+    gridTemplateColumns: "repeat(${frame.gridColumns}, 1fr)",
+    gridTemplateRows: "repeat(${frame.gridRows}, 1fr)",
+    gridGap: "${frame.gridGap || 10}px",` : '';
+  
   // Generate the React component
   const componentCode = `${importStatements}import React from "react";
 
@@ -145,12 +218,16 @@ export const ${frame.name.replace(/\s+/g, '')} = () => {
       className="relative" 
       style={{ 
         width: ${frame.width}px, 
-        height: ${frame.height}px, 
+        height: ${frame.height}px, ${gridStyles}
         position: "relative",
-        overflow: "hidden" 
+        overflow: "hidden",
+        ${frame.backgroundColor ? `backgroundColor: "${frame.backgroundColor}",` : ''}
+        ${frame.borderColor ? `borderColor: "${frame.borderColor}",` : ''}
+        ${frame.borderWidth ? `borderWidth: ${frame.borderWidth}px,` : ''}
+        ${frame.borderRadius ? `borderRadius: ${frame.borderRadius}px,` : ''}
       }}
     >
-      ${sortedComponents.map(component => `  ${generateComponentCode(component, { x: frame.x, y: frame.y })}`).join('\n      ')}
+      ${sortedComponents.map(component => `  ${generateComponentCode(component, frame, useGrid)}`).join('\n      ')}
     </div>
   );
 };
