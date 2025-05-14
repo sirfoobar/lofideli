@@ -9,17 +9,15 @@ interface AIDesignButtonProps {
 
 const AIDesignButton: React.FC<AIDesignButtonProps> = ({ onClick }) => {
   return (
-    <div className="fixed bottom-[72px] right-4 z-50">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onClick}
-        className="bg-background flex items-center gap-2 shadow-md border border-border"
-      >
-        <Wand2 className="h-4 w-4" />
-        <span className="text-xs">AI Design</span>
-      </Button>
-    </div>
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={onClick}
+      className="hover:bg-accent hover:text-accent-foreground"
+      title="AI Design"
+    >
+      <Wand2 className="h-4 w-4" />
+    </Button>
   );
 };
 

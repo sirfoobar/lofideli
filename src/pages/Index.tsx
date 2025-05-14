@@ -8,7 +8,6 @@ import FrameSizeControls from "@/components/FrameSizeControls";
 import ZoomControls from "@/components/ZoomControls";
 import TopBar from "@/components/TopBar";
 import AIDesignPanel from "@/components/AIDesignPanel";
-import AIDesignButton from "@/components/AIDesignButton";
 import FlowControlsPanel from "@/components/FlowControlsPanel";
 import { WhiteboardProvider, useWhiteboard } from "@/context/WhiteboardContext";
 
@@ -52,7 +51,8 @@ const WhiteboardManager = () => {
         showGrid={showGrid} 
         showComponentLibrary={showComponentLibrary}
         showFlowControls={showFlowControls}
-        rightPanelOpen={isRightPanelOpen} 
+        rightPanelOpen={isRightPanelOpen}
+        onOpenAIPanel={() => setShowAIPanel(true)}
       />
       
       <div className="flex flex-1 overflow-hidden">
@@ -83,7 +83,6 @@ const WhiteboardManager = () => {
           />
           
           {/* Control elements - Note the z-index order */}
-          <AIDesignButton onClick={() => setShowAIPanel(true)} />
           <ZoomControls />
           
           {/* AI Design Panel - Now with higher z-index to appear above buttons */}

@@ -7,6 +7,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { TooltipWrapper } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import AIDesignButton from "@/components/AIDesignButton";
+import CodeViewButton from "@/components/CodeViewButton";
 
 interface TopBarProps {
   onToggleComponentLibrary: () => void;
@@ -16,6 +18,7 @@ interface TopBarProps {
   showComponentLibrary: boolean;
   showFlowControls: boolean;
   rightPanelOpen?: boolean; // Keep the prop but don't use it for animation
+  onOpenAIPanel: () => void;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
@@ -25,7 +28,8 @@ const TopBar: React.FC<TopBarProps> = ({
   showGrid,
   showComponentLibrary,
   showFlowControls,
-  rightPanelOpen = false
+  rightPanelOpen = false,
+  onOpenAIPanel
 }) => {
   const {
     saveToJSON,
@@ -201,8 +205,18 @@ const TopBar: React.FC<TopBarProps> = ({
         </div>
       </div>
       
-      {/* Theme toggle and Clear Canvas button in top right - removed transform animation */}
+      {/* Right side actions with AI Design button and Code View button */}
       <div className="flex items-center gap-1">
+        {/* AI Design button */}
+        <TooltipWrapper content="AI Design">
+          <AIDesignButton onClick={onOpenAIPanel} />
+        </TooltipWrapper>
+        
+        {/* Code View button */}
+        <TooltipWrapper content="View React Code">
+          <CodeViewButton />
+        </TooltipWrapper>
+        
         <TooltipWrapper content="Clear Canvas">
           <Button variant="ghost" size="icon" onClick={handleClear} className="text-destructive hover:text-destructive" title="Clear Canvas">
             <Trash2 size={18} />
