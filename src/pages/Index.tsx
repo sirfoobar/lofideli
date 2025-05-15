@@ -84,7 +84,7 @@ const WhiteboardManager = () => {
                       <Settings size={16} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Frame Settings</TooltipContent>
+                  <TooltipContent side="right">Frame Settings</TooltipContent>
                 </Tooltip>
               </div>
               
