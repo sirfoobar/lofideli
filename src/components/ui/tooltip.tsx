@@ -51,9 +51,31 @@ interface TooltipTriggerProps {
 const TooltipTrigger = React.forwardRef<HTMLElement, TooltipTriggerProps>(
   ({ children, asChild = false }, forwardedRef) => {
     // Fix: Ensure we're only returning a valid React element
-    // Instead of using React.Children.only which throws if not exactly one child
-    const child = React.isValidElement(children) ? children : <span>{children}</span>;
-    return child;
+    const child = React.isValidElement(children) ? children : <span ref={forwardedRef}>{children}</span>;
+    
+    // If the child already has a ref, we need to merge them
+    const mergedRef = (node: any) => {
+      // Update our ref
+      if (typeof forwardedRef === 'function') {
+        forwardedRef(node);
+      } else if (forwardedRef) {
+        forwardedRef.current = node;
+      }
+      
+      // Forward to child's ref if it exists
+      const childRef = (child as any).ref;
+      if (childRef) {
+        if (typeof childRef === 'function') {
+          childRef(node);
+        } else if (childRef && 'current' in childRef) {
+          childRef.current = node;
+        }
+      }
+    };
+    
+    return React.cloneElement(child, {
+      ref: mergedRef
+    });
   }
 );
 
@@ -63,9 +85,7 @@ interface TooltipContentProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
   sideOffset?: number;
   trigger: React.RefObject<HTMLElement>;
-  // New prop for complete style override
   contentClassName?: string;
-  // Make these optional to avoid type errors
   side?: 'top' | 'right' | 'bottom' | 'left';
   align?: 'start' | 'center' | 'end';
   hidden?: boolean;
@@ -76,27 +96,47 @@ const TooltipContent = React.forwardRef<HTMLDivElement, TooltipContentProps>(
     const { delayDuration } = useTooltipContext();
     const state = useTooltipTriggerState({
       delay: delayDuration,
-      // Fix: Use the correct type 'focus' instead of 'focus hover'
       trigger: 'focus'
     });
     
     const overlayRef = React.useRef<HTMLDivElement>(null);
     
+    // Combine forwarded ref with our local ref
+    const mergedRef = React.useMemo(() => {
+      return (node: HTMLDivElement | null) => {
+        overlayRef.current = node;
+        
+        if (typeof forwardedRef === 'function') {
+          forwardedRef(node);
+        } else if (forwardedRef) {
+          forwardedRef.current = node;
+        }
+      };
+    }, [forwardedRef]);
+    
+    // Fix: Ensure trigger exists before using it
     const { triggerProps, tooltipProps } = useTooltipTrigger(
       { delay: delayDuration, trigger: 'focus' },
       state,
-      trigger
+      trigger || { current: null } // Provide fallback when trigger is missing
     );
     
     const { tooltipProps: ariaTooltipProps } = useTooltip(tooltipProps, state);
     
-    const { overlayProps } = useOverlayPosition({
-      targetRef: trigger,
-      overlayRef,
-      placement: side,
-      offset: sideOffset,
-      isOpen: state.isOpen && !hidden
-    });
+    // Fix: Only calculate position if trigger exists and component is mounted
+    const { overlayProps } = React.useMemo(() => {
+      if (!trigger?.current || hidden || !state.isOpen) {
+        return { overlayProps: {} };
+      }
+      
+      return useOverlayPosition({
+        targetRef: trigger,
+        overlayRef,
+        placement: side,
+        offset: sideOffset,
+        isOpen: state.isOpen
+      });
+    }, [trigger, overlayRef.current, side, sideOffset, state.isOpen, hidden]);
     
     if (!state.isOpen || hidden) {
       return null;
@@ -104,7 +144,7 @@ const TooltipContent = React.forwardRef<HTMLDivElement, TooltipContentProps>(
     
     return (
       <div 
-        ref={overlayRef}
+        ref={mergedRef}
         className={contentClassName || cn(
           "z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
           className
@@ -127,6 +167,7 @@ function TooltipWrapper({
   delayDuration = 700,
   sideOffset = 4,
   contentClassName,
+  side = 'top',
 }: {
   children: React.ReactNode;
   content: React.ReactNode;
@@ -134,16 +175,16 @@ function TooltipWrapper({
   contentClassName?: string;
   delayDuration?: number;
   sideOffset?: number;
+  side?: 'top' | 'right' | 'bottom' | 'left';
 }) {
   const triggerRef = React.useRef<HTMLElement>(null);
   
   // Fix: Ensure we're handling children correctly
-  // We need to make sure we're passing a valid React element to TooltipTrigger
   const childElement = React.isValidElement(children) 
     ? children 
     : <span>{children}</span>;
   
-  // Properly merge refs if the child element already has one
+  // Properly merge refs
   const mergedRef = (node: any) => {
     triggerRef.current = node;
     
@@ -170,6 +211,7 @@ function TooltipWrapper({
           className={className} 
           contentClassName={contentClassName}
           sideOffset={sideOffset}
+          side={side}
         >
           {content}
         </TooltipContent>

@@ -13,7 +13,7 @@ import FlowControlsPanel from "@/components/FlowControlsPanel";
 import { WhiteboardProvider, useWhiteboard } from "@/context/WhiteboardContext";
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { TooltipWrapper } from "@/components/ui/tooltip";
 
 // Component to manage selection and property panels
 const WhiteboardManager = () => {
@@ -73,19 +73,20 @@ const WhiteboardManager = () => {
               <div className="flex justify-between items-center mb-2">
                 <FrameSizeControls />
                 
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-7 w-7" 
-                      onClick={toggleFrameSettings}
-                    >
-                      <Settings size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">Frame Settings</TooltipContent>
-                </Tooltip>
+                {/* Fixed tooltip implementation */}
+                <TooltipWrapper
+                  content="Frame Settings"
+                  side="right"
+                >
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7" 
+                    onClick={toggleFrameSettings}
+                  >
+                    <Settings size={16} />
+                  </Button>
+                </TooltipWrapper>
               </div>
               
               <div className="mt-2 border-t border-border pt-4">
