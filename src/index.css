@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -44,7 +45,7 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
     
     --canvas-background: 0 0% 98%;
-    --canvas-grid: 220 13% 80%; /* Making the grid more visible */
+    --canvas-grid: 220 13% 91%;
   }
 
   .dark {
@@ -86,7 +87,7 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
     
     --canvas-background: 224 71% 4%;
-    --canvas-grid: 215 27.9% 30%; /* Making the grid more visible in dark mode */
+    --canvas-grid: 215 27.9% 16.9%;
   }
   
   h2 {

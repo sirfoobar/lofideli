@@ -52,32 +52,32 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({ isOpen }) => {
   
   // Frame properties
   if (selectedFrame) {
-    const handleWidthChange = (value: string) => {
+    const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       dispatch({
         type: "UPDATE_FRAME",
         id: selectedFrame.id,
         updates: {
-          width: parseInt(value, 10) || selectedFrame.width
+          width: parseInt(e.target.value, 10) || selectedFrame.width
         }
       });
     };
     
-    const handleHeightChange = (value: string) => {
+    const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       dispatch({
         type: "UPDATE_FRAME",
         id: selectedFrame.id,
         updates: {
-          height: parseInt(value, 10) || selectedFrame.height
+          height: parseInt(e.target.value, 10) || selectedFrame.height
         }
       });
     };
     
-    const handleNameChange = (value: string) => {
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       dispatch({
         type: "UPDATE_FRAME",
         id: selectedFrame.id,
         updates: {
-          name: value
+          name: e.target.value
         }
       });
     };

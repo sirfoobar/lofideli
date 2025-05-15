@@ -25,16 +25,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       }
     }
     
-    // Create handler that converts React's ChangeEvent to just the string value
-    const handleChange = React.useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (onChange) {
-          onChange(e.target.value);
-        }
-      },
-      [onChange]
-    );
-    
     const { inputProps } = useTextField(
       {
         ...ariaProps,
@@ -53,7 +43,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
         ref={ref}
         {...inputProps}
-        onChange={handleChange}
       />
     )
   }
