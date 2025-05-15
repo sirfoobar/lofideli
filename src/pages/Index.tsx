@@ -4,12 +4,16 @@ import WhiteboardCanvas from "@/components/WhiteboardCanvas";
 import ComponentLibrary from "@/components/ComponentLibrary";
 import PropertyPanel from "@/components/PropertyPanel";
 import FramePropertyPanel from "@/components/FramePropertyPanel";
+import FrameSettingsSidebar from "@/components/FrameSettingsSidebar";
 import FrameSizeControls from "@/components/FrameSizeControls";
 import ZoomControls from "@/components/ZoomControls";
 import TopBar from "@/components/TopBar";
 import AIDesignPanel from "@/components/AIDesignPanel";
 import FlowControlsPanel from "@/components/FlowControlsPanel";
 import { WhiteboardProvider, useWhiteboard } from "@/context/WhiteboardContext";
+import { Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Component to manage selection and property panels
 const WhiteboardManager = () => {
@@ -18,6 +22,7 @@ const WhiteboardManager = () => {
   const [showFlowControls, setShowFlowControls] = useState(false);
   const [showGrid, setShowGrid] = useState(true);
   const [showAIPanel, setShowAIPanel] = useState(false);
+  const [showFrameSettings, setShowFrameSettings] = useState(false);
   const {
     state,
     dispatch
@@ -40,6 +45,10 @@ const WhiteboardManager = () => {
   const toggleGrid = () => {
     setShowGrid(!showGrid);
   };
+
+  const toggleFrameSettings = () => {
+    setShowFrameSettings(!showFrameSettings);
+  };
   
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-background">
@@ -61,7 +70,23 @@ const WhiteboardManager = () => {
           <div className="w-auto max-w-48 border-r border-border bg-card overflow-y-auto transition-all duration-300 ease-in-out">
             <div className="py-[8px] px-[8px]">                
               {/* Frames section - Now at the top */}
-              <FrameSizeControls />
+              <div className="flex justify-between items-center mb-2">
+                <FrameSizeControls />
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-7 w-7" 
+                      onClick={toggleFrameSettings}
+                    >
+                      <Settings size={16} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Frame Settings</TooltipContent>
+                </Tooltip>
+              </div>
               
               <div className="mt-2 border-t border-border pt-4">
                 <h2 className="font-small mb-4 text-xs">Components</h2>
@@ -88,6 +113,12 @@ const WhiteboardManager = () => {
           {/* AI Design Panel - Now with higher z-index to appear above buttons */}
           <AIDesignPanel isOpen={showAIPanel} onClose={() => setShowAIPanel(false)} />
         </div>
+
+        {/* Frame Settings Sidebar */}
+        <FrameSettingsSidebar 
+          isOpen={showFrameSettings} 
+          onClose={() => setShowFrameSettings(false)} 
+        />
 
         {/* Right sidebar - Properties - Only shown when a component or frame is selected */}
         <div className={`w-64 border-l border-border bg-card overflow-y-auto transition-all duration-300 ease-in-out transform ${selectedComponentId || state.selectedFrameId ? 'translate-x-0' : 'translate-x-full'} absolute right-0 top-0 bottom-0 z-10`}>
