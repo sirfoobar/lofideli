@@ -76,18 +76,18 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       } else {
         console.error("Failed to find newly created frame");
       }
-    }, 300); // Increase the timeout to give more time for the state to update
+    }, 500); // Increased timeout for better reliability
   };
   
-  // Function to add welcome content to a frame
+  // Function to add welcome content to a frame - updated to fit better in one window
   const addWelcomeContent = (frameId: string, frameWidth: number, frameHeight: number) => {
     console.log("Adding welcome content to frameId:", frameId);
     
     // Calculate positions based on frame dimensions
-    const padding = 20;
+    const padding = 15;
     const contentWidth = frameWidth - (padding * 2);
     
-    // Add title
+    // Add title - adjusted height and positioning
     dispatch({
       type: "ADD_COMPONENT",
       component: {
@@ -95,58 +95,61 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         x: padding,
         y: padding,
         width: contentWidth,
-        height: 40,
+        height: 35,
         content: "Introducing lofideli: Where Wireframes Go to Party!",
         properties: {
-          fontSize: 20,
+          fontSize: 18,
           textAlign: "center",
           fontWeight: "bold",
-          textColor: "#1A1F2C"
+          textColor: "#1A1F2C",
+          borderWidth: 0
         },
         frameId
       }
     });
     
-    // Add first paragraph
+    // Add first paragraph - adjusted height and positioning
     dispatch({
       type: "ADD_COMPONENT",
       component: {
         type: "paragraph",
         x: padding,
-        y: padding + 50,
+        y: padding + 45,
         width: contentWidth,
-        height: 100,
-        content: "Ever tried explaining your brilliant app idea with stick figures on a napkin? Well, put down that ketchup-stained paper and step into the 21st century with lofideli – the open source UI design tool that makes low-fidelity designing and diagramming more fun!",
+        height: 80,
+        content: "Ever tried explaining your brilliant app idea with stick figures on a napkin? Well, put down that ketchup-stained paper and step into the 21st century with lofideli – the open source UI design tool!",
         properties: {
           fontSize: 14,
           textAlign: "left",
-          textColor: "#403E43"
+          textColor: "#403E43",
+          borderWidth: 0
         },
         frameId
       }
     });
     
-    // Add subheading
+    // Add subheading - adjusted height and positioning
     dispatch({
       type: "ADD_COMPONENT",
       component: {
         type: "heading",
         x: padding,
-        y: padding + 160,
+        y: padding + 135,
         width: contentWidth,
-        height: 30,
+        height: 25,
         content: "Why lofideli? Because Your Ideas Deserve Better",
         properties: {
           fontSize: 16,
           textAlign: "left",
           fontWeight: "bold",
-          textColor: "#1A1F2C"
+          textColor: "#8B5CF6",
+          borderWidth: 0
         },
         frameId
       }
     });
     
-    // Add bullet points as separate paragraph components
+    // Add bullet points as separate paragraph components - adjusted heights and spacing
     const bulletPoints = [
       "Create frames and utilize pre-baked components faster than you can say \"I swear this box represents a button\"",
       "Build wireframes that actually make sense to other humans (shocking, we know)",
@@ -158,55 +161,58 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         type: "ADD_COMPONENT",
         component: {
           type: "paragraph",
-          x: padding + 10,
-          y: padding + 200 + (index * 70),
+          x: padding + 5,
+          y: padding + 170 + (index * 60),
           width: contentWidth - 10,
-          height: 60,
+          height: 50,
           content: "• " + point,
           properties: {
             fontSize: 14,
             textAlign: "left",
-            textColor: "#403E43"
+            textColor: "#403E43",
+            borderWidth: 0
           },
           frameId
         }
       });
     });
     
-    // Add conclusion
+    // Add conclusion - adjusted height and positioning
     dispatch({
       type: "ADD_COMPONENT",
       component: {
         type: "paragraph",
         x: padding,
-        y: padding + 410,
+        y: padding + 350,
         width: contentWidth,
-        height: 100,
+        height: 70,
         content: "Open source, user-friendly, and judgment-free – lofideli is here to transform your rough ideas into slightly-less-rough visual concepts!",
         properties: {
           fontSize: 14,
           textAlign: "left",
-          textColor: "#403E43"
+          textColor: "#403E43",
+          borderWidth: 0
         },
         frameId
       }
     });
     
-    // Add tagline
+    // Add tagline - adjusted height and positioning
     dispatch({
       type: "ADD_COMPONENT",
       component: {
         type: "paragraph",
         x: padding,
-        y: padding + 520,
+        y: padding + 430,
         width: contentWidth,
-        height: 40,
+        height: 60,
         content: "Lofideli: Making your low-fi designs look intentionally simplistic, not accidentally unfinished.",
         properties: {
           fontSize: 14,
           fontStyle: "italic",
           textAlign: "center",
-          textColor: "#8B5CF6"
+          textColor: "#8B5CF6",
+          borderWidth: 0
         },
         frameId
       }
