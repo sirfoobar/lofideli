@@ -56,7 +56,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
     const newBorder = currentBorder === 'transparent' ? '#000000' : 'transparent';
     handlePropertyChange("borderColor", newBorder);
   };
-  return <div className="flex flex-col gap-4 py-[24px]">
+  return <div className="flex flex-col gap-4 px-[12px] py-[48px]">
       <div className="flex items-center justify-between">
         <span className="text-sm font-small capitalize">{selectedComponent.type}</span>
         <button className="text-xs text-white bg-destructive px-2 py-1 rounded" onClick={handleDeleteComponent}>
