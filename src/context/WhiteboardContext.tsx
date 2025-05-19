@@ -31,6 +31,12 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const { toast } = useToast();
   const { saveToJSON, loadFromJSON, clearCanvas, generateUIFromPrompt } = useWhiteboardActions(state, dispatch);
 
+  // Create a custom dispatch function that returns the action result
+  const enhancedDispatch = (action: WhiteboardAction) => {
+    const result = dispatch(action);
+    return action; // Return the action which contains the ID for frame creation
+  };
+
   // Update selectedFrame whenever selectedFrameId changes
   useEffect(() => {
     if (state.selectedFrameId) {
@@ -134,7 +140,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   return (
     <WhiteboardContext.Provider value={{ 
       state, 
-      dispatch, 
+      dispatch: enhancedDispatch, 
       saveToJSON, 
       loadFromJSON, 
       clearCanvas,
