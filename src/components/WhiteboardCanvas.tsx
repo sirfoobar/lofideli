@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import CanvasComponent from "@/components/CanvasComponent";
@@ -162,7 +161,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     }
   };
 
-  // ADD MISSING FUNCTIONS: Handle mouse move during canvas drag
+  // Handle mouse move during canvas drag
   const handleCanvasMouseMove = (e: React.MouseEvent) => {
     if (isDragging) {
       const newOffsetX = e.clientX - dragStartPos.x;
@@ -191,7 +190,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     }
   };
 
-  // ADD MISSING FUNCTION: Handle mouse up to end dragging
+  // Handle mouse up to end dragging
   const handleCanvasMouseUp = (e: React.MouseEvent) => {
     if (isDragging) {
       setIsDragging(false);
@@ -278,7 +277,8 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     }
   };
 
-  // Handle paste from context menu
+  // Fix: Remove the event parameter from the handleContextMenuPaste function
+  // to match the expected signature
   const handleContextMenuPaste = () => {
     if (state.clipboard) {
       pasteComponent(contextMenuPos.x, contextMenuPos.y);
