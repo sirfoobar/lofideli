@@ -7,7 +7,6 @@ import FramePropertyPanel from "@/components/FramePropertyPanel";
 import FrameSizeControls from "@/components/FrameSizeControls";
 import ZoomControls from "@/components/ZoomControls";
 import TopBar from "@/components/TopBar";
-import AIDesignPanel from "@/components/AIDesignPanel";
 import FlowControlsPanel from "@/components/FlowControlsPanel";
 import { WhiteboardProvider, useWhiteboard } from "@/context/WhiteboardContext";
 
@@ -17,14 +16,14 @@ const WhiteboardManager = () => {
   const [showComponentLibrary, setShowComponentLibrary] = useState(true);
   const [showFlowControls, setShowFlowControls] = useState(false);
   const [showGrid, setShowGrid] = useState(true);
-  const [showAIPanel, setShowAIPanel] = useState(false);
+  // Removed showAIPanel state
   const {
     state,
     dispatch
   } = useWhiteboard();
 
   // Determine if any right panel is open - ensure boolean result
-  const isRightPanelOpen = Boolean(showAIPanel || selectedComponentId || state.selectedFrameId);
+  const isRightPanelOpen = Boolean(selectedComponentId || state.selectedFrameId);
   
   const toggleComponentLibrary = () => {
     setShowComponentLibrary(!showComponentLibrary);
@@ -52,7 +51,7 @@ const WhiteboardManager = () => {
         showComponentLibrary={showComponentLibrary}
         showFlowControls={showFlowControls}
         rightPanelOpen={isRightPanelOpen}
-        onOpenAIPanel={() => setShowAIPanel(true)}
+        // Removed onOpenAIPanel prop
       />
       
       <div className="flex flex-1 overflow-hidden">
@@ -85,8 +84,7 @@ const WhiteboardManager = () => {
           {/* Control elements - Note the z-index order */}
           <ZoomControls />
           
-          {/* AI Design Panel - Now with higher z-index to appear above buttons */}
-          <AIDesignPanel isOpen={showAIPanel} onClose={() => setShowAIPanel(false)} />
+          {/* AI Design Panel has been removed */}
         </div>
 
         {/* Right sidebar - Properties - Only shown when a component or frame is selected */}
