@@ -155,6 +155,10 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
     borderColor = isSelected ? "border-blue-500" : "border-dashed border-gray-400";
   }
 
+  // Determine whether to show border based on component type and border width setting
+  const shouldShowBorder = !["flow", "divider"].includes(component.type) && 
+                           (isSelected || (component.properties.borderWidth !== undefined && component.properties.borderWidth > 0));
+
   // Get component style with an optional indicator for frame attachment
   const getComponentStyle = () => {
     const { properties } = component;
@@ -162,7 +166,7 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
     return {
       backgroundColor: properties.backgroundColor || "#FFFFFF", // Default to white
       borderColor: properties.borderColor || "#000000", // Default to black
-      borderWidth: `${properties.borderWidth || 1}px`, // Default to 1px border
+      borderWidth: properties.borderWidth !== undefined ? `${properties.borderWidth}px` : "0px", // Default to 0px if explicitly set to 0
       borderRadius: `${properties.borderRadius || 4}px`,
       color: properties.textColor || "#000000",
       textAlign: properties.textAlign || "left",
@@ -408,9 +412,6 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
         return <div>Unknown flow type</div>;
     }
   };
-
-  // Determine if we should show a border based on component type
-  const shouldShowBorder = !["flow", "divider"].includes(component.type);
 
   return (
     <div

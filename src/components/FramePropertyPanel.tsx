@@ -42,6 +42,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({
 
   // Frame properties
   if (selectedFrame) {
+    
     const handleWidthChange = (value: string) => {
       dispatch({
         type: "UPDATE_FRAME",
@@ -111,6 +112,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({
         id: selectedFrame.id
       });
     };
+    
     return <div className="w-64 border-l border-border bg-card overflow-y-auto h-full py-[48px]">
         <div className="p-4">
           <div className="flex items-center justify-between mb-4">
@@ -201,6 +203,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({
   }
 
   // Component properties
+  
   if (selectedComponent) {
     const handleDeleteComponent = () => {
       dispatch({
@@ -211,6 +214,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({
 
     // Text component properties
     if (selectedComponent.type === 'text') {
+      
       const handleTextChange = (value: string) => {
         dispatch({
           type: "UPDATE_COMPONENT",
@@ -343,6 +347,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({
 
     // Image component properties
     if (selectedComponent.type === 'image') {
+      
       const handleImageUrlChange = (value: string) => {
         dispatch({
           type: "UPDATE_COMPONENT",
@@ -409,6 +414,7 @@ const FramePropertyPanel: React.FC<FramePropertyPanelProps> = ({
 
     // Shape component properties
     if (selectedComponent.type === 'shape') {
+      
       const handleShapeColorChange = (color: string) => {
         dispatch({
           type: "UPDATE_COMPONENT",

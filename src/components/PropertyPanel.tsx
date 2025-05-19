@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import { Input } from "@/components/ui/input";
@@ -142,9 +143,9 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
         <div className="space-y-1">
           <Label className="text-xs">Border Width</Label>
           <div className="flex gap-2">
-            <Slider value={[selectedComponent.properties.borderWidth || 1]} min={0} max={10} step={1} onValueChange={val => handlePropertyChange("borderWidth", val[0])} className="flex-1" />
+            <Slider value={[selectedComponent.properties.borderWidth || 0]} min={0} max={10} step={1} onValueChange={val => handlePropertyChange("borderWidth", val[0])} className="flex-1" />
             <span className="w-8 text-center text-sm">
-              {selectedComponent.properties.borderWidth || 1}px
+              {selectedComponent.properties.borderWidth || 0}px
             </span>
           </div>
         </div>
