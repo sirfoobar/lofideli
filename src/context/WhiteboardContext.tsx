@@ -101,7 +101,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           fontSize: 18,
           textAlign: "center",
           fontWeight: "bold",
-          textColor: "#1A1F2C",
+          textColor: "#000000", // Updated to consistent black
           borderWidth: 0
         },
         frameId
@@ -121,7 +121,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         properties: {
           fontSize: 14,
           textAlign: "left",
-          textColor: "#403E43",
+          textColor: "#000000", // Updated to consistent black
           borderWidth: 0
         },
         frameId
@@ -142,7 +142,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           fontSize: 16,
           textAlign: "left",
           fontWeight: "bold",
-          textColor: "#8B5CF6",
+          textColor: "#000000", // Updated to consistent black (was purple)
           borderWidth: 0
         },
         frameId
@@ -169,7 +169,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           properties: {
             fontSize: 14,
             textAlign: "left",
-            textColor: "#403E43",
+            textColor: "#000000", // Updated to consistent black
             borderWidth: 0
           },
           frameId
@@ -190,7 +190,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         properties: {
           fontSize: 14,
           textAlign: "left",
-          textColor: "#403E43",
+          textColor: "#000000", // Updated to consistent black
           borderWidth: 0
         },
         frameId
