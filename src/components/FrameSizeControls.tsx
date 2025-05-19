@@ -44,9 +44,10 @@ const FrameSizeControls: React.FC = () => {
     
     // Add welcome message components for mobile frames
     if (name === "Mobile") {
-      // Now action.id should be available because we added it in the reducer
-      if (action.type === "ADD_FRAME" && action.id) {
-        addWelcomeContent(action.id, width, height);
+      // Find the most recently added frame (assuming frames is an array in your state)
+      const newFrame = state.frames[state.frames.length - 1];
+      if (newFrame) {
+        addWelcomeContent(newFrame.id, width, height);
       }
     }
   };
