@@ -197,26 +197,6 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       }
     });
     
-    // Add tagline - adjusted height and positioning
-    dispatch({
-      type: "ADD_COMPONENT",
-      component: {
-        type: "paragraph",
-        x: padding,
-        y: padding + 430,
-        width: contentWidth,
-        height: 60,
-        content: "Lofideli: Making your low-fi designs look intentionally simplistic, not accidentally unfinished.",
-        properties: {
-          fontSize: 14,
-          fontStyle: "italic",
-          textAlign: "center",
-          textColor: "#8B5CF6",
-          borderWidth: 0
-        },
-        frameId
-      }
-    });
   };
 
   // Load from localStorage on initial mount or create welcome frame if no data
