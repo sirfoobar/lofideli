@@ -151,7 +151,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     
     // Add bullet points as separate paragraph components - adjusted heights and spacing
     const bulletPoints = [
-      "Create frames and utilize pre-baked components faster than you can say \"I swear this box represents a button\"",
+      "Create frames and utilize pre-baked components faster than you can say \"I swear this box is a button\"",
       "Build wireframes that actually make sense to other humans (shocking, we know)",
       "Use flow tools to communicate user journeys without resorting to interpretive dance"
     ];
