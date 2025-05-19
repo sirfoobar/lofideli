@@ -17,8 +17,8 @@ interface TopBarProps {
   showGrid: boolean;
   showComponentLibrary: boolean;
   showFlowControls: boolean;
-  rightPanelOpen?: boolean; // Keep the prop but don't use it for animation
-  onOpenAIPanel: () => void;
+  rightPanelOpen?: boolean;
+  onOpenAIPanel?: () => void; // Make this prop optional with the '?' operator
 }
 
 const TopBar: React.FC<TopBarProps> = ({
@@ -207,10 +207,12 @@ const TopBar: React.FC<TopBarProps> = ({
       
       {/* Right side actions with AI Design button and Code View button */}
       <div className="flex items-center gap-1">
-        {/* AI Design button */}
-        <TooltipWrapper content="AI Design">
-          <AIDesignButton onClick={onOpenAIPanel} />
-        </TooltipWrapper>
+        {/* AI Design button - passing onOpenAIPanel prop only if it exists */}
+        {onOpenAIPanel && (
+          <TooltipWrapper content="AI Design">
+            <AIDesignButton onClick={onOpenAIPanel} />
+          </TooltipWrapper>
+        )}
         
         {/* Code View button */}
         <TooltipWrapper content="View React Code">
