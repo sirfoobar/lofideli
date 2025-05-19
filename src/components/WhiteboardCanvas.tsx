@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import CanvasComponent from "@/components/CanvasComponent";
@@ -159,6 +160,54 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
       // Prevent event propagation
       e.stopPropagation();
     }
+  };
+
+  // ADD MISSING FUNCTIONS: Handle mouse move during canvas drag
+  const handleCanvasMouseMove = (e: React.MouseEvent) => {
+    if (isDragging) {
+      const newOffsetX = e.clientX - dragStartPos.x;
+      const newOffsetY = e.clientY - dragStartPos.y;
+      setOffset({ x: newOffsetX, y: newOffsetY });
+      
+      // If a frame is being dragged, update its position
+      if (state.draggedFrameId) {
+        const canvasRect = canvasRef.current?.getBoundingClientRect();
+        if (canvasRect) {
+          // Calculate cursor position relative to canvas with zoom
+          const cursorX = (e.clientX - canvasRect.left - offset.x) / state.zoomLevel;
+          const cursorY = (e.clientY - canvasRect.top - offset.y) / state.zoomLevel;
+          
+          // Update frame position accounting for the initial click position within the frame
+          dispatch({
+            type: "MOVE_FRAME",
+            id: state.draggedFrameId,
+            x: cursorX - frameStartPos.x,
+            y: cursorY - frameStartPos.y
+          });
+        }
+      }
+      
+      e.preventDefault();
+    }
+  };
+
+  // ADD MISSING FUNCTION: Handle mouse up to end dragging
+  const handleCanvasMouseUp = (e: React.MouseEvent) => {
+    if (isDragging) {
+      setIsDragging(false);
+      
+      // Reset cursor
+      if (canvasRef.current) {
+        canvasRef.current.style.cursor = "default";
+      }
+    }
+    
+    // If a frame was being dragged, clear the dragged frame
+    if (state.draggedFrameId) {
+      dispatch({ type: "SET_DRAGGED_FRAME", id: null });
+    }
+    
+    e.preventDefault();
   };
 
   // Handle component drop from the library
