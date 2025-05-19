@@ -409,10 +409,13 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
     }
   };
 
+  // Determine if we should show a border based on component type
+  const shouldShowBorder = !["flow", "divider"].includes(component.type);
+
   return (
     <div
       ref={componentRef}
-      className={`absolute border-2 hand-drawn-border ${borderColor}`}
+      className={`absolute ${shouldShowBorder ? `border-2 ${borderColor}` : ""} ${shouldShowBorder ? 'hand-drawn-border' : ''}`}
       style={{
         left: component.x,
         top: component.y,

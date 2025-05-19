@@ -277,8 +277,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     }
   };
 
-  // Fix: Remove the event parameter from the handleContextMenuPaste function
-  // to match the expected signature
+  // Fix: Remove the event parameter from handleContextMenuPaste function to match the expected signature
   const handleContextMenuPaste = () => {
     if (state.clipboard) {
       pasteComponent(contextMenuPos.x, contextMenuPos.y);
@@ -715,7 +714,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         <CodeSidebar 
           code={codeContent} 
           title={codeTitle}
-          onClose={() => handleCanvasMouseUp(/* you can pass undefined or a synthetic event if needed */)} 
+          onClose={() => setCodeViewerOpen(false)} 
         />
       )}
     </>
