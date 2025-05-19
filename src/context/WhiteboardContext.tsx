@@ -79,6 +79,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setTimeout(() => {
       // Find the most recently created frames
       if (state.frames.length > 1) {
+        // Get the last two frames - welcome frame and vegan frame
         const welcomeFrameId = state.frames[state.frames.length - 2].id;
         const veganFrameId = state.frames[state.frames.length - 1].id;
         
@@ -110,7 +111,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     dispatch({
       type: "ADD_COMPONENT",
       component: {
-        type: "heading",
+        type: "heading" as ComponentType,
         x: padding + 5,
         y: padding,
         width: contentWidth,
@@ -131,7 +132,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     dispatch({
       type: "ADD_COMPONENT",
       component: {
-        type: "paragraph",
+        type: "paragraph" as ComponentType,
         x: padding + 5,
         y: padding + 45,
         width: contentWidth,
@@ -151,7 +152,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     dispatch({
       type: "ADD_COMPONENT",
       component: {
-        type: "heading",
+        type: "heading" as ComponentType,
         x: padding + 5,
         y: padding + 135,
         width: contentWidth,
@@ -179,7 +180,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       dispatch({
         type: "ADD_COMPONENT",
         component: {
-          type: "paragraph",
+          type: "paragraph" as ComponentType,
           x: padding + 5,
           y: padding + 170 + (index * 60),
           width: contentWidth - 10,
@@ -200,7 +201,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     dispatch({
       type: "ADD_COMPONENT",
       component: {
-        type: "paragraph",
+        type: "paragraph" as ComponentType,
         x: padding + 5,
         y: padding + 350,
         width: contentWidth,
@@ -220,7 +221,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   
   // Function to add vegan recipe app content
   const addVeganAppContent = (frameId: string) => {
-    console.log("Adding vegan recipe app content to frameId:", frameId);
+    console.log("Adding vegan app content to frameId:", frameId);
     
     // Add heading
     dispatch({
@@ -240,6 +241,30 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           textColor: "#000000",
           textAlign: "left",
           fontSize: 16
+        },
+        frameId
+      }
+    });
+    
+    // Add button
+    dispatch({
+      type: "ADD_COMPONENT",
+      component: {
+        type: "button" as ComponentType,
+        x: 25,
+        y: 148,
+        width: 293.75,
+        height: 43.75,
+        content: "Button",
+        properties: {
+          backgroundColor: "#ededed",
+          borderColor: "transparent",
+          borderWidth: 0,
+          borderRadius: 4,
+          textColor: "#000000",
+          textAlign: "center",
+          fontSize: 16,
+          padding: "8px 16px"
         },
         frameId
       }
@@ -298,36 +323,12 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       }
     });
     
-    // Add button
-    dispatch({
-      type: "ADD_COMPONENT",
-      component: {
-        type: "button" as ComponentType,
-        x: 25,
-        y: 148,
-        width: 293.75,
-        height: 43.75,
-        content: "Button",
-        properties: {
-          backgroundColor: "#ededed",
-          borderColor: "transparent",
-          borderWidth: 0,
-          borderRadius: 4,
-          textColor: "#000000",
-          textAlign: "center",
-          fontSize: 16,
-          padding: "8px 16px"
-        },
-        frameId
-      }
-    });
-    
     // Add four cards
     const cardPositions = [
       { x: 15, y: 345, width: 117.5, height: 91.25 },
       { x: 152, y: 345, width: 117.5, height: 91.25 },
-      { x: 15, y: 235, width: 117.5, height: 91.25 },
-      { x: 152, y: 125, width: 117.5, height: 91.25 }
+      { x: 15, y: 456, width: 117.5, height: 91.25 },
+      { x: 152, y: 456, width: 117.5, height: 91.25 }
     ];
     
     cardPositions.forEach((pos) => {
