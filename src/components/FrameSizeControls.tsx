@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import { Laptop, Smartphone, Plus } from "lucide-react";
@@ -30,7 +31,7 @@ const FrameSizeControls: React.FC = () => {
   const isMobile = useIsMobile();
   
   const handleAddFrame = (width: number, height: number, name: string) => {
-    // Dispatch action and get the returned action object with ID
+    // Create the frame first
     const action = dispatch({
       type: "ADD_FRAME",
       frame: {
@@ -42,12 +43,15 @@ const FrameSizeControls: React.FC = () => {
       }
     });
     
-    // Add welcome message components for mobile frames
+    // For mobile frames, add welcome message to the newly created frame
     if (name === "Mobile") {
-      // Find the most recently added frame (assuming frames is an array in your state)
-      const newFrame = state.frames[state.frames.length - 1];
-      if (newFrame) {
-        addWelcomeContent(newFrame.id, width, height);
+      // Find the new frame ID (it will be the last one added)
+      const newFrameId = state.frames.length > 0 
+        ? state.frames[state.frames.length - 1].id 
+        : null;
+        
+      if (newFrameId) {
+        addWelcomeContent(newFrameId, width, height);
       }
     }
   };
