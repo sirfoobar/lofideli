@@ -412,6 +412,9 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
         id: newFrameId,
       };
       
+      // Add ID to the action for return value
+      action.id = newFrameId;
+      
       // Check if the new frame overlaps with existing frames
       let isOverlapping = false;
       let adjustedFrame = { ...newFrame };

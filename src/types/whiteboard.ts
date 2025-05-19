@@ -90,7 +90,7 @@ export interface WhiteboardState {
 }
 
 export type WhiteboardAction =
-  | { type: "ADD_COMPONENT"; component: Omit<CanvasComponent, "id"> }
+  | { type: "ADD_COMPONENT"; component: Omit<CanvasComponent, "id">; id?: string }
   | { type: "MOVE_COMPONENT"; id: string; x: number; y: number }
   | { type: "RESIZE_COMPONENT"; id: string; width: number; height: number }
   | {
@@ -104,7 +104,7 @@ export type WhiteboardAction =
   | { type: "UPDATE_CONTENT"; id: string; content: string }
   | { type: "TOGGLE_GRID_SNAP"; enabled: boolean }
   | { type: "SET_GRID_SIZE"; size: number }
-  | { type: "ADD_FRAME"; frame: Omit<FrameSize, "id"> }
+  | { type: "ADD_FRAME"; frame: Omit<FrameSize, "id">; id?: string }
   | { type: "UPDATE_FRAME"; id: string; updates: Partial<Omit<FrameSize, "id">> }
   | { type: "DELETE_FRAME"; id: string }
   | { type: "SET_ACTIVE_FRAME"; id: string | null }

@@ -30,7 +30,7 @@ const FrameSizeControls: React.FC = () => {
   const isMobile = useIsMobile();
   
   const handleAddFrame = (width: number, height: number, name: string) => {
-    // Store the returned frameId
+    // Dispatch action and get the returned action object with ID
     const action = dispatch({
       type: "ADD_FRAME",
       frame: {
@@ -42,12 +42,11 @@ const FrameSizeControls: React.FC = () => {
       }
     });
     
-    // Use the action.id instead of the dispatch result
     // Add welcome message components for mobile frames
     if (name === "Mobile") {
-      const frameId = action.id;
-      if (frameId) {
-        addWelcomeContent(frameId, width, height);
+      // Now action.id should be available because we added it in the reducer
+      if (action.type === "ADD_FRAME" && action.id) {
+        addWelcomeContent(action.id, width, height);
       }
     }
   };
@@ -67,8 +66,8 @@ const FrameSizeControls: React.FC = () => {
       type: "ADD_COMPONENT",
       component: {
         type: "heading",
-        x: frameId ? padding : 20 + padding,
-        y: frameId ? padding : 20 + padding,
+        x: padding,
+        y: padding,
         width: contentWidth,
         height: 40,
         content: "Introducing lofideli: Where Wireframes Go to Party!",
@@ -87,8 +86,8 @@ const FrameSizeControls: React.FC = () => {
       type: "ADD_COMPONENT",
       component: {
         type: "paragraph",
-        x: frameId ? padding : 20 + padding,
-        y: frameId ? padding + 50 : 20 + padding + 50,
+        x: padding,
+        y: padding + 50,
         width: contentWidth,
         height: 100,
         content: "Ever tried explaining your brilliant app idea with stick figures on a napkin? Well, put down that ketchup-stained paper and step into the 21st century with lofideli – the open source UI design tool that makes low-fidelity designing and diagramming more fun!",
@@ -106,8 +105,8 @@ const FrameSizeControls: React.FC = () => {
       type: "ADD_COMPONENT",
       component: {
         type: "heading",
-        x: frameId ? padding : 20 + padding,
-        y: frameId ? padding + 160 : 20 + padding + 160,
+        x: padding,
+        y: padding + 160,
         width: contentWidth,
         height: 30,
         content: "Why lofideli? Because Your Ideas Deserve Better",
@@ -133,8 +132,8 @@ const FrameSizeControls: React.FC = () => {
         type: "ADD_COMPONENT",
         component: {
           type: "paragraph",
-          x: frameId ? padding + 10 : 20 + padding + 10,
-          y: frameId ? padding + 200 + (index * 70) : 20 + padding + 200 + (index * 70),
+          x: padding + 10,
+          y: padding + 200 + (index * 70),
           width: contentWidth - 10,
           height: 60,
           content: "• " + point,
@@ -153,8 +152,8 @@ const FrameSizeControls: React.FC = () => {
       type: "ADD_COMPONENT",
       component: {
         type: "paragraph",
-        x: frameId ? padding : 20 + padding,
-        y: frameId ? padding + 410 : 20 + padding + 410,
+        x: padding,
+        y: padding + 410,
         width: contentWidth,
         height: 100,
         content: "Open source, user-friendly, and judgment-free – lofideli is here to transform your rough ideas into slightly-less-rough visual concepts!",
@@ -172,8 +171,8 @@ const FrameSizeControls: React.FC = () => {
       type: "ADD_COMPONENT",
       component: {
         type: "paragraph",
-        x: frameId ? padding : 20 + padding,
-        y: frameId ? padding + 520 : 20 + padding + 520,
+        x: padding,
+        y: padding + 520,
         width: contentWidth,
         height: 40,
         content: "Lofideli: Making your low-fi designs look intentionally simplistic, not accidentally unfinished.",
