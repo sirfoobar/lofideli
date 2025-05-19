@@ -586,10 +586,6 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
                         {frame.name} - {frame.width} × {frame.height}
                         {frame.id === state.activeFrameId && <span className="ml-1">(Active)</span>}
                       </div>
-                      <div className="absolute bottom-0 right-0 text-xs text-gray-500 px-1">
-                        {getComponentsInFrame(frame.id).length > 0 && 
-                          `${getComponentsInFrame(frame.id).length} component${getComponentsInFrame(frame.id).length !== 1 ? 's' : ''}`}
-                      </div>
                     </div>
                   </ContextMenuTrigger>
                   <ContextMenuContent>
