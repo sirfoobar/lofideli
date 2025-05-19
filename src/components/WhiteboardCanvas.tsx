@@ -715,7 +715,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         <CodeSidebar 
           code={codeContent} 
           title={codeTitle}
-          onClose={() => setCodeViewerOpen(false)} 
+          onClose={() => handleCanvasMouseUp(/* you can pass undefined or a synthetic event if needed */)} 
         />
       )}
     </>
