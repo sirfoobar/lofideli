@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import { Laptop, Smartphone, Plus, MoveHorizontal } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -31,15 +31,6 @@ const FrameSizeControls: React.FC = () => {
   } = useWhiteboard();
   const isMobile = useIsMobile();
   
-  // Create a default frame on first load if no frames exist
-  useEffect(() => {
-    if (state.frames.length === 0) {
-      // Add a default mobile frame with welcome content on initial load
-      handleAddFrame(375, 667, "Mobile");
-      toast.success("Welcome frame created!");
-    }
-  }, []);
-  
   const handleAddFrame = (width: number, height: number, name: string) => {
     // Create the frame first
     const action = dispatch({
@@ -53,162 +44,11 @@ const FrameSizeControls: React.FC = () => {
       }
     });
     
-    // For mobile frames, add welcome message to the newly created frame
-    if (name === "Mobile") {
-      console.log("Adding welcome content to mobile frame");
-      
-      // Get the latest frame that was just added
-      setTimeout(() => {
-        const newFrames = state.frames;
-        const newFrameId = newFrames.length > 0 
-          ? newFrames[newFrames.length - 1].id 
-          : null;
-          
-        console.log("New frame ID:", newFrameId);
-        
-        if (newFrameId) {
-          addWelcomeContent(newFrameId, width, height);
-          console.log("Welcome content added to frame:", newFrameId);
-        }
-      }, 100); // Small delay to ensure state is updated
-    }
+    // Note: We don't need to add welcome content here anymore as it's handled in the WhiteboardContext
   };
   
   const handleAddCustomFrame = () => {
     handleAddFrame(800, 600, `Frame ${state.frames.length + 1}`);
-  };
-  
-  // Function to add welcome content to a mobile frame
-  const addWelcomeContent = (frameId: string, frameWidth: number, frameHeight: number) => {
-    console.log("Adding welcome content to frameId:", frameId);
-    // Calculate positions based on frame dimensions
-    const padding = 20;
-    const contentWidth = frameWidth - (padding * 2);
-    
-    // Add title
-    dispatch({
-      type: "ADD_COMPONENT",
-      component: {
-        type: "heading",
-        x: padding,
-        y: padding,
-        width: contentWidth,
-        height: 40,
-        content: "Introducing lofideli: Where Wireframes Go to Party!",
-        properties: {
-          fontSize: 20,
-          textAlign: "center",
-          fontWeight: "bold",
-          textColor: "#1A1F2C"
-        },
-        frameId
-      }
-    });
-    
-    // Add first paragraph
-    dispatch({
-      type: "ADD_COMPONENT",
-      component: {
-        type: "paragraph",
-        x: padding,
-        y: padding + 50,
-        width: contentWidth,
-        height: 100,
-        content: "Ever tried explaining your brilliant app idea with stick figures on a napkin? Well, put down that ketchup-stained paper and step into the 21st century with lofideli – the open source UI design tool that makes low-fidelity designing and diagramming more fun!",
-        properties: {
-          fontSize: 14,
-          textAlign: "left",
-          textColor: "#403E43"
-        },
-        frameId
-      }
-    });
-    
-    // Add subheading
-    dispatch({
-      type: "ADD_COMPONENT",
-      component: {
-        type: "heading",
-        x: padding,
-        y: padding + 160,
-        width: contentWidth,
-        height: 30,
-        content: "Why lofideli? Because Your Ideas Deserve Better",
-        properties: {
-          fontSize: 16,
-          textAlign: "left",
-          fontWeight: "bold",
-          textColor: "#1A1F2C"
-        },
-        frameId
-      }
-    });
-    
-    // Add bullet points as separate paragraph components
-    const bulletPoints = [
-      "Create frames and utilize pre-baked components faster than you can say \"I swear this box represents a button\"",
-      "Build wireframes that actually make sense to other humans (shocking, we know)",
-      "Use flow tools to communicate user journeys without resorting to interpretive dance"
-    ];
-    
-    bulletPoints.forEach((point, index) => {
-      dispatch({
-        type: "ADD_COMPONENT",
-        component: {
-          type: "paragraph",
-          x: padding + 10,
-          y: padding + 200 + (index * 70),
-          width: contentWidth - 10,
-          height: 60,
-          content: "• " + point,
-          properties: {
-            fontSize: 14,
-            textAlign: "left",
-            textColor: "#403E43"
-          },
-          frameId
-        }
-      });
-    });
-    
-    // Add conclusion
-    dispatch({
-      type: "ADD_COMPONENT",
-      component: {
-        type: "paragraph",
-        x: padding,
-        y: padding + 410,
-        width: contentWidth,
-        height: 100,
-        content: "Open source, user-friendly, and judgment-free – lofideli is here to transform your rough ideas into slightly-less-rough visual concepts!",
-        properties: {
-          fontSize: 14,
-          textAlign: "left",
-          textColor: "#403E43"
-        },
-        frameId
-      }
-    });
-    
-    // Add tagline
-    dispatch({
-      type: "ADD_COMPONENT",
-      component: {
-        type: "paragraph",
-        x: padding,
-        y: padding + 520,
-        width: contentWidth,
-        height: 40,
-        content: "Lofideli: Making your low-fi designs look intentionally simplistic, not accidentally unfinished.",
-        properties: {
-          fontSize: 14,
-          fontStyle: "italic",
-          textAlign: "center",
-          textColor: "#8B5CF6"
-        },
-        frameId
-      }
-    });
   };
   
   return <div className="flex flex-col gap-2 w-full">

@@ -113,6 +113,8 @@ export const useWhiteboardActions = (state: WhiteboardState, dispatch: React.Dis
       title: "Canvas Cleared",
       description: "All components and frames have been removed.",
     });
+    
+    // Note: The welcome frame will be added by WhiteboardContext after this function returns
   }, [dispatch, toast]);
 
   // Generate UI components based on text prompt
