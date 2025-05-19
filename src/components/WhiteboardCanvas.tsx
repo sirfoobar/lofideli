@@ -120,16 +120,20 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     pasteComponent
   ]);
 
-  // Handle clicks on empty canvas areas
+  // Handle clicks on empty canvas areas - Updated to fix deselection
   const handleCanvasClick = (e: React.MouseEvent) => {
-    // Only deselect if the target is exactly the canvas element (not child components)
-    if (e.target === canvasRef.current) {
+    // Only handle deselection if the click is directly on the canvas element
+    if (e.target === e.currentTarget) {
+      // Deselect component in parent component
       onSelectComponent(null);
-      // Also dispatch action to clear selectedComponentId in the state
-      dispatch({ type: "SELECT_COMPONENT", id: null });
-      selectFrame(null); // Deselect frame when clicking on empty canvas
       
-      // Also dispatch SELECT_FRAME action to update state
+      // Deselect component in state
+      dispatch({ type: "SELECT_COMPONENT", id: null });
+      
+      // Deselect frame
+      selectFrame(null);
+      
+      // Also update frame selection in state
       dispatch({ type: "SELECT_FRAME", id: null });
     }
   };
@@ -532,6 +536,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
             onMouseUp={handleCanvasMouseUp}
             onMouseLeave={handleCanvasMouseUp}
             onContextMenu={handleContextMenu}
+            onClick={handleCanvasClick} // Make sure this event handler is directly on this div
           >
             {/* Canvas grid */}
             <div className="absolute inset-0 bg-canvas-background dark:bg-gray-900"
@@ -550,7 +555,6 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
                 transformOrigin: "0 0",
                 cursor: isDragging ? "grabbing" : "default"
               }}
-              onClick={handleCanvasClick}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
             >
