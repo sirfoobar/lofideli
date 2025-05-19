@@ -1,3 +1,4 @@
+
 import { v4 as uuidv4 } from "uuid";
 import { WhiteboardState, WhiteboardAction, FrameSize } from "../types/whiteboard";
 import { snapToGrid, isComponentInFrame, saveStateToLocalStorage } from "../utils/whiteboardUtils";
@@ -415,39 +416,59 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
       // Add ID to the action for return value
       action.id = newFrameId;
       
-      // Check if the new frame overlaps with existing frames
-      let isOverlapping = false;
-      let adjustedFrame = { ...newFrame };
-      
-      // Add a small gap between frames (10px)
-      const gap = 10;
-      
-      for (const existingFrame of state.frames) {
-        if (doFramesOverlap(newFrame, existingFrame, gap)) {
-          isOverlapping = true;
-          // Find the rightmost edge of all frames
-          const rightmostEdge = Math.max(
-            ...state.frames.map(frame => frame.x + frame.width)
-          ) + gap;
-          
-          // Position the new frame to the right of all existing frames
-          adjustedFrame = {
-            ...newFrame,
-            x: rightmostEdge,
-          };
-          break;
+      // For the welcome frames specifically, we don't want to apply overlap detection
+      // Check if this is one of our specific hardcoded positions for welcome frames
+      const isWelcomeFrame = 
+        (action.frame.x === 20 && action.frame.y === 20) || 
+        (action.frame.x === 405 && action.frame.y === 60);
+        
+      // Only apply overlap detection if this is not one of our welcome frames
+      if (!isWelcomeFrame) {
+        // Check if the new frame overlaps with existing frames
+        let isOverlapping = false;
+        let adjustedFrame = { ...newFrame };
+        
+        // Add a small gap between frames (10px)
+        const gap = 10;
+        
+        for (const existingFrame of state.frames) {
+          if (doFramesOverlap(newFrame, existingFrame, gap)) {
+            isOverlapping = true;
+            // Find the rightmost edge of all frames
+            const rightmostEdge = Math.max(
+              ...state.frames.map(frame => frame.x + frame.width)
+            ) + gap;
+            
+            // Position the new frame to the right of all existing frames
+            adjustedFrame = {
+              ...newFrame,
+              x: rightmostEdge,
+            };
+            break;
+          }
         }
+        
+        newState = {
+          ...state,
+          frames: [
+            ...state.frames,
+            isOverlapping ? adjustedFrame : newFrame
+          ],
+          activeFrameId: state.frames.length === 0 ? newFrameId : state.activeFrameId,
+          selectedFrameId: newFrameId, // Select the newly created frame
+        };
+      } else {
+        // For welcome frames, don't check for overlaps, use the exact position
+        newState = {
+          ...state,
+          frames: [
+            ...state.frames,
+            newFrame
+          ],
+          activeFrameId: state.frames.length === 0 ? newFrameId : state.activeFrameId,
+          selectedFrameId: newFrameId, // Select the newly created frame
+        };
       }
-      
-      newState = {
-        ...state,
-        frames: [
-          ...state.frames,
-          isOverlapping ? adjustedFrame : newFrame
-        ],
-        activeFrameId: state.frames.length === 0 ? newFrameId : state.activeFrameId,
-        selectedFrameId: newFrameId, // Select the newly created frame
-      };
       break;
     }
 
