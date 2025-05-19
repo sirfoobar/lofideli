@@ -537,7 +537,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
             <div className="absolute inset-0 bg-canvas-background dark:bg-gray-900"
               style={{
                 backgroundSize: `${state.gridSize * state.zoomLevel}px ${state.gridSize * state.zoomLevel}px`,
-                backgroundImage: showGrid ? "linear-gradient(to right, var(--canvas-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--canvas-grid) 1px, transparent 1px)" : "none"
+                backgroundImage: state.snapToGrid ? "linear-gradient(to right, var(--canvas-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--canvas-grid) 1px, transparent 1px)" : "none"
               }}
             />
             

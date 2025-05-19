@@ -13,9 +13,20 @@ export const initialState: WhiteboardState = {
   activeFrameId: null,
   zoomLevel: 0.8,
   draggedFrameId: null,
-  selectedFrameId: null, // Initialize selectedFrameId as null
-  clipboard: null,  // Initialize clipboard as null
-  selectedComponentId: null, // Track the selected component ID
+  selectedFrameId: null,
+  selectedFrame: null,
+  selectedComponent: null,
+  clipboard: null,
+  selectedComponentId: null,
+  masterGridColumns: 12,
+  masterGridRows: 12,
+  masterGridGap: 20,
+  // Structure grid defaults
+  useStructureGrid: false,
+  gridColumns: 12,
+  gridRows: 6,
+  gridGap: 8,
+  snapToStructure: false
 };
 
 // Helper function to check if two frames overlap
@@ -204,6 +215,46 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
       break;
     }
 
+    case "TOGGLE_STRUCTURE_GRID": {
+      newState = {
+        ...state,
+        useStructureGrid: action.enabled
+      };
+      break;
+    }
+    
+    case "SET_GRID_COLUMNS": {
+      newState = {
+        ...state,
+        gridColumns: action.columns
+      };
+      break;
+    }
+    
+    case "SET_GRID_ROWS": {
+      newState = {
+        ...state,
+        gridRows: action.rows
+      };
+      break;
+    }
+    
+    case "SET_GRID_GAP": {
+      newState = {
+        ...state,
+        gridGap: action.gap
+      };
+      break;
+    }
+    
+    case "TOGGLE_STRUCTURE_SNAP": {
+      newState = {
+        ...state,
+        snapToStructure: action.enabled
+      };
+      break;
+    }
+    
     case "UPDATE_COMPONENT":
     case "DELETE_COMPONENT":
     case "SET_DRAGGING":
