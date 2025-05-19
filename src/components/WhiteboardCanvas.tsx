@@ -191,7 +191,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   };
 
   // Handle mouse up to end dragging
-  const handleCanvasMouseUp = (e: React.MouseEvent) => {
+  const handleCanvasMouseUp = () => {
     if (isDragging) {
       setIsDragging(false);
       
@@ -205,8 +205,6 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     if (state.draggedFrameId) {
       dispatch({ type: "SET_DRAGGED_FRAME", id: null });
     }
-    
-    e.preventDefault();
   };
 
   // Handle component drop from the library
@@ -671,7 +669,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
                       <CanvasComponent
                         component={component}
                         isSelected={component.id === selectedComponentId}
-                        onSelect={(e) => handleSelectComponent(component.id, e)}
+                        onSelect={() => handleSelectComponent(component.id)}
                       />
                     </div>
                   </ContextMenuTrigger>
@@ -715,7 +713,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         <CodeSidebar 
           code={codeContent} 
           title={codeTitle}
-          onClose={() => handleCanvasMouseUp(/* you can pass undefined or a synthetic event if needed */)} 
+          onClose={() => handleCanvasMouseUp()} 
         />
       )}
     </>
