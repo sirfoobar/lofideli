@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { WhiteboardState, WhiteboardAction } from "../types/whiteboard";
@@ -19,6 +20,7 @@ interface WhiteboardContextValue {
   generateUIFromPrompt: (prompt: string) => Promise<void>;
   copySelectedComponent: () => void;
   pasteComponent: (x?: number, y?: number) => void;
+  deselectAll: () => void;
 }
 
 const WhiteboardContext = createContext<WhiteboardContextValue | undefined>(undefined);
@@ -56,7 +58,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   }, [toast]);
 
-  // Helper function to select a frame - Enhanced to ensure proper deselection
+  // Helper function to select a frame with improved logging
   const selectFrame = (id: string | null) => {
     console.log("selectFrame called with id:", id);
     
@@ -67,6 +69,13 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     if (id !== null) {
       dispatch({ type: "SELECT_COMPONENT", id: null });
     }
+  };
+
+  // Helper function to deselect everything
+  const deselectAll = () => {
+    console.log("deselectAll called - clearing all selections");
+    dispatch({ type: "SELECT_COMPONENT", id: null });
+    dispatch({ type: "SELECT_FRAME", id: null });
   };
 
   // Copy selected component to clipboard
@@ -132,7 +141,8 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       selectFrame,
       generateUIFromPrompt,
       copySelectedComponent,
-      pasteComponent
+      pasteComponent,
+      deselectAll
     }}>
       {children}
     </WhiteboardContext.Provider>

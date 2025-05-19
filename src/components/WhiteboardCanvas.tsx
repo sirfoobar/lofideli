@@ -25,7 +25,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
   selectedComponentId,
   showGrid
 }) => {
-  const { state, dispatch, selectFrame, copySelectedComponent, pasteComponent } = useWhiteboard();
+  const { state, dispatch, selectFrame, copySelectedComponent, pasteComponent, deselectAll } = useWhiteboard();
   const canvasRef = useRef<HTMLDivElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -102,6 +102,12 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         pasteComponent();
         e.preventDefault();
       }
+      
+      // Add escape key to deselect everything
+      if (e.key === 'Escape') {
+        deselectAll();
+        e.preventDefault();
+      }
     };
     
     window.addEventListener('keydown', handleKeyDown);
@@ -117,33 +123,30 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     onSelectComponent,
     selectFrame,
     copySelectedComponent,
-    pasteComponent
+    pasteComponent,
+    deselectAll
   ]);
 
-  // Handle clicks on empty canvas areas - completely revised
-  const handleCanvasClick = (e: React.MouseEvent) => {
-    // Check if we're clicking directly on the canvas background (not on a frame or component)
-    // This ensures the click is not on a child element but on the canvas itself
+  // Handle background canvas click - completely rewritten
+  const handleCanvasBackgroundClick = (e: React.MouseEvent) => {
+    // Make absolutely sure this is a direct click on the canvas background
     if (e.target === e.currentTarget) {
-      console.log("Canvas click detected on background");
+      console.log("Direct canvas background click detected");
       
-      // Deselect component in the WhiteboardManager state
+      // First prevent event propagation to stop any bubbling
+      e.stopPropagation();
+      
+      // Deselect component in the parent component (WhiteboardManager)
       onSelectComponent(null);
       
-      // Deselect component in the Whiteboard context state
-      dispatch({ type: "SELECT_COMPONENT", id: null });
-      
-      // Deselect frame using the helper function
-      selectFrame(null);
-      
-      // Stop event propagation to prevent bubbling
-      e.stopPropagation();
+      // Clear all selections in state
+      deselectAll();
     }
   };
 
   // Handle dragging the canvas
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
-    // Allow dragging with left mouse button or middle mouse button
+    // Only proceed if this is a direct click on the canvas (not on a component or frame)
     if (e.target === canvasRef.current && (e.button === 0 || e.button === 1)) {
       setIsDragging(true);
       setDragStartPos({ x: e.clientX - offset.x, y: e.clientY - offset.y });
@@ -152,47 +155,9 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
       if (canvasRef.current) {
         canvasRef.current.style.cursor = "grabbing";
       }
-    }
-  };
-
-  const handleCanvasMouseMove = (e: React.MouseEvent) => {
-    if (isDragging) {
-      setOffset({
-        x: e.clientX - dragStartPos.x,
-        y: e.clientY - dragStartPos.y
-      });
-    } else if (state.draggedFrameId !== null) {
-      // Handle frame dragging
-      const canvasRect = canvasRef.current?.getBoundingClientRect();
-      if (canvasRect) {
-        // Calculate the new position based on mouse movement and zoom level
-        const newX = (e.clientX - canvasRect.left - offset.x) / state.zoomLevel;
-        const newY = (e.clientY - canvasRect.top - offset.y) / state.zoomLevel;
-        
-        // Dispatch action to move the frame with its attached components
-        dispatch({
-          type: "MOVE_FRAME",
-          id: state.draggedFrameId,
-          x: newX - frameStartPos.x,
-          y: newY - frameStartPos.y,
-          moveAttachedComponents: true
-        });
-      }
-    }
-  };
-
-  const handleCanvasMouseUp = () => {
-    if (isDragging) {
-      setIsDragging(false);
-      // Restore cursor
-      if (canvasRef.current) {
-        canvasRef.current.style.cursor = "default";
-      }
-    }
-    
-    // Release dragged frame if any
-    if (state.draggedFrameId !== null) {
-      dispatch({ type: "SET_DRAGGED_FRAME", id: null });
+      
+      // Prevent event propagation
+      e.stopPropagation();
     }
   };
 
@@ -273,19 +238,31 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     }
   };
 
-  // Handle component selection - revised to prevent event bubbling
-  const handleSelectComponent = (id: string) => {
-    onSelectComponent(id);
-    dispatch({ type: "SELECT_COMPONENT", id });
-    selectFrame(null); // Deselect frame when selecting a component
+  // Handle component selection with improved event handling
+  const handleSelectComponent = (id: string, e?: React.MouseEvent) => {
+    // If an event was passed, stop propagation immediately
+    if (e) {
+      e.stopPropagation();
+    }
     
-    // Stop event propagation
-    event?.stopPropagation();
+    console.log("Component selected:", id);
+    
+    // Update parent component state
+    onSelectComponent(id);
+    
+    // Update WhiteboardContext state
+    dispatch({ type: "SELECT_COMPONENT", id });
+    
+    // Deselect any selected frame
+    selectFrame(null);
   };
 
-  // Handle frame click - now specifically for selecting frames
+  // Handle frame click - now with explicit event stopping
   const handleFrameClick = (id: string, e: React.MouseEvent) => {
+    // Stop event propagation first thing
     e.stopPropagation();
+    
+    console.log("Frame clicked:", id);
     
     if (e.ctrlKey || e.metaKey) {
       // If holding Ctrl/Cmd, set as active frame instead of selecting
@@ -534,8 +511,9 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <div 
+            ref={canvasRef}
             className="relative w-full h-full overflow-hidden bg-background dark:bg-gray-900 cursor-default"
-            onClick={handleCanvasClick}
+            onClick={handleCanvasBackgroundClick}
             onMouseDown={handleCanvasMouseDown}
             onMouseMove={handleCanvasMouseMove}
             onMouseUp={handleCanvasMouseUp}
@@ -548,11 +526,11 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
                 backgroundSize: `${state.gridSize * state.zoomLevel}px ${state.gridSize * state.zoomLevel}px`,
                 backgroundImage: showGrid ? "linear-gradient(to right, var(--canvas-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--canvas-grid) 1px, transparent 1px)" : "none"
               }}
+              onClick={handleCanvasBackgroundClick}
             />
             
             {/* Canvas content */}
             <div 
-              ref={canvasRef}
               className="absolute w-[4000px] h-[4000px] transform"
               style={{ 
                 transform: `translate(${offset.x}px, ${offset.y}px) scale(${state.zoomLevel})`,
@@ -634,11 +612,17 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
               {state.components.map((component) => (
                 <ContextMenu key={component.id}>
                   <ContextMenuTrigger asChild>
-                    <div className="relative" onClick={(e) => e.stopPropagation()}>
+                    <div 
+                      className="relative" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelectComponent(component.id, e);
+                      }}
+                    >
                       <CanvasComponent
                         component={component}
                         isSelected={component.id === selectedComponentId}
-                        onSelect={() => handleSelectComponent(component.id)}
+                        onSelect={(e) => handleSelectComponent(component.id, e)}
                       />
                     </div>
                   </ContextMenuTrigger>

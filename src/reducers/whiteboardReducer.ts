@@ -392,11 +392,15 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
     }
 
     case "SELECT_COMPONENT": {
+      console.log("SELECT_COMPONENT reducer called with id:", action.id);
       newState = {
         ...state,
         selectedComponentId: action.id,
-        // Clear selected frame when selecting a component
-        selectedFrameId: action.id === null ? state.selectedFrameId : null
+        // Update selectedComponent reference
+        selectedComponent: action.id ? state.components.find(c => c.id === action.id) || null : null,
+        // Clear selected frame when selecting a component, if a component is being selected
+        selectedFrameId: action.id !== null ? null : state.selectedFrameId,
+        selectedFrame: action.id !== null ? null : state.selectedFrame
       };
       break;
     }
@@ -582,11 +586,15 @@ export const whiteboardReducer = (state: WhiteboardState, action: WhiteboardActi
     }
     
     case "SELECT_FRAME": {
+      console.log("SELECT_FRAME reducer called with id:", action.id);
+      const selectedFrame = action.id ? state.frames.find(f => f.id === action.id) || null : null;
       newState = {
         ...state,
         selectedFrameId: action.id,
-        // Clear selected component when selecting a frame
-        selectedComponentId: null
+        selectedFrame: selectedFrame,
+        // Only clear component selection if we're selecting a frame
+        selectedComponentId: action.id !== null ? null : state.selectedComponentId,
+        selectedComponent: action.id !== null ? null : state.selectedComponent
       };
       break;
     }
