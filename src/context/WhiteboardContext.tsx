@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { WhiteboardState, WhiteboardAction } from "../types/whiteboard";
@@ -57,22 +58,25 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       }
     };
     
-    // Dispatch the action first
+    // Dispatch the action to create the frame
     dispatch(frameAction);
     
-    // Extract the frame ID after the reducer has processed it
-    // We need to find the latest frame that was just created
+    // We need a slight delay to ensure the frame is created before adding content
     setTimeout(() => {
-      const newFrames = state.frames;
-      if (newFrames.length > 0) {
-        const newFrame = newFrames[newFrames.length - 1];
-        addWelcomeContent(newFrame.id, 375, 667);
+      // Find the most recently created frame
+      const frameId = state.frames.length > 0 ? state.frames[state.frames.length - 1].id : null;
+      
+      if (frameId) {
+        console.log("Adding welcome content to frame:", frameId);
+        addWelcomeContent(frameId, 375, 667);
         toast({
           title: "Welcome Frame Created",
           description: "A mobile frame with welcome content has been added to your canvas."
         });
+      } else {
+        console.error("Failed to find newly created frame");
       }
-    }, 100);
+    }, 300); // Increase the timeout to give more time for the state to update
   };
   
   // Function to add welcome content to a frame
