@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import WhiteboardCanvas from "@/components/WhiteboardCanvas";
 import ComponentLibrary from "@/components/ComponentLibrary";
@@ -16,7 +15,6 @@ const WhiteboardManager = () => {
   const [showComponentLibrary, setShowComponentLibrary] = useState(true);
   const [showFlowControls, setShowFlowControls] = useState(false);
   const [showGrid, setShowGrid] = useState(true);
-  // Removed showAIPanel state
   const {
     state,
     dispatch
@@ -30,10 +28,7 @@ const WhiteboardManager = () => {
   };
   
   const toggleFlowControls = () => {
-    setShowFlowControls(!showFlowControls);
-    if (!showFlowControls) {
-      setShowComponentLibrary(false); // Close component library if opening flow controls
-    }
+    setShowFlowControls(false);
   };
   
   const toggleGrid = () => {
@@ -51,11 +46,10 @@ const WhiteboardManager = () => {
         showComponentLibrary={showComponentLibrary}
         showFlowControls={showFlowControls}
         rightPanelOpen={isRightPanelOpen}
-        // Removed onOpenAIPanel prop
       />
       
       <div className="flex flex-1 overflow-hidden">
-        {/* Left sidebar - Component Library or Flow Controls */}
+        {/* Left sidebar - Component Library */}
         {showComponentLibrary && (
           <div className="w-auto max-w-48 border-r border-border bg-card overflow-y-auto transition-all duration-300 ease-in-out">
             <div className="py-[8px] px-[8px]">                
@@ -70,8 +64,7 @@ const WhiteboardManager = () => {
           </div>
         )}
         
-        {/* Flow Controls Panel */}
-        <FlowControlsPanel isOpen={showFlowControls} />
+        {/* Flow Controls Panel - no longer rendered */}
 
         {/* Main canvas area */}
         <div className="flex-1 overflow-hidden relative">
@@ -83,8 +76,6 @@ const WhiteboardManager = () => {
           
           {/* Control elements - Note the z-index order */}
           <ZoomControls />
-          
-          {/* AI Design Panel has been removed */}
         </div>
 
         {/* Right sidebar - Properties - Only shown when a component or frame is selected */}

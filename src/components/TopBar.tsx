@@ -1,8 +1,7 @@
-
 import React from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import { Button } from "@/components/ui/button";
-import { Grid2X2, Component, FileDown, Upload, Trash2, GitBranch } from "lucide-react";
+import { Grid2X2, Component, FileDown, Upload, Trash2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { TooltipWrapper } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
@@ -18,7 +17,7 @@ interface TopBarProps {
   showComponentLibrary: boolean;
   showFlowControls: boolean;
   rightPanelOpen?: boolean;
-  onOpenAIPanel?: () => void; // Make this prop optional with the '?' operator
+  onOpenAIPanel?: () => void;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
@@ -125,16 +124,7 @@ const TopBar: React.FC<TopBarProps> = ({
             </Button>
           </TooltipWrapper>
           
-          <TooltipWrapper content="Flow Controls">
-            <Button 
-              variant={showFlowControls ? "secondary" : "ghost"} 
-              size="icon" 
-              onClick={onToggleFlowControls} 
-              title="Toggle Flow Controls"
-            >
-              <GitBranch size={18} />
-            </Button>
-          </TooltipWrapper>
+          {/* Flow Controls button removed */}
           
           <Popover>
             <TooltipWrapper content="Grid Settings">
