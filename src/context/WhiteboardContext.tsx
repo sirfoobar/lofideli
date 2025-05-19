@@ -137,7 +137,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         y: padding + 135,
         width: contentWidth,
         height: 25,
-        content: "Why lofideli? Because Your Ideas Deserve Better",
+        content: "Why lofideli? Because Your Ideas Deserve It",
         properties: {
           fontSize: 16,
           textAlign: "left",
