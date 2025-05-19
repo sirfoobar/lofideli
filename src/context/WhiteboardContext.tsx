@@ -1,7 +1,6 @@
-
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { WhiteboardState, WhiteboardAction } from "../types/whiteboard";
+import { WhiteboardState, WhiteboardAction, ComponentType } from "../types/whiteboard";
 import { whiteboardReducer, initialState } from "../reducers/whiteboardReducer";
 import { loadStateFromLocalStorage } from "../utils/whiteboardUtils";
 import { useWhiteboardActions } from "../hooks/useWhiteboardActions";
@@ -46,8 +45,8 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const createWelcomeFrame = () => {
     console.log("Creating welcome frame");
     
-    // Create the frame first
-    const frameAction: WhiteboardAction = {
+    // Create the welcome frame first
+    const welcomeFrameAction: WhiteboardAction = {
       type: "ADD_FRAME",
       frame: {
         width: 375,
@@ -58,23 +57,43 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       }
     };
     
-    // Dispatch the action to create the frame
-    dispatch(frameAction);
+    // Dispatch the action to create the welcome frame
+    dispatch(welcomeFrameAction);
     
-    // We need a slight delay to ensure the frame is created before adding content
+    // Create the vegan recipe app frame next
+    const veganFrameAction: WhiteboardAction = {
+      type: "ADD_FRAME",
+      frame: {
+        width: 375,
+        height: 667,
+        name: "Mobile",
+        x: 405,
+        y: 60,
+      }
+    };
+    
+    // Dispatch the action to create the vegan recipe app frame
+    dispatch(veganFrameAction);
+    
+    // We need a slight delay to ensure the frames are created before adding content
     setTimeout(() => {
-      // Find the most recently created frame
-      const frameId = state.frames.length > 0 ? state.frames[state.frames.length - 1].id : null;
-      
-      if (frameId) {
-        console.log("Adding welcome content to frame:", frameId);
-        addWelcomeContent(frameId, 375, 667);
+      // Find the most recently created frames
+      if (state.frames.length > 1) {
+        const welcomeFrameId = state.frames[state.frames.length - 2].id;
+        const veganFrameId = state.frames[state.frames.length - 1].id;
+        
+        console.log("Adding welcome content to frame:", welcomeFrameId);
+        addWelcomeContent(welcomeFrameId, 375, 667);
+        
+        console.log("Adding vegan app content to frame:", veganFrameId);
+        addVeganAppContent(veganFrameId);
+        
         toast({
-          title: "Welcome Frame Created",
-          description: "A mobile frame with welcome content has been added to your canvas."
+          title: "Welcome Frames Created",
+          description: "Two mobile frames with content have been added to your canvas."
         });
       } else {
-        console.error("Failed to find newly created frame");
+        console.error("Failed to find newly created frames");
       }
     }, 500); // Increased timeout for better reliability
   };
@@ -198,6 +217,144 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     });
     
   };
+  
+  // Function to add vegan recipe app content
+  const addVeganAppContent = (frameId: string) => {
+    console.log("Adding vegan recipe app content to frameId:", frameId);
+    
+    // Add heading
+    dispatch({
+      type: "ADD_COMPONENT",
+      component: {
+        type: "heading" as ComponentType,
+        x: 15,
+        y: 30,
+        width: 176.25,
+        height: 37.5,
+        content: "Vegan Recipe App",
+        properties: {
+          backgroundColor: "transparent",
+          borderColor: "transparent",
+          borderWidth: 0,
+          borderRadius: 4,
+          textColor: "#000000",
+          textAlign: "left",
+          fontSize: 16
+        },
+        frameId
+      }
+    });
+    
+    // Add input
+    dispatch({
+      type: "ADD_COMPONENT",
+      component: {
+        type: "input" as ComponentType,
+        x: 15,
+        y: 236,
+        width: 307.5,
+        height: 30,
+        content: "",
+        properties: {
+          backgroundColor: "transparent",
+          borderColor: "transparent",
+          borderWidth: 0,
+          borderRadius: 4,
+          textColor: "#000000",
+          textAlign: "left",
+          fontSize: 16,
+          placeholder: "Enter text..."
+        },
+        frameId
+      }
+    });
+    
+    // Add select dropdown
+    dispatch({
+      type: "ADD_COMPONENT",
+      component: {
+        type: "select" as ComponentType,
+        x: 15,
+        y: 296,
+        width: 120,
+        height: 40,
+        content: "",
+        properties: {
+          backgroundColor: "transparent",
+          borderColor: "transparent",
+          borderWidth: 0,
+          borderRadius: 4,
+          textColor: "#000000",
+          textAlign: "left",
+          fontSize: 16,
+          options: [
+            "All Recipes",
+            "Option 2",
+            "Option 3"
+          ],
+          selected: 0
+        },
+        frameId
+      }
+    });
+    
+    // Add button
+    dispatch({
+      type: "ADD_COMPONENT",
+      component: {
+        type: "button" as ComponentType,
+        x: 25,
+        y: 148,
+        width: 293.75,
+        height: 43.75,
+        content: "Button",
+        properties: {
+          backgroundColor: "#ededed",
+          borderColor: "transparent",
+          borderWidth: 0,
+          borderRadius: 4,
+          textColor: "#000000",
+          textAlign: "center",
+          fontSize: 16,
+          padding: "8px 16px"
+        },
+        frameId
+      }
+    });
+    
+    // Add four cards
+    const cardPositions = [
+      { x: 15, y: 345, width: 117.5, height: 91.25 },
+      { x: 152, y: 345, width: 117.5, height: 91.25 },
+      { x: 15, y: 235, width: 117.5, height: 91.25 },
+      { x: 152, y: 125, width: 117.5, height: 91.25 }
+    ];
+    
+    cardPositions.forEach((pos) => {
+      dispatch({
+        type: "ADD_COMPONENT",
+        component: {
+          type: "card" as ComponentType,
+          x: pos.x,
+          y: pos.y,
+          width: pos.width,
+          height: pos.height,
+          content: "",
+          properties: {
+            backgroundColor: "transparent",
+            borderColor: "transparent",
+            borderWidth: 1,
+            borderRadius: 4,
+            textColor: "#000000",
+            textAlign: "left",
+            fontSize: 16,
+            padding: 16
+          },
+          frameId
+        }
+      });
+    });
+  };
 
   // Load from localStorage on initial mount or create welcome frame if no data
   useEffect(() => {
@@ -293,12 +450,12 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     });
   };
 
-  // Create a wrapper for clearCanvas that creates a welcome frame after clearing
+  // Create a wrapper for clearCanvas that creates welcome frames after clearing
   const handleClearCanvas = () => {
     // Call original clearCanvas
     clearCanvas();
     
-    // Create welcome frame after clearing
+    // Create welcome frames after clearing
     setTimeout(() => {
       createWelcomeFrame();
     }, 200);
