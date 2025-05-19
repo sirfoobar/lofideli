@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { WhiteboardState, WhiteboardAction } from "../types/whiteboard";
@@ -31,14 +30,6 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const { toast } = useToast();
   const { saveToJSON, loadFromJSON, clearCanvas, generateUIFromPrompt } = useWhiteboardActions(state, dispatch);
 
-  // Create a custom dispatch function that returns the action with ID for frame creation
-  const enhancedDispatch = (action: WhiteboardAction) => {
-    // Perform the dispatch operation
-    dispatch(action);
-    // Return the action object itself, which will contain the ID if it's an ADD_FRAME action
-    return action;
-  };
-
   // Update selectedFrame whenever selectedFrameId changes
   useEffect(() => {
     if (state.selectedFrameId) {
@@ -55,7 +46,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     console.log("Creating welcome frame");
     
     // Create the frame first
-    const action = dispatch({
+    const frameAction: WhiteboardAction = {
       type: "ADD_FRAME",
       frame: {
         width: 375,
@@ -64,21 +55,24 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         x: 20,
         y: 20
       }
-    });
+    };
     
-    // Extract the frame ID from the action
-    if (action && action.frame && action.frame.id) {
-      const frameId = action.frame.id;
-      
-      // Add welcome content to the frame after a small delay to ensure state is updated
-      setTimeout(() => {
-        addWelcomeContent(frameId, 375, 667);
+    // Dispatch the action first
+    dispatch(frameAction);
+    
+    // Extract the frame ID after the reducer has processed it
+    // We need to find the latest frame that was just created
+    setTimeout(() => {
+      const newFrames = state.frames;
+      if (newFrames.length > 0) {
+        const newFrame = newFrames[newFrames.length - 1];
+        addWelcomeContent(newFrame.id, 375, 667);
         toast({
           title: "Welcome Frame Created",
           description: "A mobile frame with welcome content has been added to your canvas."
         });
-      }, 100);
-    }
+      }
+    }, 100);
   };
   
   // Function to add welcome content to a frame
@@ -323,7 +317,7 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   return (
     <WhiteboardContext.Provider value={{ 
       state, 
-      dispatch: enhancedDispatch, 
+      dispatch, 
       saveToJSON, 
       loadFromJSON, 
       clearCanvas: handleClearCanvas,
