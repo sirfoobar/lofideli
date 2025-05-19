@@ -95,8 +95,8 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         x: padding,
         y: padding,
         width: contentWidth,
-        height: 35,
-        content: "Introducing lofideli: Where Wireframes Go to Party!",
+        height: 60,
+        content: "Introducing lofideli: An Open Source Lofi Tool",
         properties: {
           fontSize: 18,
           textAlign: "center",
