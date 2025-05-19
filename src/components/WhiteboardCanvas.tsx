@@ -277,7 +277,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     }
   };
 
-  // Fix the TypeScript error by removing the event parameter declaration
+  // Handle context menu paste without event parameter
   const handleContextMenuPaste = () => {
     if (state.clipboard) {
       pasteComponent(contextMenuPos.x, contextMenuPos.y);
