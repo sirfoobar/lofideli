@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import CanvasComponent from "@/components/CanvasComponent";
@@ -144,10 +145,11 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     }
   };
 
-  // Handle dragging the canvas
+  // Handle dragging the canvas - FIXED to allow proper panning
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
     // Only proceed if this is a direct click on the canvas (not on a component or frame)
-    if (e.target === canvasRef.current && (e.button === 0 || e.button === 1)) {
+    // Changed to use currentTarget instead of making a strict check, to allow for panning
+    if ((e.button === 0 || e.button === 1)) {
       setIsDragging(true);
       setDragStartPos({ x: e.clientX - offset.x, y: e.clientY - offset.y });
       
@@ -156,8 +158,8 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         canvasRef.current.style.cursor = "grabbing";
       }
       
-      // Prevent event propagation
-      e.stopPropagation();
+      // Prevent text selection during drag
+      e.preventDefault();
     }
   };
 
@@ -572,12 +574,11 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
                 backgroundSize: `${state.gridSize * state.zoomLevel}px ${state.gridSize * state.zoomLevel}px`,
                 backgroundImage: showGrid ? "linear-gradient(to right, var(--canvas-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--canvas-grid) 1px, transparent 1px)" : "none"
               }}
-              onClick={handleCanvasBackgroundClick}
             />
             
-            {/* Canvas content */}
+            {/* Canvas content - increased size for more panning space */}
             <div 
-              className="absolute w-[4000px] h-[4000px] transform"
+              className="absolute w-[8000px] h-[8000px] transform"
               style={{ 
                 transform: `translate(${offset.x}px, ${offset.y}px) scale(${state.zoomLevel})`,
                 transformOrigin: "0 0",
@@ -712,7 +713,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         <CodeSidebar 
           code={codeContent} 
           title={codeTitle}
-          onClose={() => handleCanvasMouseUp()} 
+          onClose={() => setCodeViewerOpen(false)} 
         />
       )}
     </>

@@ -1,8 +1,9 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
-import { Laptop, Smartphone, Plus } from "lucide-react";
+import { Laptop, Smartphone, Plus, MoveHorizontal } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { toast } from "sonner";
 
 interface FrameSize {
   name: string;
@@ -30,6 +31,15 @@ const FrameSizeControls: React.FC = () => {
   } = useWhiteboard();
   const isMobile = useIsMobile();
   
+  // Create a default frame on first load if no frames exist
+  useEffect(() => {
+    if (state.frames.length === 0) {
+      // Add a default mobile frame with welcome content on initial load
+      handleAddFrame(375, 667, "Mobile");
+      toast.success("Welcome frame created!");
+    }
+  }, []);
+  
   const handleAddFrame = (width: number, height: number, name: string) => {
     // Create the frame first
     const action = dispatch({
@@ -45,14 +55,22 @@ const FrameSizeControls: React.FC = () => {
     
     // For mobile frames, add welcome message to the newly created frame
     if (name === "Mobile") {
-      // Find the new frame ID (it will be the last one added)
-      const newFrameId = state.frames.length > 0 
-        ? state.frames[state.frames.length - 1].id 
-        : null;
+      console.log("Adding welcome content to mobile frame");
+      
+      // Get the latest frame that was just added
+      setTimeout(() => {
+        const newFrames = state.frames;
+        const newFrameId = newFrames.length > 0 
+          ? newFrames[newFrames.length - 1].id 
+          : null;
+          
+        console.log("New frame ID:", newFrameId);
         
-      if (newFrameId) {
-        addWelcomeContent(newFrameId, width, height);
-      }
+        if (newFrameId) {
+          addWelcomeContent(newFrameId, width, height);
+          console.log("Welcome content added to frame:", newFrameId);
+        }
+      }, 100); // Small delay to ensure state is updated
     }
   };
   
@@ -62,6 +80,7 @@ const FrameSizeControls: React.FC = () => {
   
   // Function to add welcome content to a mobile frame
   const addWelcomeContent = (frameId: string, frameWidth: number, frameHeight: number) => {
+    console.log("Adding welcome content to frameId:", frameId);
     // Calculate positions based on frame dimensions
     const padding = 20;
     const contentWidth = frameWidth - (padding * 2);
