@@ -143,7 +143,7 @@ export const generateFrameReactCode = (frame: FrameSize, components: CanvasCompo
 export const ${frame.name.replace(/\s+/g, '')} = () => {
   return (
     <div 
-      className="relative" 
+      className="relative p-4" 
       style={{ 
         width: ${frame.width}px, 
         height: ${frame.height}px, 

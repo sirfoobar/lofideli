@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import CanvasComponent from "@/components/CanvasComponent";
@@ -554,6 +553,77 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     }
   };
 
+  // Render frames with context menu
+  const renderFrame = (frame) => (
+    <ContextMenu key={frame.id}>
+      <ContextMenuTrigger asChild>
+        <div 
+          className={`absolute border-2 ${
+            frame.id === state.selectedFrameId 
+              ? 'border-purple-500 ring-2 ring-purple-300' 
+              : frame.id === state.activeFrameId 
+                ? 'border-blue-400' 
+                : 'border-gray-300'
+          } bg-white bg-opacity-90 z-10 shadow-md hand-drawn-frame`}
+          style={{
+            width: frame.width,
+            height: frame.height,
+            left: frame.x,
+            top: frame.y,
+            cursor: state.draggedFrameId === frame.id ? 'grabbing' : 'grab',
+          }}
+          onClick={(e) => handleFrameClick(frame.id, e)}
+          onMouseDown={(e) => handleFrameMouseDown(frame.id, e)}
+        >
+          <div className="absolute inset-0 p-4">
+            {/* This inner div creates padding for frame content */}
+          </div>
+          <div className={`absolute top-0 left-0 ${
+            frame.id === state.selectedFrameId 
+              ? 'bg-purple-500' 
+              : frame.id === state.activeFrameId 
+                ? 'bg-blue-400' 
+                : 'bg-gray-300'
+          } text-white text-xs px-2 py-0.5 rounded-br`}>
+            {frame.name} - {frame.width} × {frame.height}
+            {frame.id === state.activeFrameId && <span className="ml-1">(Active)</span>}
+          </div>
+        </div>
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuItem onClick={() => exportFrameAsImage(frame.id)} className="cursor-pointer">
+          <FileImage className="mr-2 h-4 w-4" />
+          <span>Export as Image</span>
+        </ContextMenuItem>
+        <ContextMenuItem onClick={() => exportFrameAsReactCode(frame.id)} className="cursor-pointer">
+          <span role="img" aria-label="React" className="mr-2 h-4 w-4">⚛️</span>
+          <span>View as React Code</span>
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem onClick={() => generateAIPrompt(frame.id)} className="cursor-pointer">
+          <Bot className="mr-2 h-4 w-4" />
+          <span>Copy AI Prompt</span>
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem onClick={() => selectFrame(frame.id)} className="cursor-pointer">
+          <span>Edit Properties</span>
+        </ContextMenuItem>
+        <ContextMenuItem onClick={() => dispatch({ type: "SET_ACTIVE_FRAME", id: frame.id })} className="cursor-pointer">
+          <span>Set as Active Frame</span>
+        </ContextMenuItem>
+        <ContextMenuItem 
+          onClick={() => {
+            dispatch({ type: "DELETE_FRAME", id: frame.id });
+            toast("Frame deleted");
+          }} 
+          className="cursor-pointer text-destructive"
+        >
+          <span>Delete Frame</span>
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
+  );
+
   return (
     <>
       <ContextMenu>
@@ -587,73 +657,8 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
               onDrop={handleDrop}
               onDragOver={handleDragOver}
             >
-              {/* Render frames with context menu */}
-              {state.frames.map((frame) => (
-                <ContextMenu key={frame.id}>
-                  <ContextMenuTrigger asChild>
-                    <div 
-                      className={`absolute border-2 ${
-                        frame.id === state.selectedFrameId 
-                          ? 'border-purple-500 ring-2 ring-purple-300' 
-                          : frame.id === state.activeFrameId 
-                            ? 'border-blue-400' 
-                            : 'border-gray-300'
-                      } bg-white bg-opacity-90 z-10 shadow-md hand-drawn-frame`}
-                      style={{
-                        width: frame.width,
-                        height: frame.height,
-                        left: frame.x,
-                        top: frame.y,
-                        cursor: state.draggedFrameId === frame.id ? 'grabbing' : 'grab',
-                      }}
-                      onClick={(e) => handleFrameClick(frame.id, e)}
-                      onMouseDown={(e) => handleFrameMouseDown(frame.id, e)}
-                    >
-                      <div className={`absolute top-0 left-0 ${
-                        frame.id === state.selectedFrameId 
-                          ? 'bg-purple-500' 
-                          : frame.id === state.activeFrameId 
-                            ? 'bg-blue-400' 
-                            : 'bg-gray-300'
-                      } text-white text-xs px-2 py-0.5 rounded-br`}>
-                        {frame.name} - {frame.width} × {frame.height}
-                        {frame.id === state.activeFrameId && <span className="ml-1">(Active)</span>}
-                      </div>
-                    </div>
-                  </ContextMenuTrigger>
-                  <ContextMenuContent>
-                    <ContextMenuItem onClick={() => exportFrameAsImage(frame.id)} className="cursor-pointer">
-                      <FileImage className="mr-2 h-4 w-4" />
-                      <span>Export as Image</span>
-                    </ContextMenuItem>
-                    <ContextMenuItem onClick={() => exportFrameAsReactCode(frame.id)} className="cursor-pointer">
-                      <span role="img" aria-label="React" className="mr-2 h-4 w-4">⚛️</span>
-                      <span>View as React Code</span>
-                    </ContextMenuItem>
-                    <ContextMenuSeparator />
-                    <ContextMenuItem onClick={() => generateAIPrompt(frame.id)} className="cursor-pointer">
-                      <Bot className="mr-2 h-4 w-4" />
-                      <span>Copy AI Prompt</span>
-                    </ContextMenuItem>
-                    <ContextMenuSeparator />
-                    <ContextMenuItem onClick={() => selectFrame(frame.id)} className="cursor-pointer">
-                      <span>Edit Properties</span>
-                    </ContextMenuItem>
-                    <ContextMenuItem onClick={() => dispatch({ type: "SET_ACTIVE_FRAME", id: frame.id })} className="cursor-pointer">
-                      <span>Set as Active Frame</span>
-                    </ContextMenuItem>
-                    <ContextMenuItem 
-                      onClick={() => {
-                        dispatch({ type: "DELETE_FRAME", id: frame.id });
-                        toast("Frame deleted");
-                      }} 
-                      className="cursor-pointer text-destructive"
-                    >
-                      <span>Delete Frame</span>
-                    </ContextMenuItem>
-                  </ContextMenuContent>
-                </ContextMenu>
-              ))}
+              {/* Render frames */}
+              {state.frames.map(renderFrame)}
 
               {/* Render components with context menus */}
               {state.components.map((component) => (
@@ -664,6 +669,10 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSelectComponent(component.id, e);
+                      }}
+                      style={{
+                        // Apply padding inset if component is in a frame
+                        margin: component.frameId ? '16px' : '0px'
                       }}
                     >
                       <CanvasComponent

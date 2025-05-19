@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { useWhiteboard } from "@/context/WhiteboardContext";
 import { CanvasComponent as ComponentType } from "@/types/whiteboard";
@@ -137,11 +138,14 @@ const CanvasComponent: React.FC<CanvasComponentProps> = ({
     const frame = state.frames.find(f => f.id === component.frameId);
     if (!frame) return false;
     
+    // Add padding buffer to frame boundaries (16px padding)
+    const framePadding = 16;
+    
     return (
-      component.x >= frame.x &&
-      component.y >= frame.y &&
-      component.x + component.width <= frame.x + frame.width &&
-      component.y + component.height <= frame.y + frame.height
+      component.x >= frame.x + framePadding &&
+      component.y >= frame.y + framePadding &&
+      component.x + component.width <= frame.x + frame.width - framePadding &&
+      component.y + component.height <= frame.y + frame.height - framePadding
     );
   };
 
