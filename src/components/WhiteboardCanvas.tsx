@@ -120,21 +120,24 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     pasteComponent
   ]);
 
-  // Handle clicks on empty canvas areas - Updated to fix deselection
+  // Handle clicks on empty canvas areas - completely revised
   const handleCanvasClick = (e: React.MouseEvent) => {
-    // Only handle deselection if the click is directly on the canvas element
+    // Check if we're clicking directly on the canvas background (not on a frame or component)
+    // This ensures the click is not on a child element but on the canvas itself
     if (e.target === e.currentTarget) {
-      // Deselect component in parent component
+      console.log("Canvas click detected on background");
+      
+      // Deselect component in the WhiteboardManager state
       onSelectComponent(null);
       
-      // Deselect component in state
+      // Deselect component in the Whiteboard context state
       dispatch({ type: "SELECT_COMPONENT", id: null });
       
-      // Deselect frame
+      // Deselect frame using the helper function
       selectFrame(null);
       
-      // Also update frame selection in state
-      dispatch({ type: "SELECT_FRAME", id: null });
+      // Stop event propagation to prevent bubbling
+      e.stopPropagation();
     }
   };
 
@@ -270,13 +273,14 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
     }
   };
 
+  // Handle component selection - revised to prevent event bubbling
   const handleSelectComponent = (id: string) => {
     onSelectComponent(id);
     dispatch({ type: "SELECT_COMPONENT", id });
     selectFrame(null); // Deselect frame when selecting a component
     
-    // Also dispatch SELECT_FRAME action to update state
-    dispatch({ type: "SELECT_FRAME", id: null });
+    // Stop event propagation
+    event?.stopPropagation();
   };
 
   // Handle frame click - now specifically for selecting frames
@@ -531,12 +535,12 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
         <ContextMenuTrigger asChild>
           <div 
             className="relative w-full h-full overflow-hidden bg-background dark:bg-gray-900 cursor-default"
+            onClick={handleCanvasClick}
             onMouseDown={handleCanvasMouseDown}
             onMouseMove={handleCanvasMouseMove}
             onMouseUp={handleCanvasMouseUp}
             onMouseLeave={handleCanvasMouseUp}
             onContextMenu={handleContextMenu}
-            onClick={handleCanvasClick} // Make sure this event handler is directly on this div
           >
             {/* Canvas grid */}
             <div className="absolute inset-0 bg-canvas-background dark:bg-gray-900"
@@ -630,7 +634,7 @@ const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({
               {state.components.map((component) => (
                 <ContextMenu key={component.id}>
                   <ContextMenuTrigger asChild>
-                    <div className="relative">
+                    <div className="relative" onClick={(e) => e.stopPropagation()}>
                       <CanvasComponent
                         component={component}
                         isSelected={component.id === selectedComponentId}

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { WhiteboardState, WhiteboardAction } from "../types/whiteboard";
@@ -57,8 +56,11 @@ export const WhiteboardProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   }, [toast]);
 
-  // Helper function to select a frame - Updated to be more explicit about deselection
+  // Helper function to select a frame - Enhanced to ensure proper deselection
   const selectFrame = (id: string | null) => {
+    console.log("selectFrame called with id:", id);
+    
+    // Update frame selection in state
     dispatch({ type: "SELECT_FRAME", id });
     
     // When selecting a frame, make sure to deselect any component
